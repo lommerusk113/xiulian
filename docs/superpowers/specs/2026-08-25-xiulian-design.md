@@ -7,7 +7,7 @@
 - Recognition only — no handwriting or typing (user has no Chinese keyboard; reading is the goal). FSRS scheduling. Tones from day one. Frequency-first within bands.
 - No open donghua/xianxia frequency list exists → hand-curated 111-phrase media track.
 
-**Stack.** Vite + Vue 3 + TS, Nuxt UI 4 (plain-Vue mode, Tailwind v4, Reka UI), vue-router (hash), ts-fsrs, vite-plugin-pwa. No backend; `localStorage` JSON with export/import.
+**Stack.** Vite + Vue 3 + TS, Nuxt UI 4 (plain-Vue mode, Tailwind v4, Reka UI), vue-router (hash), ts-fsrs, vite-plugin-pwa. Backend: see `2026-08-25-backend-sync-design.md` (accounts + sync; `localStorage` stays as offline cache).
 
 **Review loop (2026-08-25).** Lessons exported as text and evaluated by a 12-agent workflow (3 research, 4 simulated beginners, 4 Chinese experts, 1 synthesis). Applied: curated glosses, survival-first pinned units, distractor constraints, media deck rewrite (214 phrases), sentence pipeline hardening, audio→meaning / pinyin-centric / sentence-comprehension exercises, Sounds primer, subtitle-coverage meter, HSK rank with sub-steps. Deferred: cloze, component-pick, daily soft caps (user wants none), "already know this" fast path.
 
@@ -24,6 +24,6 @@ complete-hsk-vocabulary + hsk30.csv (official pinyin disambiguates 行/吗) + `o
 - `pages/` Home (due, next unit, rank, coverage, Readibu progress), Learn, Session, Words, Builder, Sounds, Settings.
 - `components/` Intro, Choice (keys 1–4), Tiles (word/sentence ordering), Speak.
 
-**Not built (deliberate).** Accounts/sync, custom TTS, pronunciation grading, grammar notes, stats charts, HSK 5–6 (reading real text is the better tool there).
+**Not built (deliberate).** Custom TTS, pronunciation grading, grammar notes, stats charts, HSK 5–6 (reading real text is the better tool there).
 
 **Verification.** `npm run build` (vue-tsc + vite), `scripts/smoke.mjs` drives a full lesson in headless Chrome at 390 px and fails on console errors or unsaved progress.

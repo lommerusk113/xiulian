@@ -13,16 +13,16 @@ Monorepo. Frontend stays at the repo root. `api/` holds the Micronaut app. `comp
 | service | image | role |
 |---|---|---|
 | `web` | multi-stage: `node:24-alpine` builds `dist` → `nginx:alpine` | serves SPA, proxies `/api/` → `http://api:8080/api/` |
-| `api` | multi-stage: `gradle` build → `eclipse-temurin:21-jre` | Micronaut 4, Java 21 |
+| `api` | multi-stage: `eclipse-temurin:25-jdk` wrapper build → `eclipse-temurin:25-jre` | Micronaut 5, Java 25 (Micronaut 5 requires JDK 25) |
 | `db` | `postgres:17` | named volume `pgdata` |
 
 Env (compose `.env`, set in Coolify): `POSTGRES_PASSWORD`, `JWT_SECRET` (≥ 32 bytes). `api` reads `DATASOURCES_DEFAULT_URL/USERNAME/PASSWORD` and `MICRONAUT_SECURITY_TOKEN_JWT_SIGNATURES_SECRET_GENERATOR_SECRET`.
 
-`web` is the only published port. Using `node:24` also fixes the current Coolify nixpacks failure (Node 22.11 + npm optional-dep bug).
+`web` is the only published port (`WEB_PORT`, default 3080 — 3000 is commonly taken). Using `node:24` also fixes the current Coolify nixpacks failure (Node 22.11 + npm optional-dep bug).
 
 ## API stack
 
-Micronaut 4.x, Java 21, Gradle (Kotlin DSL wrapper from launch.micronaut.io). Micronaut Data JPA + Hibernate 6, Flyway, Micronaut Security JWT, `spring-security-crypto` (bcrypt). Tests: Spock, Micronaut Test Resources (auto-provisioned Postgres container).
+Micronaut 5.1, Java 25, Gradle 9 (Kotlin DSL wrapper from launch.micronaut.io), Lombok for entity accessors. Micronaut Data JPA + Hibernate, Flyway, Micronaut Security JWT, `at.favre.lib:bcrypt`. Tests: Spock, Micronaut Test Resources (auto-provisioned Postgres container).
 
 Package `no.xiulian.api`: `auth/` (controller, `AuthenticationProvider`, `User` entity/repo), `progress/` (controller, service, entities/repos, `ProgressDto`).
 
@@ -70,10 +70,10 @@ PATCH semantics: `cards`/`lessons`/`challenges` entries upsert by key; `history`
 ## Frontend
 
 - `src/api.ts` — `fetch` wrapper: base `/api`, bearer from `localStorage['xiulian.token']`, throws on non-2xx; on `401` clears token and redirects to `#/login`.
-- `src/sync.ts` — on boot with a token: `GET /me/progress`, revive `Date` fields, assign into `progress`, snapshot. Then `watch(progress, deep)` → debounce 1 s → diff against snapshot (per key of each map; `history` = entries beyond snapshot length; `settings` if changed) → `PATCH` delta → snapshot on success. On failure keep the pending delta and retry on the next change. `// ponytail: last-write-wins on load, merge per card by last_review if two devices go offline`.
+- `src/sync.ts` — on boot with a token: `GET /me/progress`, revive `Date` fields, assign into `progress`, snapshot. If the account is empty (fresh signup), local progress is kept and pushed instead. Then `watch(progress, deep)` → debounce 1 s → diff against snapshot (per key of each map; `history` = entries beyond snapshot length; `settings` if changed) → `PATCH` delta → snapshot on success. On failure keep the pending delta and retry on the next change. `// ponytail: last-write-wins on load, merge per card by last_review if two devices go offline`.
 - `localStorage['xiulian.v1']` remains the offline cache; `store.ts` logic unchanged.
 - `src/pages/Login.vue` — email + password, toggle login/signup, stores token, then triggers sync and routes home.
-- Router guard: no token → `#/login`. Settings page gets **Log out** (clears token, keeps local cache). Export/import stay; import also PATCHes the imported blob. Reset calls `DELETE` then clears local.
+- Router guard: no token → `#/login`. Settings page gets **Log out** (clears token *and* the local cache, so the next account on the device cannot inherit it). Export/import stay; import also PATCHes the imported blob. Reset calls `DELETE` then clears local.
 - `nginx.conf`: `location /api/ { proxy_pass http://api:8080/api/; }`, `try_files` not needed (hash router).
 
 ## Tests

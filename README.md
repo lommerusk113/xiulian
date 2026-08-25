@@ -73,3 +73,35 @@ The lesson data was exported (`scripts/export-lessons.mjs`) and reviewed by 11 i
 - Dictionary check for sentence segmentation: [CC-CEDICT](https://www.mdbg.net/chinese/dictionary?page=cc-cedict) (CC BY-SA 4.0), downloaded at build time only.
 - Sentences: [Destaq/chinese-sentence-miner](https://github.com/Destaq/chinese-sentence-miner) → Tatoeba, CC BY 2.0 FR.
 - Media phrases: `scripts/media.txt`, hand-curated.
+
+## Backend and sync
+
+Progress syncs to an account (`api/`, Micronaut 5 + Postgres). Design: `docs/superpowers/specs/2026-08-25-backend-sync-design.md`.
+
+### Run everything
+
+```bash
+cp .env.example .env   # set POSTGRES_PASSWORD and a 32+ char JWT_SECRET
+docker compose up --build -d
+open http://localhost:3080
+```
+
+### Develop
+
+```bash
+# API — needs JDK 25 and Docker (Test Resources starts Postgres for you)
+cd api && ./gradlew run        # http://localhost:8080
+cd api && ./gradlew test
+
+# Frontend — proxies /api to :8080
+npm run dev
+
+# End-to-end against the compose stack
+node scripts/smoke.mjs http://localhost:3080
+```
+
+On Colima, Testcontainers needs `DOCKER_HOST=unix://$HOME/.colima/default/docker.sock TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock`.
+
+### Deploy (Coolify)
+
+New resource → **Docker Compose** from this repo (deploy key). Set `POSTGRES_PASSWORD` and `JWT_SECRET` in the environment; `WEB_PORT` is only for local use. Point Pangolin at the `web` service, port 80. Flyway migrates on `api` start.

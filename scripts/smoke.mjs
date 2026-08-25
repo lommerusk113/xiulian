@@ -29,7 +29,15 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 await send('Runtime.enable')
 await send('Page.enable')
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true })
+// fresh account per run; the token goes into localStorage the same way Login.vue stores it
+const { token } = await (await fetch(`${url}/api/auth/signup`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email: `smoke-${Date.now()}@x.no`, password: 'password1' }) })).json()
+if (!token) throw new Error('signup failed')
+await send('Page.navigate', { url: `${url}/#/login` })
+await sleep(800)
+await evaluate(`localStorage.clear(); localStorage.setItem('xiulian.token', '${token}')`)
 await send('Page.navigate', { url: `${url}/#/` })
+await send('Page.reload') // hash-only navigation keeps the page; sync starts on boot with the token present
+await sleep(800)
 await sleep(1500)
 await shot('home')
 await send('Page.navigate', { url: `${url}/#/session/learn/c1-1` })
@@ -131,7 +139,14 @@ const lesson = await evaluate(`JSON.stringify(JSON.parse(localStorage.getItem('x
 if (!lesson || JSON.parse(lesson).n !== 1 || JSON.parse(lesson).p !== 100) errors.push(`lesson strength not recorded: ${lesson}`)
 
 const saved = await evaluate(`Object.keys(JSON.parse(localStorage.getItem('xiulian.v1')).cards).length`)
-console.log(`steps=${steps} restarts=${restarts} savedCards=${saved} errors=${errors.length}`)
+// sync: after the debounce the account must hold the same cards
+await sleep(2500)
+const remote = await (await fetch(`${url}/api/me/progress`, { headers: { authorization: `Bearer ${token}` } })).json()
+const remoteCards = Object.keys(remote.cards ?? {}).length
+if (remoteCards !== saved) errors.push(`account has ${remoteCards} cards, device has ${saved}`)
+if (remote.lessons?.['t1-1']?.n !== 1) errors.push(`lesson strength not synced: ${JSON.stringify(remote.lessons)}`)
+if (remote.history?.length < saved) errors.push(`history not synced: ${remote.history?.length}`)
+console.log(`steps=${steps} restarts=${restarts} savedCards=${saved} remoteCards=${remoteCards} errors=${errors.length}`)
 for (const e of errors) console.log('ERROR:', e)
 ws.close()
 proc.kill()
