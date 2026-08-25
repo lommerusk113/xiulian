@@ -16,7 +16,7 @@ Monorepo. Frontend stays at the repo root. `api/` holds the Micronaut app. `comp
 | `api` | multi-stage: `eclipse-temurin:25-jdk` wrapper build → `eclipse-temurin:25-jre` | Micronaut 5, Java 25 (Micronaut 5 requires JDK 25) |
 | `db` | `postgres:17` | named volume `pgdata` |
 
-Env (compose `.env`, set in Coolify): `POSTGRES_PASSWORD`, `JWT_SECRET` (≥ 32 bytes). `api` reads `DATASOURCES_DEFAULT_URL/USERNAME/PASSWORD` and `MICRONAUT_SECURITY_TOKEN_JWT_SIGNATURES_SECRET_GENERATOR_SECRET`.
+Env (compose `.env`, set in Coolify): `POSTGRES_PASSWORD`, `JWT_SECRET` (≥ 32 bytes). `api` reads `DATASOURCES_DEFAULT_URL/USERNAME/PASSWORD` and `JWT_SECRET`.
 
 `web` is the only published port (`WEB_PORT`, default 3080 — 3000 is commonly taken). Using `node:24` also fixes the current Coolify nixpacks failure (Node 22.11 + npm optional-dep bug).
 
@@ -24,7 +24,7 @@ Env (compose `.env`, set in Coolify): `POSTGRES_PASSWORD`, `JWT_SECRET` (≥ 32 
 
 Micronaut 5.1, Java 25, Gradle 9 (Kotlin DSL wrapper from launch.micronaut.io), Lombok for entity accessors. Micronaut Data JPA + Hibernate, Flyway, Micronaut Security JWT, `at.favre.lib:bcrypt`. Tests: Spock, Micronaut Test Resources (auto-provisioned Postgres container).
 
-Package `no.xiulian.api`: `auth/` (controller, `AuthenticationProvider`, `User` entity/repo), `progress/` (controller, service, entities/repos, `ProgressDto`).
+Package `no.xiulian`: `auth/` (`AuthController` does signup/login itself and issues tokens via `AccessRefreshTokenGenerator`, `UserEntity`/`UserRepository`), `progress/` (controller, service, entities, `Repositories`, `ProgressDto`).
 
 ## Schema (Flyway `V1__init.sql`)
 

@@ -1,6 +1,6 @@
 # Xiulian 修炼
 
-*Xiūliàn* — to cultivate. A keyboard-free Mandarin (simplified) learning app for going from zero to reading web novels in [Readibu](https://readibu.com) and following donghua / manhua. Vue 3 · TypeScript · Tailwind v4 · Nuxt UI 4 · ts-fsrs. Works as an installable PWA on phone and desktop. No accounts, no backend — progress lives in the browser (export/import in Settings).
+*Xiūliàn* — to cultivate. A keyboard-free Mandarin (simplified) learning app for going from zero to reading web novels in [Readibu](https://readibu.com) and following donghua / manhua. Vue 3 · TypeScript · Tailwind v4 · Nuxt UI 4 · ts-fsrs. Works as an installable PWA on phone and desktop. Progress syncs to an account (Micronaut + Postgres, see below) and is cached in the browser for offline use.
 
 ## Run
 
