@@ -24,18 +24,19 @@ type Key = 'meaning' | 'hanzi' | 'pinyin'
 
 /**
  * Pick n distractors. Pool = words the learner has seen (+ current unit), preferring the same length and POS,
- * so exercises can't be solved by elimination. Options never share a gloss word with the answer, and
- * audio/pinyin options never share a (tone-insensitive) pronunciation.
+ * so exercises can't be solved by elimination. Options never share a gloss word with the answer, and never
+ * share a (tone-insensitive) pronunciation with it either: 他/她/它 are all tā, so an option set holding two
+ * of them can only be settled by guessing. Homophones are taught side by side instead (see `homophones`).
  */
-function distractors(word: Word, n: number, key: Key, pool: Word[], opts: { distinctSound?: boolean; toneVariants?: number } = {}) {
+function distractors(word: Word, n: number, key: Key, pool: Word[], opts: { toneVariants?: number } = {}) {
   const chosen: Word[] = []
   const used = new Set<string>([word[key]])
   const sounds = new Set<string>([stripTones(word.pinyin)])
-  const accept = (w: Word, strict: boolean) => {
+  const accept = (w: Word) => {
     if (w.id === word.id || used.has(w[key])) return false
     if (w.hanzi === word.hanzi) return false
-    if (opts.distinctSound && sounds.has(stripTones(w.pinyin))) return false
-    if (strict && overlaps(w, word)) return false
+    if (sounds.has(stripTones(w.pinyin))) return false
+    if (overlaps(w, word)) return false
     return true
   }
   const take = (w: Word) => {
@@ -53,24 +54,41 @@ function distractors(word: Word, n: number, key: Key, pool: Word[], opts: { dist
   }
   const score = (w: Word) => (syllables(w) === syllables(word) ? 2 : 0) + (w.pos && w.pos === word.pos ? 1 : 0) + Math.random()
   const ranked = [...pool].sort((a, b) => score(b) - score(a))
-  for (const strict of [true, false]) {
-    for (const w of ranked) {
-      if (chosen.length >= n) break
-      if (accept(w, strict)) take(w)
-    }
+  for (const w of ranked) {
     if (chosen.length >= n) break
+    if (accept(w)) take(w)
   }
+  // pool exhausted (thin at the start, or every candidate ruled out) → fall back to the whole word list,
+  // same length first. The rules above hold either way: a fair question matters more than a familiar one.
   if (chosen.length < n) {
     for (const w of shuffle(words)) {
       if (chosen.length >= n) break
-      if (accept(w, false) && syllables(w) === syllables(word)) take(w)
+      if (accept(w) && syllables(w) === syllables(word)) take(w)
     }
   }
   for (const w of shuffle(words)) {
     if (chosen.length >= n) break
-    if (accept(w, false)) take(w)
+    if (accept(w)) take(w)
   }
   return chosen
+}
+
+const bySound = new Map<string, Word[]>()
+for (const w of words) {
+  if (!w.level) continue // media phrases aren't a confusion risk
+  const group = bySound.get(w.pinyin)
+  group ? group.push(w) : bySound.set(w.pinyin, [w])
+}
+/**
+ * Words that sound exactly the same as this one — 他 她 它 are all tā. Never usable as each other's
+ * distractors, so lessons show the set side by side instead: the character is the only thing telling
+ * them apart, and the learner has to be told that once.
+ */
+export function homophones(word: Word, known: (id: string) => boolean, max = 3): Word[] {
+  return (bySound.get(word.pinyin) ?? [])
+    .filter((w) => w.id !== word.id && known(w.id))
+    .sort((a, b) => b.share - a.share)
+    .slice(0, max)
 }
 
 export function makeExercise(kind: ExerciseKind, word: Word, pool: Word[]): Exercise {
@@ -80,13 +98,11 @@ export function makeExercise(kind: ExerciseKind, word: Word, pool: Word[]): Exer
     case 'meaning':
     case 'audioMeaning':
     case 'pinyinMeaning':
-      ex.options = opt('meaning', distractors(word, 3, 'meaning', pool, { distinctSound: kind !== 'meaning' }))
+      ex.options = opt('meaning', distractors(word, 3, 'meaning', pool))
       break
     case 'hanzi':
-      ex.options = opt('hanzi', distractors(word, 3, 'hanzi', pool))
-      break
     case 'audio':
-      ex.options = opt('hanzi', distractors(word, 3, 'hanzi', pool, { distinctSound: true }))
+      ex.options = opt('hanzi', distractors(word, 3, 'hanzi', pool))
       break
     case 'pinyin':
       ex.options = opt('pinyin', distractors(word, 3, 'pinyin', pool, { toneVariants: 1 }))

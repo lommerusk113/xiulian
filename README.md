@@ -40,7 +40,7 @@ Exercises (all touch/mouse only):
 | New word card | character + pinyin + meaning + audio, plus an example sentence built only from words you already know |
 | Pinyin → meaning · meaning → pinyin · audio → pinyin | sound-first recognition and tones (pinyin focus) |
 | Character → meaning | reading |
-| Meaning → character | recognition among look-alikes |
+| Meaning → character | recognition among look-alikes (never among homophones — the meaning has to pick one out) |
 | Audio → character | listening (device TTS) |
 | Character → pinyin | tones — distractors are the same syllable with other tones when possible |
 | Build the word | multi-character words from scrambled tiles |
@@ -56,7 +56,7 @@ Exercises (all touch/mouse only):
 
 New words only get "guess the meaning" exercises (pinyin/character/audio → meaning). Producing the form (meaning → character/pinyin, tiles) unlocks once the word is in review, and tone-precise pinyin-from-character only after about a week of stability. In theme and donghua lessons a missed question goes to the back of the pile and comes around again (up to three times; the intro card returns before the third try). **HSK core lessons are strict:** a mistake shows the answer and restarts the lesson — you finish it only by getting through clean.
 
-Distractors are drawn from words you've already met, matched on length and part of speech, never sharing a gloss word or (for listening) a pronunciation with the answer — so exercises can't be solved by elimination.
+Distractors are drawn from words you've already met, matched on length and part of speech, never sharing a gloss word with the answer and never sharing a pronunciation with it either — so exercises can't be solved by elimination, and no question can be settled only by guessing. 他 她 它 are all *tā*: putting two of them in the same option set would be a coin flip whatever the question shows, so they never meet there. Homophones you've already learned are shown side by side on the new-word card and named again under the answer instead, and the glosses of the ones that share a translation say which is which (他们 "they (men or mixed group)" vs 她们 "they (women)" vs 它们 "they (things or animals)").
 
 Suggested path: HSK 1 / theme units (Sounds & tones whenever you have headphones) → start the media track alongside → at ~HSK 2–3 open Readibu's easiest children's stories/short stories and keep the app for reviews → watch donghua with Chinese subtitles once the media deck is solid.
 

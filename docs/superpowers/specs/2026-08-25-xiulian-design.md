@@ -18,7 +18,7 @@ complete-hsk-vocabulary + hsk30.csv (official pinyin disambiguates 行/吗) + `o
 
 **Modules.**
 - `store.ts` — reactive progress (FSRS cards, review history, settings), persistence, derived stats (due, streak, next unit).
-- `exercises.ts` — builds one exercise from a word + pool of seen words; distractors match length/POS, never share a gloss word, audio/pinyin options never share a pronunciation; kind weights per focus.
+- `exercises.ts` — builds one exercise from a word + pool of seen words; distractors match length/POS, never share a gloss word and never share a (tone-insensitive) pronunciation with the answer — 他/她/它 are all tā, so any option set holding two of them is a coin flip; the rules hold even when the seen pool is too thin to satisfy them (it falls back to the full word list). `homophones()` returns the already-learned words that sound identical, shown on the intro card and under the answer so the contrast is taught rather than guessed. Kind weights per focus.
 - `grammar.ts` — corpus match + rule-based beginner grammar check for the Builder.
 - `session.ts` — queues: *learn* (intro + 2 drills per new word in chunks of 4, + up to 3 sentences), *review* (20 due words, random exercise each, + sentences). Missed word → retried with a different kind; graded once (first attempt).
 - `pages/` Home (due, next unit, rank, coverage, Readibu progress), Learn, Session, Words, Builder, Sounds, Settings.

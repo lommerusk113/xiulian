@@ -22,7 +22,11 @@
 没有|méiyǒu|not have; there isn't
 能|néng|can (ability / permission)
 那|nà|that
-他们|tāmen|they
+# tā family: 他 她 它 sound identical, so every gloss has to name which one it is
+他们|tāmen|they (men or mixed group)
+她们|tāmen|they (women)
+它|tā|it (thing or animal)
+它们|tāmen|they (things or animals)
 看|kàn|to look; to watch; to read
 做|zuò|to do; to make
 什么|shénme|what

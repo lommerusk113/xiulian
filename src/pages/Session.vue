@@ -3,10 +3,10 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Exercise } from '../types'
 import { units } from '../data'
-import { grade, dueIds, progress, completeLesson, lessonStrength, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
+import { grade, dueIds, isKnown, progress, completeLesson, lessonStrength, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
 import { speak } from '../tts'
 import { buildLearn, buildReview, buildChallenge } from '../session'
-import { shuffle } from '../exercises'
+import { homophones, shuffle } from '../exercises'
 import Intro from '../components/Intro.vue'
 import Choice from '../components/Choice.vue'
 import Tiles from '../components/Tiles.vue'
@@ -34,6 +34,8 @@ const pinyinFirst = computed(() => progress.settings.focus === 'pinyin')
 const text = (e: Exercise) => (e.sentence ? e.sentence.hanzi : e.word.hanzi)
 const pinyinOf = (e: Exercise) => (e.sentence ? e.sentence.pinyin : e.word.pinyin)
 const meaningOf = (e: Exercise) => (e.sentence ? e.sentence.meaning : e.word.meaning)
+// options never contrast homophones (nothing in the question would tell 他 from 她), so the answer names them
+const twins = computed(() => (ex.value && !ex.value.sentence ? homophones(ex.value.word, isKnown, 2) : []))
 
 function start() {
   queue.value = props.mode === 'learn' && props.unit ? buildLearn(props.unit) : props.mode === 'challenge' ? buildChallenge() : buildReview()
@@ -229,6 +231,10 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           <div class="flex-1 min-w-0">
             <p class="text-primary text-lg">{{ pinyinOf(ex) }} <span class="hanzi text-default text-xl ml-2">{{ text(ex) }}</span></p>
             <p class="text-sm text-muted truncate">{{ meaningOf(ex) }}</p>
+            <p v-if="twins.length" class="text-xs text-muted mt-1">
+              Sounds the same:
+              <span v-for="(t, i) in twins" :key="t.id"><span class="hanzi text-default">{{ t.hanzi }}</span> {{ t.meaning }}{{ i < twins.length - 1 ? ' · ' : '' }}</span>
+            </p>
             <p v-for="w in ex.newWords" :key="w.id" class="text-sm mt-1">
               <UBadge color="primary" variant="subtle" size="sm" class="mr-1">new</UBadge>
               <span class="text-primary">{{ w.pinyin }}</span> <span class="hanzi">{{ w.hanzi }}</span> <span class="text-muted">— {{ w.meaning }}</span>
