@@ -1,0 +1,10 @@
+# Hand-pinned first units (HSK band 1). Format: title|word word word ...  — missing words are reported at build time.
+Hello & thanks|你好 谢谢 不客气 对不起 没关系 再见 我 你 好 是
+Who are you?|他 不 吗 谁 人 说 请 什么 的 有
+This and that|没有 这 那 个 我们 朋友 也 要 想 知道
+Want, can, know|会 能 可以 去 来 很 了 吃 喝 看
+Numbers|一 二 三 四 五 六 七 八 九 十
+How much?|两 几 多少 钱 买 块 东西 水 饭 菜
+Where and when|在 哪儿 这里 现在 今天 明天 时候 家 中国 吧
+Doing and liking|做 喜欢 都 怎么 叫 名字 太 就 对 还
+People and going|她 他们 你们 您 走 到 回 大 小 多

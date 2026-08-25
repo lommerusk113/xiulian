@@ -1,0 +1,8 @@
+# Thematic lessons. Format: Theme name|icon|word word ... (HSK 1-4 words; missing ones are reported at build). Split into units of 7.
+Pronouns|i-lucide-users|我 你 他 她 它 我们 你们 他们 她们 您 这 那 这些 那些 谁 什么 哪 哪儿 这里 那里 自己 大家
+Core verbs|i-lucide-zap|是 有 要 想 会 能 可以 去 来 到 看 说 做 吃 喝 知道 喜欢 爱 给 买 走 回 找 听 学习 叫 问 告诉 等 用 开 住 坐 写 觉得
+Food & drink|i-lucide-utensils|吃 喝 饭 菜 水 茶 米饭 面条 肉 鱼 鸡蛋 水果 苹果 牛奶 咖啡 啤酒 面包 汤 好吃 饿 渴 饭店 菜单 杯子 早饭 午饭 晚饭 糖 盐
+People & places|i-lucide-map-pin|人 朋友 家 家人 爸爸 妈妈 儿子 女儿 哥哥 姐姐 弟弟 妹妹 老师 学生 医生 同学 孩子 男 女 先生 学校 医院 商店 公司 中国 北京 地方 房子 城市 国家
+Time|i-lucide-clock|现在 今天 明天 昨天 早上 上午 中午 下午 晚上 年 月 日 号 星期 点 分 小时 时候 时间 以前 以后 每天 几点 去年 明年
+Numbers|i-lucide-hash|一 二 三 四 五 六 七 八 九 十 零 百 千 两 几 多少 个 块 岁 第一 半 一点 很多
+Adjectives|i-lucide-sparkles|好 大 小 多 少 高 新 老 快 慢 热 冷 忙 累 好吃 漂亮 高兴 难 容易 贵 便宜 对 错 远 近 长 好看 有意思

@@ -1,0 +1,100 @@
+# Hand-written micro-sentences for the pinned units. Format: hanzi|English. Pinyin comes from the word list.
+我是人。|I am a person.
+你是谁？|Who are you?
+他不是人。|He is not human.
+你好吗？|How are you?
+你说什么？|What did you say?
+这是什么？|What is this?
+那是我的朋友。|That is my friend.
+我也是。|Me too.
+我不知道。|I don't know.
+我要去。|I want to go.
+你会来吗？|Will you come?
+可以吗？|Is that OK?
+他来了。|He's here. / He came.
+你想做什么？|What do you want to do?
+多少钱？|How much (money)?
+三块。|Three yuan.
+我要买两个。|I want to buy two.
+你有几个？|How many do you have?
+你在哪儿？|Where are you?
+我在家。|I'm at home.
+走吧。|Let's go.
+现在几点？|What time is it now?
+你吃什么？|What are you eating?
+我很喜欢。|I like it a lot.
+太好了！|Great!
+你喜欢喝什么？|What do you like to drink?
+我就来。|I'm coming right away.
+她回家了。|She went home.
+你们都好吗？|Are you all well?
+对，是我。|Yes, it's me.
+我有一个朋友。|I have a friend.
+他们不喝水。|They don't drink water.
+这是我的。|This is mine.
+我们走吧。|Let's go.
+你要什么？|What do you want?
+# theme combos
+我要喝水。|I want to drink water.
+你喝茶吗？|Do you drink tea?
+我喜欢吃鱼。|I like eating fish.
+他不吃肉。|He doesn't eat meat.
+你想喝咖啡吗？|Do you want to drink coffee?
+我们去吃饭吧。|Let's go eat.
+这个菜很好吃。|This dish is delicious.
+我饿了。|I'm hungry.
+你要吃什么？|What do you want to eat?
+我妈妈是老师。|My mom is a teacher.
+他是我的朋友。|He is my friend.
+我爸爸是医生。|My dad is a doctor.
+你有孩子吗？|Do you have children?
+她是我姐姐。|She is my older sister.
+我们是同学。|We are classmates.
+他在学校。|He is at school.
+你家在哪儿？|Where is your home?
+我今天很忙。|I'm very busy today.
+明天见。|See you tomorrow.
+你几点来？|What time are you coming?
+现在三点。|It's three o'clock now.
+我每天学习中文。|I study Chinese every day.
+今天星期几？|What day is it today?
+我有两个哥哥。|I have two older brothers.
+这个多少钱？|How much is this?
+我要三个。|I want three.
+他二十岁。|He is twenty years old.
+这个太贵了。|This is too expensive.
+天气很热。|The weather is hot.
+这本书很有意思。|This book is interesting.
+她很漂亮。|She is very pretty.
+我很累。|I'm very tired.
+中文很难吗？|Is Chinese hard?
+这里很远。|It's far from here.
+我很高兴。|I'm very happy.
+# theme sentences with one sneaked-in word each
+我们都是朋友。|We are all friends.
+他们在哪儿？|Where are they?
+这是谁的？|Whose is this?
+你自己去吧。|Go by yourself.
+我想学习中文。|I want to learn Chinese.
+你会做饭吗？|Can you cook?
+我给你水。|I'll give you water.
+他在喝茶。|He is drinking tea.
+我想吃苹果。|I want to eat an apple.
+你喜欢喝牛奶吗？|Do you like drinking milk?
+这个汤很好喝。|This soup is tasty.
+我们去饭店吃饭。|Let's go to a restaurant to eat.
+她的哥哥是老师。|Her older brother is a teacher.
+我的家在北京。|My home is in Beijing.
+医生在医院。|The doctor is at the hospital.
+他是我的同学。|He is my classmate.
+我明天去学校。|I'm going to school tomorrow.
+他每天晚上看书。|He reads every evening.
+现在几点了？|What time is it now?
+我们下午去。|We're going in the afternoon.
+我有三个朋友。|I have three friends.
+他今年十岁。|He is ten this year.
+我要一杯水。|I want a glass of water.
+这个很便宜。|This is very cheap.
+今天很冷。|It's cold today.
+我的老师很好。|My teacher is very nice.
+这本书太难了。|This book is too hard.

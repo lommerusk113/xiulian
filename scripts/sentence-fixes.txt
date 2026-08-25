@@ -1,0 +1,42 @@
+# Sentence corrections. "== remove" lines are dropped; "== translate" lines are hanzi|new English.
+== remove
+我们去车站为她送行。
+她一直想成名。
+我不知道该从哪里着手。
+人人都知道她很有才干。
+你一点也没让我为难。
+她难得看电影。
+这对我没什么差别。
+你喜欢我的家常菜吗？
+你们一行有多少人？
+向你的孩子们问好。
+您想让我现在开饭吗？
+现在再见了。
+今天下午你读的什么书？
+你得等一等看。
+应该这样做工作。
+你喜欢我就高兴。
+我要去图书馆还这些书。
+有的人爱先做难做的工作。
+不休息我们就走不动了。
+他能跑得和我一样快。
+我已经写了三个小时了。
+我有两个姐姐. 她们都是医生.
+== translate
+我正要找你。|I was just about to look for you.
+我看到他就高兴。|I'm happy whenever I see him.
+他们正在准备考试。|They are preparing for the exam.
+你记得她的名字吗？|Do you remember her name?
+他正在开会。|He's in a meeting.
+医生一会儿就到。|The doctor will be here soon.
+你我都不会说汉语。|Neither of us can speak Chinese.
+这不是一个很重要的问题。|This isn't a very important question.
+他比我大两岁。|He is two years older than me.
+我的电话坏了。|My phone is broken.
+她和我在学院里是同学。|She and I were classmates at college.
+妈妈准备了好吃的东西给我。|Mom made something delicious for me.
+我只想说对不起。|I just want to say sorry.
+他到十一点才回家。|He didn't get home until 11.
+我明天晚上来。|I'll come tomorrow evening.
+你做什么工作？|What work do you do?
+他没吃早饭就去上学了。|He went to school without eating breakfast.

@@ -1,0 +1,250 @@
+# Media phrases for donghua / manhua. Format: hanzi|pinyin|meaning. Lines starting with == start a group (split into units of 10 at build).
+# Entries that are HSK 1-2 words are skipped automatically (learned in the core track).
+== Basic reactions
+什么|shénme|what
+为什么|wèishénme|why
+怎么了|zěnme le|what's wrong?
+怎么回事|zěnme huíshì|what's going on?
+没事|méishì|it's fine / it's nothing
+不可能|bù kěnéng|impossible
+原来如此|yuánlái rúcǐ|so that's how it is
+明白了|míngbai le|understood
+太好了|tài hǎo le|great!
+不好|bù hǎo|uh-oh / not good
+糟了|zāo le|oh no
+真的吗|zhēn de ma|really?
+当然|dāngrán|of course
+好久不见|hǎojiǔ bùjiàn|long time no see
+你是谁|nǐ shì shéi|who are you?
+== Everyday reactions
+不行|bùxíng|no way / not allowed
+不要|búyào|don't! / no!
+算了|suàn le|forget it
+好吧|hǎo ba|fine, alright
+不对|búduì|wrong / that's not right
+没问题|méi wèntí|no problem
+什么意思|shénme yìsi|what does that mean?
+你说什么|nǐ shuō shénme|what did you say?!
+真的假的|zhēn de jiǎ de|for real?
+不错|búcuò|not bad
+厉害|lìhai|awesome / formidable
+加油|jiāyóu|go! / you can do it
+可惜|kěxī|what a pity
+完了|wán le|we're done for
+来了|lái le|here it comes / they're here
+有意思|yǒu yìsi|interesting… (villain line)
+看来|kànlái|looks like…
+走着瞧|zǒu zhe qiáo|we'll see about that
+天哪|tiān na|oh heavens
+等一下|děng yíxià|hold on a sec
+== Interjections & particles
+啊|a|ah! / huh?
+哦|ò|oh, I see
+嗯|èn|mm / yeah
+喂|wèi|hey! / hello (phone)
+哼|hng|hmph!
+呀|ya|(softened 啊)
+呢|ne|(and you? / what about…)
+啦|la|(了+啊, excited)
+哎|āi|hey / sigh
+== Commands & shouting
+等等|děngděng|wait! (also: etc.)
+快点|kuàidiǎn|hurry up
+走吧|zǒu ba|let's go
+走|zǒu|go! / move!
+小心|xiǎoxīn|careful!
+住手|zhùshǒu|stop! (stop what you're doing)
+放开我|fàngkāi wǒ|let go of me
+别动|bié dòng|don't move
+闭嘴|bìzuǐ|shut up
+滚|gǔn|get lost
+跟我来|gēn wǒ lái|follow me
+快出来|kuài chūlái|come out, now!
+交出来|jiāo chūlái|hand it over
+退下|tuìxià|withdraw / stand down
+救命|jiùmìng|help! (save my life)
+拜托|bàituō|please, I beg you
+放心|fàngxīn|relax / don't worry
+站住|zhànzhù|halt!
+快跑|kuài pǎo|run!
+让开|ràngkāi|out of the way!
+闪开|shǎnkāi|move aside!
+别过来|bié guòlái|stay back!
+让我来|ràng wǒ lái|let me handle it
+交给我|jiāo gěi wǒ|leave it to me
+动手|dòngshǒu|make your move / attack!
+给我上|gěi wǒ shàng|get him! / attack!
+接招|jiēzhāo|take this!
+住口|zhùkǒu|hold your tongue!
+饶命|ráomìng|spare my life!
+休想|xiūxiǎng|don't even think about it
+大胆|dàdǎn|how dare you!
+放肆|fàngsì|insolence!
+你敢|nǐ gǎn|you dare?!
+== Insults & fighting words
+可恶|kěwù|damn / detestable
+混蛋|húndàn|bastard
+该死|gāisǐ|damn it
+废物|fèiwù|trash / useless
+找死|zhǎosǐ|asking to die
+杀|shā|kill
+受死|shòusǐ|die! (accept death)
+去死|qùsǐ|go die!
+死|sǐ|die / dead
+小子|xiǎozi|brat / kid
+老头|lǎotóu|old man (rude when shouted)
+无耻|wúchǐ|shameless
+蠢货|chǔnhuò|fool / idiot
+老东西|lǎo dōngxi|old geezer
+家伙|jiāhuo|guy (这家伙 = this guy)
+妈的|mā de|damn (vulgar)
+== Replies & courtesies
+遵命|zūnmìng|as you command
+多谢|duōxiè|many thanks
+无妨|wúfáng|no matter / it's fine
+请赐教|qǐng cìjiào|please instruct me
+承让|chéngràng|you let me win
+告辞|gàocí|I take my leave
+得罪了|dézuì le|pardon the offense (before attacking)
+幸会|xìnghuì|an honor to meet you
+后会有期|hòuhuì yǒuqī|until we meet again
+保重|bǎozhòng|take care
+敢问|gǎnwèn|may I ask…
+来者何人|láizhě hérén|who goes there?
+== Family & friends
+大哥|dàgē|big brother / boss
+哥|gē|bro / older brother
+姐|jiě|sis / older sister
+兄弟|xiōngdì|brother / bro
+爹|diē|dad (period)
+娘|niáng|mom (period)
+主人|zhǔrén|master (owner)
+人类|rénlèi|humans
+妖精|yāojing|spirit / monster
+妖怪|yāoguài|monster
+== Sect address & honorifics
+师父|shīfu|master (teacher)
+师尊|shīzūn|revered master
+师兄|shīxiōng|senior brother (disciple)
+师姐|shījiě|senior sister (disciple)
+弟子|dìzǐ|disciple
+前辈|qiánbèi|senior (respectful)
+晚辈|wǎnbèi|junior (humble self)
+长老|zhǎnglǎo|elder
+掌门|zhǎngmén|sect leader
+宗主|zōngzhǔ|sect master
+师弟|shīdì|junior brother
+师妹|shīmèi|junior sister
+大师兄|dà shīxiōng|eldest senior disciple
+师叔|shīshū|martial uncle
+少主|shàozhǔ|young master (heir)
+徒儿|tú'ér|my disciple (master to student)
+为师|wéishī|I, your master
+家主|jiāzhǔ|clan head
+老祖|lǎozǔ|patriarch / ancestor
+道友|dàoyǒu|fellow Daoist
+== Court & society address
+大人|dàren|my lord / sir
+公子|gōngzǐ|young master
+姑娘|gūniang|miss / young lady
+阁下|géxià|Your Excellency
+在下|zàixià|I (humble)
+本座|běnzuò|I (lofty, this seat)
+老夫|lǎofū|I (old man speaking)
+陛下|bìxià|Your Majesty
+殿下|diànxià|Your Highness
+皇上|huángshang|Your Majesty (spoken address)
+少爷|shàoye|young master (of a house)
+小姐|xiǎojiě|miss / young lady (period address)
+将军|jiāngjūn|general
+皇帝|huángdì|emperor
+朕|zhèn|I (the emperor)
+太子|tàizǐ|crown prince
+王爷|wángye|prince / lord
+本王|běnwáng|I, this prince
+属下|shǔxià|I, your subordinate
+公主|gōngzhǔ|princess
+娘娘|niángniang|Your Highness (empress / consort)
+夫人|fūren|madam
+老爷|lǎoye|master of the house
+== Items & world
+丹药|dānyào|pill / elixir
+灵石|língshí|spirit stone
+法宝|fǎbǎo|magic treasure
+剑|jiàn|sword
+宗门|zōngmén|sect
+门派|ménpài|sect / school
+江湖|jiānghú|the martial world
+系统|xìtǒng|system (game-like)
+重生|chóngshēng|reborn
+穿越|chuānyuè|transmigrate
+天下|tiānxià|the whole world
+武功|wǔgōng|martial arts skill
+敌人|dírén|enemy
+报仇|bàochóu|take revenge
+== Cultivation basics
+修炼|xiūliàn|to cultivate
+修仙|xiūxiān|immortal cultivation
+灵气|língqì|spiritual qi
+修为|xiūwéi|cultivation level
+灵力|línglì|spiritual power
+实力|shílì|strength / power level
+力量|lìliàng|power
+真气|zhēnqì|true qi
+强者|qiángzhě|a powerful one
+高手|gāoshǒu|expert fighter
+丹田|dāntián|dantian (energy center)
+经脉|jīngmài|meridians
+灵根|línggēn|spirit root
+境界|jìngjiè|realm / stage
+突破|tūpò|breakthrough
+神识|shénshí|divine sense
+内力|nèilì|inner strength
+轻功|qīnggōng|lightness skill
+功法|gōngfǎ|cultivation technique
+神通|shéntōng|divine ability
+闭关|bìguān|secluded cultivation
+阵法|zhènfǎ|formation / array
+法术|fǎshù|spell
+封印|fēngyìn|seal
+元神|yuánshén|primordial spirit
+灵魂|línghún|soul
+炼丹|liàndān|pill refining
+传承|chuánchéng|legacy / inheritance
+血脉|xuèmài|bloodline
+觉醒|juéxǐng|awaken
+天赋|tiānfù|talent
+天才|tiāncái|genius
+秘境|mìjìng|secret realm
+散修|sǎnxiū|rogue cultivator
+== Surprise & realisation
+果然|guǒrán|as expected
+竟然|jìngrán|to think that… / actually
+居然|jūrán|unexpectedly
+难道|nándào|could it be…?
+没想到|méi xiǎngdào|didn't expect that
+不愧是|búkuì shì|truly worthy of being…
+== Realms & tribulations
+炼气|liànqì|Qi Refining
+筑基|zhùjī|Foundation Establishment
+金丹|jīndān|Golden Core
+元婴|yuányīng|Nascent Soul
+化神|huàshén|Soul Transformation
+飞升|fēishēng|to ascend
+天劫|tiānjié|heavenly tribulation
+渡劫|dùjié|undergo a tribulation
+仙|xiān|immortal
+魔|mó|demon / devil
+妖兽|yāoshòu|demonic beast
+妖|yāo|monster / demon spirit
+鬼|guǐ|ghost
+== Show-specific deep cuts
+斗气|dòuqì|dou qi (斗破苍穹)
+异火|yìhuǒ|heavenly flame (斗破苍穹)
+异人|yìrén|"gifted" (一人之下)
+神官|shénguān|heavenly official (天官赐福)
+夜猎|yèliè|night hunt (魔道祖师)
+邪祟|xiésuì|evil spirits (魔道祖师)
+世家|shìjiā|cultivation clan (魔道祖师)
+结丹|jiédān|Core Formation (凡人修仙传)
+领域|lǐngyù|domain (罗小黑战记)
