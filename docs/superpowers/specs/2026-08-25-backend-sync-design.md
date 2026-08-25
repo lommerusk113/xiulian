@@ -6,7 +6,7 @@
 
 ## Layout
 
-Monorepo. Frontend stays at the repo root. `api/` holds the Micronaut app. `compose.yaml` at the root. Coolify deploys via the Docker Compose build pack; Pangolin fronts `web:80`.
+Monorepo. Frontend stays at the repo root. `api/` holds the Micronaut app. `docker-compose.yaml` at the root. Coolify deploys via the Docker Compose build pack; Pangolin fronts `web:80`.
 
 ## Services
 

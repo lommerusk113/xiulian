@@ -29,7 +29,7 @@ Spec: `docs/superpowers/specs/2026-08-25-backend-sync-design.md`. Executed direc
 - Verify: `npm run build`; manual: `npm run dev` with api running, sign up, grade a word, see row in `cards`.
 
 ### 5. Containers
-- Root `Dockerfile` (node:24-alpine build → nginx:alpine), `nginx.conf`, `.dockerignore`, `api/Dockerfile` (gradle shadowJar → temurin 21 jre), `compose.yaml`, `.env.example`.
+- Root `Dockerfile` (node:24-alpine build → nginx:alpine), `nginx.conf`, `.dockerignore`, `api/Dockerfile` (gradle shadowJar → temurin 21 jre), `docker-compose.yaml`, `.env.example`.
 - Verify: `docker compose up --build`, `curl -X POST localhost/api/auth/signup`, open `http://localhost`.
 
 ### 6. Smoke + docs
