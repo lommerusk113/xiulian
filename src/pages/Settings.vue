@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { progress, exportProgress, importProgress, resetProgress } from '../store'
 import { speak, ttsAvailable } from '../tts'
+import { api, setToken } from '../api'
 import { useToast } from '@nuxt/ui/composables'
 
 const file = ref<HTMLInputElement>()
@@ -22,13 +23,29 @@ async function upload(e: Event) {
   const f = (e.target as HTMLInputElement).files?.[0]
   if (!f) return
   try {
-    importProgress(await f.text())
+    const json = await f.text()
+    const p = JSON.parse(json)
+    if (!p.cards || !p.settings) throw new Error('Not a Xiulian backup')
+    await api('PATCH', '/me/progress', p)
+    importProgress(json)
   } catch (err) {
     toast.add({ title: 'Import failed', description: String(err), color: 'error' })
   }
 }
-function reset() {
-  if (confirm('Delete all progress on this device?')) resetProgress()
+async function reset() {
+  if (!confirm('Delete all progress on your account?')) return
+  try {
+    await api('DELETE', '/me/progress')
+    resetProgress()
+  } catch (err) {
+    toast.add({ title: 'Reset failed', description: String(err), color: 'error' })
+  }
+}
+function logout() {
+  setToken(null)
+  localStorage.removeItem('xiulian.v1') // the next account on this device must not inherit this one's cache
+  location.hash = '#/login'
+  location.reload()
 }
 </script>
 
@@ -76,12 +93,13 @@ function reset() {
     </UCard>
 
     <UCard>
-      <p class="font-medium mb-1">Backup</p>
-      <p class="text-sm text-muted mb-3">Progress lives in this browser only. Export to move it to another device.</p>
+      <p class="font-medium mb-1">Account</p>
+      <p class="text-sm text-muted mb-3">Progress syncs to your account and follows you across devices. Export keeps a file copy; import replaces what's on the account.</p>
       <div class="flex flex-wrap gap-2">
         <UButton color="neutral" variant="soft" icon="i-lucide-download" @click="download">Export</UButton>
         <UButton color="neutral" variant="soft" icon="i-lucide-upload" @click="file?.click()">Import</UButton>
         <input ref="file" type="file" accept="application/json" class="hidden" @change="upload" />
+        <UButton color="neutral" variant="soft" icon="i-lucide-log-out" @click="logout">Log out</UButton>
         <UButton color="error" variant="soft" icon="i-lucide-trash-2" class="ml-auto" @click="reset">Reset</UButton>
       </div>
     </UCard>

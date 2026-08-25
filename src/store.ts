@@ -30,7 +30,7 @@ interface Challenge {
   attempts: number[]
 }
 
-interface Progress {
+export interface Progress {
   cards: Record<string, Card>
   lessons: Record<string, LessonStrength>
   challenges: Record<string, Challenge>

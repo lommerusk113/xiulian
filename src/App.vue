@@ -4,7 +4,7 @@ import { useRoute } from 'vue-router'
 import { dueIds } from './store'
 
 const route = useRoute()
-const inSession = computed(() => route.path.startsWith('/session'))
+const inSession = computed(() => route.path.startsWith('/session') || route.path === '/login')
 const links = [
   { to: '/', label: 'Home', icon: 'i-lucide-house' },
   { to: '/learn', label: 'Learn', icon: 'i-lucide-book-open' },

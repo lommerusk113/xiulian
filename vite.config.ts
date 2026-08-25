@@ -4,6 +4,7 @@ import ui from '@nuxt/ui/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  server: { proxy: { '/api': 'http://localhost:8080' } },
   plugins: [
     vue(),
     ui({
