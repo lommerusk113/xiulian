@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: no.xiulian
+testFramework: spock
+sourceLanguage: java
+buildTool: gradle_kotlin
+features: [app-name, data, data-jpa, flyway, gradle, http-client, java, java-application, jdbc-hikari, logback, micronaut-aot, micronaut-build, micronaut-configuration-validation-gradle-plugin, micronaut-http-validation, netty-server, postgres, properties, readme, security-jwt, security-processor, serialization-jackson, shade, spock, static-resources, test-resources, validation]
