@@ -35,9 +35,16 @@ async function flush() {
   const d = delta()
   if (!d) return
   inflight = true
+  // remember what this request carries; a change that lands while it is in flight must stay unsynced
+  const ser = (m?: Record<string, unknown>) => Object.fromEntries(Object.entries(m ?? {}).map(([k, v]) => [k, JSON.stringify(v)]))
+  const sent = { cards: ser(d.cards), lessons: ser(d.lessons), challenges: ser(d.challenges), history: d.history?.length ?? 0, settings: d.settings ? JSON.stringify(d.settings) : null }
   try {
     await api('PATCH', '/me/progress', d)
-    snapshot()
+    Object.assign(snap.cards, sent.cards)
+    Object.assign(snap.lessons, sent.lessons)
+    Object.assign(snap.challenges, sent.challenges)
+    snap.history += sent.history
+    if (sent.settings) snap.settings = sent.settings
   } catch {
     // keep the snapshot as-is: the next change (or coming back online) re-sends everything still unsynced
   } finally {

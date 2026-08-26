@@ -1,11 +1,12 @@
 // Smoke test: drives a whole lesson in headless Chrome over CDP and fails on any runtime error.
 // Usage: node scripts/smoke.mjs [url]   (default http://localhost:5199)
 import { spawn } from 'node:child_process'
-import { writeFileSync } from 'node:fs'
+import { writeFileSync, rmSync } from 'node:fs'
 
 const url = process.argv[2] ?? 'http://localhost:5199'
 const chrome = process.env.CHROME ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 const port = 9333
+rmSync('/tmp/xiulian-smoke', { recursive: true, force: true }) // fresh profile: no service worker from a previous build
 const proc = spawn(chrome, [`--remote-debugging-port=${port}`, '--headless=new', '--disable-gpu', '--user-data-dir=/tmp/xiulian-smoke', 'about:blank'], { stdio: 'ignore' })
 await new Promise((r) => setTimeout(r, 1500))
 

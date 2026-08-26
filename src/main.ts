@@ -10,4 +10,6 @@ import { startSync } from './sync'
 const router = createRouter({ history: createWebHashHistory(), routes })
 router.beforeEach((to) => (!getToken() && to.path !== '/login' ? '/login' : true))
 startSync()
+// after a deploy the old service worker can still hand out index.html with stale chunk names; reload once to pick up the new build
+window.addEventListener('vite:preloadError', () => location.reload())
 createApp(App).use(router).use(ui).mount('#app')

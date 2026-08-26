@@ -208,35 +208,55 @@ export const streak = computed(() => {
   return n
 })
 
-/** Next core unit that isn't fully learned. */
-export const nextUnit = computed(() => units.find((u) => u.track === 'core' && unitLearned(u.id) < u.wordIds.length))
+/** Next core unit: the first one never completed. Core units unlock in order. */
+export const nextUnit = computed(() => units.find((u) => u.track === 'core' && !progress.lessons[u.id]))
+export function unitLocked(unitId: string) {
+  const i = units.findIndex((u) => u.id === unitId)
+  const u = units[i]
+  if (!u || u.track !== 'core') return false
+  const prev = units[i - 1]
+  return !!prev && prev.track === 'core' && !progress.lessons[prev.id] && !progress.lessons[u.id]
+}
 
 // ---- lesson strength: +100% per completion, decays daily; more completions → slower decay (floor 10%/day) ----
 const DAY = 86_400_000
 export const TIER_COLORS = ['var(--ui-primary)', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#8b5cf6', '#ec4899']
-/** Daily loss in percent of current strength. 1 completion → 100, 2 → 99, … floor 10. */
-export const dailyLoss = (completions: number) => Math.max(10, 101 - completions)
 /** Completions needed to climb one tier: 1 to reach ×1, 2 to reach ×2, then 4 for every tier after. */
 export const tierCost = (tier: number) => Math.min(4, 2 ** tier)
+/** One completion's worth at a given strength — what a completion adds and what a missed day removes. */
+export const stepAt = (strength: number) => 100 / tierCost(Math.floor(strength / 100))
 /** Decay ticks at local midnight, not 24 h after the completion. */
 const calendarDays = (from: number, to: number) => Math.round((new Date(to).setHours(0, 0, 0, 0) - new Date(from).setHours(0, 0, 0, 0)) / DAY)
+const trackOf = (unitId: string) => units.find((u) => u.id === unitId)?.track
+/** Only the most recently completed lesson in each track fades; the rest keep the strength they had when you moved on. */
+function latestIn(track: string | undefined) {
+  let best: string | undefined
+  for (const [id, l] of Object.entries(progress.lessons)) {
+    if (trackOf(id) === track && (!best || l.t > progress.lessons[best].t)) best = id
+  }
+  return best
+}
 
 export function lessonStrength(unitId: string, now = Date.now()) {
   const l = progress.lessons[unitId]
-  if (!l) return { strength: 0, tier: 0, completions: 0, loss: dailyLoss(0), toNext: 1 }
-  const days = calendarDays(l.t, now)
-  const loss = dailyLoss(l.n)
-  const strength = l.p * Math.pow(1 - loss / 100, Math.max(0, days))
+  if (!l) return { strength: 0, tier: 0, completions: 0, step: stepAt(0), fading: false, toNext: 1 }
+  const fading = latestIn(trackOf(unitId)) === unitId
+  let strength = l.p
+  // one step per missed day: repeat it daily to hold the level, skip a day and lose one completion's worth
+  for (let d = fading ? calendarDays(l.t, now) : 0; d > 0 && strength > 0; d--) strength = Math.max(0, strength - stepAt(strength))
   const tier = Math.floor(strength / 100)
-  const toNext = Math.ceil(((tier + 1) * 100 - strength) / (100 / tierCost(tier)))
-  return { strength, tier, completions: l.n, loss, toNext }
+  const toNext = Math.ceil(((tier + 1) * 100 - strength) / stepAt(strength))
+  return { strength, tier, completions: l.n, step: stepAt(strength), fading, toNext }
 }
 
 export function completeLesson(unitId: string) {
   const now = Date.now()
-  const { strength, tier } = lessonStrength(unitId, now)
+  // the lesson that was fading until now freezes at its current strength
+  const prev = latestIn(trackOf(unitId))
+  if (prev && prev !== unitId) progress.lessons[prev] = { ...progress.lessons[prev], p: lessonStrength(prev, now).strength }
+  const { strength } = lessonStrength(unitId, now)
   const n = (progress.lessons[unitId]?.n ?? 0) + 1
-  progress.lessons[unitId] = { p: strength + 100 / tierCost(tier), n, t: now }
+  progress.lessons[unitId] = { p: strength + stepAt(strength), n, t: now }
 }
 
 // ---- daily challenge: fixed for the day, mostly tomorrow's words → hard before the lesson, doable after ----

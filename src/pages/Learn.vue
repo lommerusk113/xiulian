@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import type { Unit } from '../types'
 import { units } from '../data'
-import { unitLearned, nextUnit, lessonStrength, knownCount, TIER_COLORS } from '../store'
+import { unitLearned, unitLocked, nextUnit, lessonStrength, knownCount, TIER_COLORS } from '../store'
 
 const track = ref<'theme' | 'core' | 'media'>('theme')
 const tabs = [
@@ -42,7 +42,7 @@ function ring(id: string) {
     <p v-if="knownCount" class="text-sm text-muted -mt-2">
       <template v-if="track === 'media'">Recurring words from xianxia / wuxia shows and comics. Not HSK — but you'll hear them every episode. </template>
       <template v-else-if="track === 'theme'">Words by theme, drilled with heavy repetition; each lesson ends with sentences mixing them with what you already know. </template>
-      Each completion fills the ring: one pass for ×1, two for ×2, four for every tier after. Rings fade at midnight unless you repeat — the more often you've done a lesson, the slower it fades.
+      Each completion fills the ring: one pass for ×1, two for ×2, four for every tier after. Only your latest lesson in each track fades: one completion's worth per missed day, so repeating it daily holds the level. HSK units unlock in order.
     </p>
 
     <section v-for="[name, list] in groups" :key="name" class="flex flex-col gap-2">
@@ -50,16 +50,18 @@ function ring(id: string) {
         <UIcon v-if="list[0].icon" :name="list[0].icon" class="text-primary" />
         <h2 class="font-semibold flex-1">{{ name }} <span v-if="groupPct(list)" class="text-muted text-sm font-normal">{{ groupPct(list) }}% of words started</span></h2>
       </div>
-      <RouterLink
+      <component
+        :is="unitLocked(u.id) ? 'div' : 'RouterLink'"
         v-for="(u, i) in list"
         :key="u.id"
-        :to="`/session/learn/${u.id}`"
-        class="flex items-center gap-4 rounded-xl border border-default bg-elevated/50 p-3 hover:border-primary"
-        :class="u.id === nextUnit?.id && 'border-primary'"
+        :to="unitLocked(u.id) ? undefined : `/session/learn/${u.id}`"
+        class="flex items-center gap-4 rounded-xl border border-default bg-elevated/50 p-3"
+        :class="unitLocked(u.id) ? 'opacity-50' : ['hover:border-primary', u.id === nextUnit?.id && 'border-primary']"
       >
         <div class="size-12 shrink-0 rounded-full grid place-items-center text-sm font-semibold tabular-nums" :style="ring(u.id).style">
           <span class="size-9 rounded-full bg-default grid place-items-center">
-            <template v-if="ring(u.id).tier">×{{ ring(u.id).tier }}</template>
+            <UIcon v-if="unitLocked(u.id)" name="i-lucide-lock" class="size-4 text-muted" />
+            <template v-else-if="ring(u.id).tier">×{{ ring(u.id).tier }}</template>
             <template v-else>{{ i + 1 }}</template>
           </span>
         </div>
@@ -69,9 +71,9 @@ function ring(id: string) {
         </div>
         <div class="text-right text-xs text-muted shrink-0">
           <p>{{ unitLearned(u.id) }}/{{ u.wordIds.length }} words</p>
-          <p v-if="ring(u.id).completions">−{{ ring(u.id).loss }}%/day</p>
+          <p v-if="ring(u.id).fading">−{{ ring(u.id).step }}%/day</p>
         </div>
-      </RouterLink>
+      </component>
     </section>
   </div>
 </template>

@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Exercise } from '../types'
 import { units } from '../data'
-import { grade, dueIds, isKnown, knownCount, nextStage, stageValue, stageLabel, progress, completeLesson, lessonStrength, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
+import { grade, dueIds, isKnown, knownCount, nextStage, stageValue, stageLabel, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
 import { speak } from '../tts'
 import { buildLearn, buildReview, buildChallenge } from '../session'
 import { homophones, shuffle } from '../exercises'
@@ -41,6 +41,10 @@ const meaningOf = (e: Exercise) => (e.sentence ? e.sentence.meaning : e.word.mea
 const twins = computed(() => (ex.value && !ex.value.sentence ? homophones(ex.value.word, isKnown, 2) : []))
 
 function start() {
+  if (props.mode === 'learn' && props.unit && unitLocked(props.unit)) {
+    router.replace('/learn')
+    return
+  }
   queue.value = props.mode === 'learn' && props.unit ? buildLearn(props.unit) : props.mode === 'challenge' ? buildChallenge() : buildReview()
   knownBefore.value = knownCount.value
   completed = false
@@ -162,7 +166,7 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           </div>
           <p class="text-muted mt-1">
             <template v-if="strength.completions === 1">First time through! Repeat tomorrow to keep it strong.</template>
-            <template v-else>Done {{ strength.completions }}×. {{ strength.toNext }} more for ×{{ strength.tier + 1 }}; fades {{ strength.loss }}% a day.</template>
+            <template v-else>Done {{ strength.completions }}×. {{ strength.toNext }} more for ×{{ strength.tier + 1 }}; loses {{ strength.step }}% per missed day until you move on.</template>
           </p>
         </div>
         <p v-if="mode === 'learn' && nextStage" class="text-sm text-muted -mt-3">
