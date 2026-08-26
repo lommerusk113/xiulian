@@ -60,7 +60,7 @@ const today = computed(() => {
         </div>
         <p class="text-sm text-muted mt-2">
           <span class="tabular-nums text-default font-medium">{{ toNext.value }} / {{ toNext.target }}</span> HSK {{ toNext.band }} words {{ toNext.metric }}
-          → <span class="hanzi">{{ toNext.realm }}{{ toNext.sub }}</span> {{ toNext.name }}
+          → <span class="hanzi text-default">{{ toNext.realm }}{{ toNext.sub }}</span>
         </p>
       </div>
       <p v-else class="text-sm text-muted mt-4">Every realm earned — go read.</p>
