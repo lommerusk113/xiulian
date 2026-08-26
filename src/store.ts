@@ -199,20 +199,25 @@ export const stage = computed(() => {
   while (i + 1 < STAGES.length && stageMet(i + 1) && progress.tribulations[i + 1]) i++
   return i
 })
-/** The next stage, when its requirement is met and its 天劫 can be faced today: one breakthrough a day, no retry after a fail until tomorrow. */
+/** After a failed 天劫 you must complete a lesson before facing it again. */
+const lessonSince = (t: number) => Object.values(progress.lessons).some((l) => l.t > t)
+/** The next stage, when its requirement is met and its 天劫 can be faced: one breakthrough a day; after a fail, a lesson first. */
 export const pendingStage = computed<number | undefined>(() => {
   const i = stage.value + 1
   if (i >= STAGES.length || !stageMet(i)) return undefined
   const passedToday = Object.values(progress.tribulations).some((t) => t >= midnight())
-  const failedToday = (progress.marks[`trib-fail-${i}`] ?? 0) >= midnight()
-  return passedToday || failedToday ? undefined : i
+  const fail = progress.marks[`trib-fail-${i}`]
+  return passedToday || (fail && !lessonSince(fail)) ? undefined : i
 })
 /** Why the next stage is met but not offered right now. */
 export const pendingBlocked = computed(() => {
   const i = stage.value + 1
   if (i >= STAGES.length || !stageMet(i) || pendingStage.value !== undefined) return null
-  return (progress.marks[`trib-fail-${i}`] ?? 0) >= midnight() ? 'failed' : 'passed'
+  const fail = progress.marks[`trib-fail-${i}`]
+  return fail && !lessonSince(fail) ? 'failed' : 'passed'
 })
+/** Core units that contain any of the given words, for "repeat these" after a failed 天劫. */
+export const unitsWith = (ids: string[]) => units.filter((u) => u.track === 'core' && u.wordIds.some((w) => ids.includes(w)))
 export const nextStage = computed<Stage | undefined>(() => STAGES[stage.value + 1])
 
 export function passTribulation(stageIndex: number) {

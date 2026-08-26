@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Exercise } from '../types'
 import { units } from '../data'
-import { grade, dueIds, isKnown, knownCount, matureCount, nextStage, stageValue, stageLabel, STAGES, passTribulation, failTribulation, completeTrial, tick, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
+import { grade, dueIds, isKnown, knownCount, matureCount, nextStage, stageValue, stageLabel, STAGES, passTribulation, failTribulation, completeTrial, tick, unitsWith, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
 import { speak } from '../tts'
 import { buildLearn, buildReview, buildChallenge, buildTribulation, buildTrial } from '../session'
 import { homophones, shuffle } from '../exercises'
@@ -36,11 +36,12 @@ const tribStage = computed(() => (trib.value ? stageLabel(STAGES[+props.unit!]) 
 const lives = computed(() => strict.value || trib.value)
 const LIVES = computed(() => (trib.value ? 2 : 3))
 const lost = ref(0)
+const missedIds = ref<string[]>([])
 const failed = computed(() => lives.value && lost.value > LIVES.value)
 const knownBefore = ref(knownCount.value)
 const matureBefore = ref(matureCount.value)
 const attempt = ref(1)
-const pinyinFirst = computed(() => progress.settings.focus === 'pinyin' && props.mode !== 'tribulation' && props.mode !== 'trial')
+const pinyinFirst = computed(() => progress.settings.focus === 'pinyin')
 const text = (e: Exercise) => (e.sentence ? e.sentence.hanzi : e.word.hanzi)
 const pinyinOf = (e: Exercise) => (e.sentence ? e.sentence.pinyin : e.word.pinyin)
 const meaningOf = (e: Exercise) => (e.sentence ? e.sentence.meaning : e.word.meaning)
@@ -62,6 +63,7 @@ function start() {
   knownBefore.value = knownCount.value
   matureBefore.value = matureCount.value
   lost.value = 0
+  missedIds.value = []
   completed = false
   idx.value = 0
   answered.value = null
@@ -87,6 +89,7 @@ function onAnswer(correct: boolean) {
   correct ? stats.value.right++ : stats.value.wrong++
   // a sentence that smuggled in a brand-new word is a guess, never a lost life
   if (!correct && lives.value && !e.newWords?.length) lost.value++
+  if (!correct && !isSentence) missedIds.value.push(e.word.id)
   if (failed.value) {
     if (trib.value) failTribulation(+props.unit!)
     return // out of lives → footer offers Restart
@@ -290,7 +293,12 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           </div>
           <Speak :text="text(ex)" size="sm" />
         </div>
-        <UButton v-if="failed" size="xl" block color="error" icon="i-lucide-rotate-ccw" @click="restart">{{ trib ? 'The heavens hold you back — review, return tomorrow' : 'Out of lives — restart lesson' }}</UButton>
+        <template v-if="failed && trib">
+          <p class="text-sm text-muted">The heavens hold you back. Repeat a lesson with the words you missed, then face it again:</p>
+          <UButton v-for="u in unitsWith(missedIds).slice(0, 3)" :key="u.id" size="xl" block color="neutral" variant="soft" icon="i-lucide-repeat" :to="`/session/learn/${u.id}`">{{ u.title }}</UButton>
+          <UButton size="xl" block color="neutral" variant="ghost" to="/">Home</UButton>
+        </template>
+        <UButton v-else-if="failed" size="xl" block color="error" icon="i-lucide-rotate-ccw" @click="restart">Out of lives — restart lesson</UButton>
         <UButton v-else size="xl" block :color="answered ? 'success' : 'error'" @click="next">Continue</UButton>
       </footer>
     </template>

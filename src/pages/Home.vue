@@ -57,7 +57,7 @@ const today = computed(() => {
       <UButton v-if="pending" size="xl" block class="mt-4" icon="i-lucide-zap" :to="`/session/tribulation/${pending.index}`">
         <span class="hanzi">天劫</span> — face the tribulation for <span class="hanzi">{{ pending.realm }}{{ pending.sub }}</span>
       </UButton>
-      <p v-else-if="pendingBlocked === 'failed'" class="mt-4 text-sm text-muted"><span class="hanzi text-default">天劫</span> — the heavens held you back today. Review, and face it again tomorrow.</p>
+      <p v-else-if="pendingBlocked === 'failed'" class="mt-4 text-sm text-muted"><span class="hanzi text-default">天劫</span> — the heavens held you back. Complete a lesson, then face it again.</p>
       <p v-else-if="pendingBlocked === 'passed'" class="mt-4 text-sm text-muted">One breakthrough a day — the next <span class="hanzi text-default">天劫</span> awaits tomorrow.</p>
       <div v-else-if="toNext" class="mt-4">
         <div class="h-2.5 rounded-full bg-accented overflow-hidden relative">
