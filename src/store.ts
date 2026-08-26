@@ -137,8 +137,53 @@ export const coverage = computed(() => {
   return { started, known }
 })
 
-/** Cultivation realm per HSK band — 修炼 flavour for the rank card. */
-export const REALMS = ['凡人 Mortal', '炼气 Qi Refining', '筑基 Foundation', '金丹 Golden Core', '元婴 Nascent Soul']
+/** Cultivation realms — 修炼 flavour for the rank card. Index = realm, not HSK band. */
+export const REALMS = ['凡人 Mortal', '聚气 Qi Building', '炼气 Qi Refining', '筑基 Foundation', '金丹 Golden Core', '元婴 Nascent Soul']
+const TEN = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
+const QUARTERS: [string, string, number][] = [['初期', 'Early', 0.1], ['中期', 'Mid', 0.4], ['后期', 'Late', 0.7], ['圆满', 'Peak', 1]]
+
+export interface Stage {
+  realm: number
+  /** sub-stage, e.g. 三层 / 中期 (empty for Mortal) */
+  hanzi: string
+  name: string
+  /** which count of which HSK band must reach `target` */
+  metric: 'started' | 'known'
+  band: number
+  target: number
+}
+
+const bandTotal = (level: number) => words.filter((w) => w.level === level).length
+const bandNeed = (level: number) => Math.ceil(bandTotal(level) * RANK_THRESHOLD)
+
+/**
+ * The ladder, lowest first. Qi Building climbs with HSK 1 words *started* (moves every lesson);
+ * Qi Refining with HSK 1 words *known*; the three big realms with HSK 2/3/4 known, earned in order.
+ * Reaching 炼气十层 = HSK rank 1, 筑基圆满 = rank 2, and so on.
+ */
+export const STAGES: Stage[] = [
+  { realm: 0, hanzi: '', name: '', metric: 'started', band: 1, target: 0 },
+  ...TEN.map((n, i) => ({ realm: 1, hanzi: `${n}层`, name: `${i + 1}`, metric: 'started' as const, band: 1, target: Math.round((bandTotal(1) * (i + 1)) / 10) })),
+  ...TEN.map((n, i) => ({ realm: 2, hanzi: `${n}层`, name: `${i + 1}`, metric: 'known' as const, band: 1, target: Math.round((bandNeed(1) * (i + 1)) / 10) })),
+  ...[2, 3, 4].flatMap((band, r) => QUARTERS.map(([hanzi, name, f]) => ({ realm: r + 3, hanzi, name, metric: 'known' as const, band, target: Math.round(bandNeed(band) * f) }))),
+]
+
+/** Current count behind a stage's requirement; 0 until the previous band is earned. */
+export function stageValue(s: Stage) {
+  const bands = bandStats.value
+  if (s.band > 1 && bands[s.band - 2].known < bands[s.band - 2].need) return 0
+  const b = bands[s.band - 1]
+  return s.metric === 'started' ? b.started : b.known
+}
+
+/** Highest stage whose requirement is met. */
+export const stage = computed(() => STAGES.reduce((best, s, i) => (stageValue(s) >= s.target ? i : best), 0))
+export const nextStage = computed<Stage | undefined>(() => STAGES[stage.value + 1])
+
+export const stageLabel = (s: Stage) => {
+  const [realmHanzi, ...rest] = REALMS[s.realm].split(' ')
+  return { realm: realmHanzi, sub: s.hanzi, name: `${rest.join(' ')}${s.name ? ' ' + s.name : ''}` }
+}
 
 export const nextBand = computed(() => bandStats.value.find((b) => b.level === rank.value + 1))
 

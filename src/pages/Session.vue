@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Exercise } from '../types'
 import { units } from '../data'
-import { grade, dueIds, isKnown, knownCount, nextBand, REALMS, progress, completeLesson, lessonStrength, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
+import { grade, dueIds, isKnown, knownCount, nextStage, stageValue, stageLabel, progress, completeLesson, lessonStrength, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
 import { speak } from '../tts'
 import { buildLearn, buildReview, buildChallenge } from '../session'
 import { homophones, shuffle } from '../exercises'
@@ -160,9 +160,9 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
             <template v-else>Done {{ strength.completions }}×. {{ strength.toNext }} more for ×{{ strength.tier + 1 }}; fades {{ strength.loss }}% a day.</template>
           </p>
         </div>
-        <p v-if="mode === 'learn' && nextBand" class="text-sm text-muted -mt-3">
+        <p v-if="mode === 'learn' && nextStage" class="text-sm text-muted -mt-3">
           <span v-if="knownCount > knownBefore" class="text-primary font-medium">+{{ knownCount - knownBefore }} words started</span>
-          <span v-if="knownCount > knownBefore"> · </span>{{ nextBand.need - nextBand.known }} more known to reach <span class="hanzi">{{ REALMS[nextBand.level] }}</span>
+          <span v-if="knownCount > knownBefore"> · </span>{{ nextStage.target - stageValue(nextStage) }} more HSK {{ nextStage.band }} words {{ nextStage.metric }} to <span class="hanzi">{{ stageLabel(nextStage).realm }}{{ stageLabel(nextStage).sub }}</span>
         </p>
         <div class="flex flex-col gap-2 w-full max-w-xs">
           <UButton v-if="dueIds.length" size="xl" block @click="router.replace('/session/review'); start()">

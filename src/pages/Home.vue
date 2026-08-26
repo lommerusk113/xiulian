@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { words } from '../data'
-import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, nextBand, bandStats, coverage, REALMS, TIER_COLORS } from '../store'
+import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, coverage, REALMS, STAGES, stage, nextStage, stageValue, stageLabel, TIER_COLORS } from '../store'
 
 const coreTotal = words.filter((w) => w.level > 0).length
 const readibu = computed(() => Math.round((matureCount.value / coreTotal) * 100))
@@ -11,17 +11,17 @@ const history = computed(() => challengeHistory())
 const hour = new Date().getHours()
 const greeting = hour < 12 ? '早上好' : hour < 18 ? '下午好' : '晚上好'
 
-// realm hero: the current realm in its tier colour, nine 层 layers toward the next one
-const realm = (r: number) => ({ hanzi: REALMS[r].split(' ')[0], name: REALMS[r].split(' ').slice(1).join(' ') })
-const accent = computed(() => TIER_COLORS[rank.value % TIER_COLORS.length])
-const LAYERS = 9
-const layer = computed(() => (nextBand.value ? Math.min(LAYERS - 1, Math.floor((nextBand.value.known / nextBand.value.need) * LAYERS)) : LAYERS))
-const layerFill = (i: number) => {
-  const b = nextBand.value
-  if (!b) return { known: 100, started: 100 }
-  const pct = (v: number) => Math.max(0, Math.min(100, ((v / b.need) * LAYERS - i) * 100))
-  return { known: pct(b.known), started: pct(b.started) }
-}
+// realm hero: the current stage in its realm's colour, one bar toward the next stage
+const current = computed(() => stageLabel(STAGES[stage.value]))
+const accent = computed(() => TIER_COLORS[STAGES[stage.value].realm % TIER_COLORS.length])
+const toNext = computed(() => {
+  const n = nextStage.value
+  if (!n) return null
+  const value = stageValue(n)
+  const started = n.metric === 'known' && value > 0 ? bandStats.value[n.band - 1].started : value
+  return { ...stageLabel(n), value, target: n.target, band: n.band, metric: n.metric, pct: Math.min(100, (value / n.target) * 100), ghost: Math.min(100, (started / n.target) * 100) }
+})
+const realmHanzi = (r: string) => r.split(' ')[0]
 // ponytail: cards carry no "created" stamp, so a word counts as met today if its last review is today and no full day has passed since the one before — first-day cards always match
 const today = computed(() => {
   const midnight = new Date().setHours(0, 0, 0, 0)
@@ -43,8 +43,8 @@ const today = computed(() => {
     <UCard :style="`--accent:${accent}`" class="ring-(--accent)/40">
       <div class="flex items-start gap-4">
         <div class="flex-1 min-w-0">
-          <p class="hanzi text-5xl font-bold leading-none text-(--accent)">{{ realm(rank).hanzi }}</p>
-          <p class="font-semibold mt-1">{{ realm(rank).name }} <span class="text-muted font-normal text-sm">· HSK rank {{ rank }}</span></p>
+          <p class="hanzi leading-none text-(--accent)"><span class="text-5xl font-bold">{{ current.realm }}</span><span v-if="current.sub" class="text-2xl font-semibold ml-2">{{ current.sub }}</span></p>
+          <p class="font-semibold mt-1">{{ current.name }} <span class="text-muted font-normal text-sm">· HSK rank {{ rank }}</span></p>
         </div>
         <div class="text-right shrink-0">
           <p class="text-2xl font-bold tabular-nums flex items-center justify-end gap-1"><UIcon name="i-lucide-flame" :class="streak ? 'text-(--accent)' : 'text-muted'" />{{ streak }}</p>
@@ -53,26 +53,24 @@ const today = computed(() => {
         </div>
       </div>
 
-      <div class="mt-4">
-        <div class="flex gap-1">
-          <div v-for="i in LAYERS" :key="i" class="flex-1 h-2.5 rounded-full bg-accented overflow-hidden relative">
-            <div class="absolute inset-y-0 left-0 bg-(--accent)/30 transition-[width] duration-700" :style="`width:${layerFill(i - 1).started}%`" />
-            <div class="absolute inset-y-0 left-0 bg-(--accent) transition-[width] duration-700" :style="`width:${layerFill(i - 1).known}%`" />
-          </div>
+      <div v-if="toNext" class="mt-4">
+        <div class="h-2.5 rounded-full bg-accented overflow-hidden relative">
+          <div class="absolute inset-y-0 left-0 bg-(--accent)/30 transition-[width] duration-700" :style="`width:${toNext.ghost}%`" />
+          <div class="absolute inset-y-0 left-0 bg-(--accent) transition-[width] duration-700" :style="`width:${toNext.pct}%`" />
         </div>
-        <p v-if="nextBand" class="text-sm text-muted mt-2">
-          <span class="hanzi text-default font-medium">第{{ '一二三四五六七八九'[layer] }}层</span>
-          · {{ nextBand.known }} / {{ nextBand.need }} known · {{ nextBand.started }} started → <span class="hanzi">{{ realm(nextBand.level).hanzi }}</span>
+        <p class="text-sm text-muted mt-2">
+          <span class="tabular-nums text-default font-medium">{{ toNext.value }} / {{ toNext.target }}</span> HSK {{ toNext.band }} words {{ toNext.metric }}
+          → <span class="hanzi">{{ toNext.realm }}{{ toNext.sub }}</span> {{ toNext.name }}
         </p>
-        <p v-else class="text-sm text-muted mt-2">All four realms earned — go read.</p>
       </div>
+      <p v-else class="text-sm text-muted mt-4">Every realm earned — go read.</p>
 
       <div class="flex items-center mt-4">
         <template v-for="(r, i) in REALMS" :key="r">
-          <div v-if="i" class="flex-1 h-px" :class="i <= rank ? 'bg-(--accent)' : 'bg-accented'" />
+          <div v-if="i" class="flex-1 h-px" :class="i <= STAGES[stage].realm ? 'bg-(--accent)' : 'bg-accented'" />
           <div class="flex flex-col items-center gap-1" :title="r">
-            <div class="size-3 rounded-full" :class="i < rank ? 'bg-(--accent)' : i === rank ? 'bg-(--accent) ring-4 ring-(--accent)/25' : i === rank + 1 ? 'border-2 border-(--accent)/60' : 'bg-accented'" />
-            <span class="hanzi text-[10px] leading-none" :class="i === rank ? 'text-default' : 'text-muted'">{{ realm(i).hanzi }}</span>
+            <div class="size-3 rounded-full" :class="i < STAGES[stage].realm ? 'bg-(--accent)' : i === STAGES[stage].realm ? 'bg-(--accent) ring-4 ring-(--accent)/25' : i === STAGES[stage].realm + 1 ? 'border-2 border-(--accent)/60' : 'bg-accented'" />
+            <span class="hanzi text-[10px] leading-none" :class="i === STAGES[stage].realm ? 'text-default' : 'text-muted'">{{ realmHanzi(r) }}</span>
           </div>
         </template>
       </div>
