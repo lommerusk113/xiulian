@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import type { Unit } from '../types'
 import { units } from '../data'
-import { unitLearned, unitLocked, nextUnit, lessonStrength, knownCount, TIER_COLORS } from '../store'
+import { unitLearned, unitLocked, nextUnit, lessonStrength, knownCount, progress, stageAtUnit, stageLabel, STAGES, TIER_COLORS } from '../store'
 
 const track = ref<'theme' | 'core' | 'media'>('theme')
 const tabs = [
@@ -42,6 +42,7 @@ function ring(id: string) {
     <p v-if="knownCount" class="text-sm text-muted -mt-2">
       <template v-if="track === 'media'">Recurring words from xianxia / wuxia shows and comics. Not HSK — but you'll hear them every episode. </template>
       <template v-else-if="track === 'theme'">Words by theme, drilled with heavy repetition; each lesson ends with sentences mixing them with what you already know. </template>
+      <template v-else>Strict lessons that carry your rank: the markers show where each 天劫 unlocks. Opening a unit lists the theme lessons that prepare you for it. </template>
       Each completion fills the ring: one pass for ×1, two for ×2, four for every tier after. Only your latest lesson in each track fades: one completion's worth per missed day, so repeating it daily holds the level. HSK units unlock in order.
     </p>
 
@@ -50,10 +51,9 @@ function ring(id: string) {
         <UIcon v-if="list[0].icon" :name="list[0].icon" class="text-primary" />
         <h2 class="font-semibold flex-1">{{ name }} <span v-if="groupPct(list)" class="text-muted text-sm font-normal">{{ groupPct(list) }}% of words started</span></h2>
       </div>
+      <template v-for="(u, i) in list" :key="u.id">
       <component
         :is="unitLocked(u.id) ? 'div' : 'RouterLink'"
-        v-for="(u, i) in list"
-        :key="u.id"
         :to="unitLocked(u.id) ? undefined : `/session/learn/${u.id}`"
         class="flex items-center gap-4 rounded-xl border border-default bg-elevated/50 p-3"
         :class="unitLocked(u.id) ? 'opacity-50' : ['hover:border-primary', u.id === nextUnit?.id && 'border-primary']"
@@ -74,6 +74,14 @@ function ring(id: string) {
           <p v-if="ring(u.id).fading">−{{ ring(u.id).step }}%/day</p>
         </div>
       </component>
+      <div v-if="track === 'core' && name === 'HSK 1' && stageAtUnit(i + 1)" class="flex items-center gap-3 px-3 text-sm" :class="progress.tribulations[stageAtUnit(i + 1)!] ? 'text-muted' : 'text-primary'">
+        <div class="flex-1 h-px" :class="progress.tribulations[stageAtUnit(i + 1)!] ? 'bg-accented' : 'bg-primary/40'" />
+        <UIcon :name="progress.tribulations[stageAtUnit(i + 1)!] ? 'i-lucide-check' : 'i-lucide-zap'" class="size-4" />
+        <span class="hanzi">天劫 · {{ stageLabel(STAGES[stageAtUnit(i + 1)!]).realm }}{{ stageLabel(STAGES[stageAtUnit(i + 1)!]).sub }}</span>
+        <span class="text-muted">{{ stageLabel(STAGES[stageAtUnit(i + 1)!]).name }}</span>
+        <div class="flex-1 h-px" :class="progress.tribulations[stageAtUnit(i + 1)!] ? 'bg-accented' : 'bg-primary/40'" />
+      </div>
+      </template>
     </section>
   </div>
 </template>

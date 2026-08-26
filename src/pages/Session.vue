@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Exercise } from '../types'
 import { units } from '../data'
-import { grade, dueIds, isKnown, knownCount, matureCount, nextStage, stageValue, stageLabel, STAGES, passTribulation, failTribulation, completeTrial, tick, unitsWith, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
+import { grade, dueIds, isKnown, knownCount, matureCount, nextStage, stageValue, stageLabel, STAGES, passTribulation, failTribulation, completeTrial, tick, unitsWith, themeUnitsFor, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
 import { speak } from '../tts'
 import { buildLearn, buildReview, buildChallenge, buildTribulation, buildTrial } from '../session'
 import { homophones, shuffle } from '../exercises'
@@ -40,6 +40,9 @@ const missedIds = ref<string[]>([])
 const failed = computed(() => lives.value && lost.value > LIVES.value)
 const knownBefore = ref(knownCount.value)
 const matureBefore = ref(matureCount.value)
+// first attempt at a strict unit: show which theme lessons cover its words before starting
+const prep = computed(() => (strict.value && props.unit ? themeUnitsFor(props.unit) : []))
+const preflight = ref(false)
 const attempt = ref(1)
 const pinyinFirst = computed(() => progress.settings.focus === 'pinyin')
 const text = (e: Exercise) => (e.sentence ? e.sentence.hanzi : e.word.hanzi)
@@ -64,6 +67,7 @@ function start() {
   matureBefore.value = matureCount.value
   lost.value = 0
   missedIds.value = []
+  preflight.value = strict.value && !progress.lessons[props.unit!] && prep.value.some((p) => !p.done)
   completed = false
   idx.value = 0
   answered.value = null
@@ -164,7 +168,26 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
       <UBadge v-if="lives && attempt > 1" color="neutral" variant="subtle" size="sm">try {{ attempt }}</UBadge>
     </header>
 
-    <template v-if="finished">
+    <template v-if="preflight">
+      <div class="flex-1 flex flex-col justify-center gap-4">
+        <div>
+          <p class="text-xs text-muted uppercase tracking-wide">{{ unitTitle }}</p>
+          <h1 class="text-2xl font-bold">Ready for a strict unit?</h1>
+          <p class="text-muted text-sm mt-1">{{ LIVES }} lives, one more miss restarts. These theme lessons teach the same words — doing them first makes this easy.</p>
+        </div>
+        <RouterLink v-for="p in prep" :key="p.unit.id" :to="`/session/learn/${p.unit.id}`" class="flex items-center gap-3 rounded-xl border border-default bg-elevated/50 p-3" :class="p.done ? 'opacity-60' : 'hover:border-primary'">
+          <UIcon :name="p.done ? 'i-lucide-check-circle-2' : 'i-lucide-circle'" class="size-5 shrink-0" :class="p.done ? 'text-success' : 'text-muted'" />
+          <span class="flex-1 min-w-0">
+            <span class="font-medium block">{{ p.unit.title }}</span>
+            <span class="hanzi text-muted text-sm">{{ p.unit.wordIds.filter((w) => unitObj!.wordIds.includes(w)).map((w) => w.replace('~m', '')).join(' ') }}</span>
+          </span>
+          <span class="text-xs text-muted shrink-0">{{ p.shared }} shared</span>
+        </RouterLink>
+        <UButton size="xl" block icon="i-lucide-swords" @click="preflight = false">Start the unit</UButton>
+      </div>
+    </template>
+
+    <template v-else-if="finished">
       <div class="flex-1 flex flex-col items-center justify-center text-center gap-6">
         <UIcon :name="mode === 'tribulation' ? 'i-lucide-zap' : 'i-lucide-party-popper'" class="size-16 text-primary" />
         <h1 class="text-3xl font-bold">{{ mode === 'learn' ? 'Unit done' : mode === 'challenge' ? `${stats.right} / ${total}` : mode === 'tribulation' ? '天劫 passed' : mode === 'trial' ? '试炼 done' : 'Review done' }}</h1>

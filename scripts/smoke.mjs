@@ -61,6 +61,12 @@ while (steps++ < 200) {
     await evaluate(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Continue').click()`)
     await sleep(150); continue
   }
+  if (await evaluate(`[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Start the unit')`)) {
+    if (!(await evaluate(`document.body.innerText.includes('Ready for a strict unit')`))) errors.push('preflight without readiness text')
+    await shot('preflight')
+    await evaluate(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Start the unit').click()`)
+    await sleep(150); continue
+  }
   if (await evaluate(`[...document.querySelectorAll('button')].some(b => /restart lesson/i.test(b.textContent))`)) {
     restarts++
     await evaluate(`[...document.querySelectorAll('button')].find(b => /restart lesson/i.test(b.textContent)).click()`)

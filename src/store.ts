@@ -218,6 +218,21 @@ export const pendingBlocked = computed(() => {
   const fail = progress.marks[`trib-fail-${i}`]
   return fail && !lessonSince(fail) ? 'failed' : 'passed'
 })
+/** 聚气 stage reached by completing the n-th HSK 1 unit (1-based), if any — for rank-up markers in the unit list. */
+export function stageAtUnit(n: number) {
+  const i = STAGES.findIndex((s) => s.metric === 'completed' && s.target === n)
+  return i > 0 ? i : undefined
+}
+/** Theme lessons sharing words with a unit — what to do first to be ready for it. */
+export function themeUnitsFor(unitId: string) {
+  const u = units.find((x) => x.id === unitId)
+  if (!u) return []
+  return units
+    .filter((t) => t.track === 'theme')
+    .map((t) => ({ unit: t, shared: t.wordIds.filter((w) => u.wordIds.includes(w)).length, done: !!progress.lessons[t.id] }))
+    .filter((x) => x.shared)
+    .sort((a, b) => b.shared - a.shared)
+}
 /** Core units that contain any of the given words, for "repeat these" after a failed 天劫. */
 export const unitsWith = (ids: string[]) => units.filter((u) => u.track === 'core' && u.wordIds.some((w) => ids.includes(w)))
 export const nextStage = computed<Stage | undefined>(() => STAGES[stage.value + 1])
