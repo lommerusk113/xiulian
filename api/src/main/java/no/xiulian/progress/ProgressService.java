@@ -23,13 +23,15 @@ public class ProgressService {
     private final Repositories.Challenges challenges;
     private final Repositories.Settings settings;
     private final Repositories.Tribulations tribulations;
+    private final Repositories.Marks marks;
 
     public ProgressService(Repositories.Cards cards,
                            Repositories.Reviews reviews,
                            Repositories.Lessons lessons,
                            Repositories.Challenges challenges,
                            Repositories.Settings settings,
-                           Repositories.Tribulations tribulations) {
+                           Repositories.Tribulations tribulations,
+                           Repositories.Marks marks) {
 
         this.cards = cards;
         this.reviews = reviews;
@@ -37,6 +39,7 @@ public class ProgressService {
         this.challenges = challenges;
         this.settings = settings;
         this.tribulations = tribulations;
+        this.marks = marks;
     }
 
     public ProgressDto get(UUID userId) {
@@ -56,7 +59,9 @@ public class ProgressService {
             .orElse(null);
         var tribs = toMap(tribulations.findByIdUserId(userId), t -> String.valueOf(t.getId().stage()), t -> t.getPassedAt().toEpochMilli());
 
-        return new ProgressDto(cardMap, lessonMap, challengeMap, history, s, tribs);
+        var markMap = toMap(marks.findByIdUserId(userId), m -> m.getId().key(), m -> m.getAt().toEpochMilli());
+
+        return new ProgressDto(cardMap, lessonMap, challengeMap, history, s, tribs, markMap);
     }
 
     /** Upserts every entry present in {@code delta}; absent keys are left untouched. */
@@ -98,6 +103,11 @@ public class ProgressService {
             tribulations.updateAll(delta.tribulations().entrySet().stream().map(e -> new TribulationEntity(
                 new TribulationEntity.Id(userId, Integer.parseInt(e.getKey())), Instant.ofEpochMilli(e.getValue()))).toList());
         }
+
+        if (delta.marks() != null) {
+            marks.updateAll(delta.marks().entrySet().stream().map(e -> new MarkEntity(
+                new MarkEntity.Id(userId, e.getKey()), Instant.ofEpochMilli(e.getValue()))).toList());
+        }
     }
 
     public void delete(UUID userId) {
@@ -107,6 +117,7 @@ public class ProgressService {
         lessons.deleteByIdUserId(userId);
         challenges.deleteByIdUserId(userId);
         tribulations.deleteByIdUserId(userId);
+        marks.deleteByIdUserId(userId);
         settings.deleteById(userId);
     }
 

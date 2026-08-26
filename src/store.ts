@@ -1,4 +1,4 @@
-import { reactive, watch, computed } from 'vue'
+import { reactive, ref, watch, computed } from 'vue'
 import { createEmptyCard, fsrs, generatorParameters, Rating, State, type Card } from 'ts-fsrs'
 import { words, units } from './data'
 import type { Focus } from './types'
@@ -39,6 +39,8 @@ export interface Progress {
   settings: Settings
   /** ladder stage index → ms timestamp the 天劫 was passed */
   tribulations: Record<string, number>
+  /** named timestamps: `trial` = last weekly 试炼, `trib-fail-<stage>` = last failed 天劫 attempt */
+  marks: Record<string, number>
 }
 
 const KEY = 'xiulian.v1'
@@ -52,6 +54,7 @@ function load(): Progress {
     history: [],
     settings: { focus: 'pinyin', quiet: false, audioAutoplay: true, newPerLesson: 8, dark: true },
     tribulations: {},
+    marks: {},
   }
   try {
     const raw = localStorage.getItem(KEY) ?? localStorage.getItem('chuolingo.v1') // pre-rename progress
@@ -98,9 +101,16 @@ export const KNOWN_DAYS = 21
 /** Share of a band's words that must be known to hold that HSK rank. */
 export const RANK_THRESHOLD = 0.9
 
+/** Below this chance of recalling a word right now, it stops counting as known — rank decays with neglect. */
+export const KNOWN_RECALL = 0.7
+/** Coarse clock so "known" is re-evaluated as time passes without a change; bumped on app start and each session. */
+export const clock = ref(Date.now())
+export const tick = () => (clock.value = Date.now())
+export const recall = (id: string, now = clock.value) => scheduler.get_retrievability(progress.cards[id], now, false)
+
 export function isMastered(id: string) {
   const c = progress.cards[id]
-  return !!c && c.state === State.Review && c.stability >= KNOWN_DAYS
+  return !!c && c.state === State.Review && c.stability >= KNOWN_DAYS && recall(id) >= KNOWN_RECALL
 }
 
 export const matureCount = computed(() => Object.keys(progress.cards).filter(isMastered).length)
@@ -143,7 +153,6 @@ export const coverage = computed(() => {
 /** Cultivation realms — 修炼 flavour for the rank card. Index = realm, not HSK band. */
 export const REALMS = ['凡人 Mortal', '聚气 Qi Building', '炼气 Qi Refining', '筑基 Foundation', '金丹 Golden Core', '元婴 Nascent Soul']
 const TEN = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
-const QUARTERS: [string, string, number][] = [['初期', 'Early', 0.1], ['中期', 'Mid', 0.4], ['后期', 'Late', 0.7], ['圆满', 'Peak', 1]]
 
 export interface Stage {
   realm: number
@@ -163,52 +172,83 @@ const bandUnits = (level: number) => units.filter((u) => u.track === 'core' && u
 export const bandCompleted = (level: number) => bandUnits(level).filter((u) => progress.lessons[u.id]).length
 
 /**
- * The ladder, lowest first. Qi Building climbs with HSK 1 units *completed* (a strict pass every few units);
- * Qi Refining with HSK 1 words *known*; the three big realms with HSK 2/3/4 known, earned in order.
- * Reaching 炼气十层 = HSK rank 1, 筑基圆满 = rank 2, and so on.
+ * The ladder, lowest first, ten 层 per realm. Qi Building climbs with HSK 1 units *completed*;
+ * Qi Refining with HSK 1 words *known* (once every HSK 1 unit is done); 筑基/金丹/元婴 with HSK 2/3/4 known, in order.
+ * 炼气十层 = HSK rank 1, 筑基十层 = rank 2, and so on.
  */
 export const STAGES: Stage[] = [
   { realm: 0, hanzi: '', name: '', metric: 'completed', band: 1, target: 0 },
   ...TEN.map((n, i) => ({ realm: 1, hanzi: `${n}层`, name: `${i + 1}`, metric: 'completed' as const, band: 1, target: Math.ceil((bandUnits(1).length * (i + 1)) / 10) })),
-  ...TEN.map((n, i) => ({ realm: 2, hanzi: `${n}层`, name: `${i + 1}`, metric: 'known' as const, band: 1, target: Math.round((bandNeed(1) * (i + 1)) / 10) })),
-  ...[2, 3, 4].flatMap((band, r) => QUARTERS.map(([hanzi, name, f]) => ({ realm: r + 3, hanzi, name, metric: 'known' as const, band, target: Math.round(bandNeed(band) * f) }))),
+  ...[1, 2, 3, 4].flatMap((band) => TEN.map((n, i) => ({ realm: band + 1, hanzi: `${n}层`, name: `${i + 1}`, metric: 'known' as const, band, target: Math.round((bandNeed(band) * (i + 1)) / 10) }))),
 ]
 
-/** Current count behind a stage's requirement; 0 until the previous band is earned. */
+/** Current count behind a stage's requirement; 0 until the previous realm is finished. */
 export function stageValue(s: Stage) {
   const bands = bandStats.value
+  if (s.metric === 'completed') return bandCompleted(s.band)
+  if (s.band === 1 && bandCompleted(1) < bandUnits(1).length) return 0
   if (s.band > 1 && bands[s.band - 2].known < bands[s.band - 2].need) return 0
-  return s.metric === 'completed' ? bandCompleted(s.band) : bands[s.band - 1].known
+  return bands[s.band - 1].known
 }
 
 const stageMet = (i: number) => stageValue(STAGES[i]) >= STAGES[i].target
-/** Highest stage whose requirement is met *and* whose 天劫 has been passed. */
-export const stage = computed(() => STAGES.reduce((best, _, i) => (stageMet(i) && (i === 0 || progress.tribulations[i]) ? i : best), 0))
-/** Highest met stage above the current one — its tribulation is waiting. */
+const midnight = () => new Date(clock.value).setHours(0, 0, 0, 0)
+/** Highest stage held: every stage up to it has its requirement met (live — rank decays) and its 天劫 passed. */
+export const stage = computed(() => {
+  let i = 0
+  while (i + 1 < STAGES.length && stageMet(i + 1) && progress.tribulations[i + 1]) i++
+  return i
+})
+/** The next stage, when its requirement is met and its 天劫 can be faced today: one breakthrough a day, no retry after a fail until tomorrow. */
 export const pendingStage = computed<number | undefined>(() => {
-  let best: number | undefined
-  STAGES.forEach((_, i) => {
-    if (i > stage.value && stageMet(i)) best = i
-  })
-  return best
+  const i = stage.value + 1
+  if (i >= STAGES.length || !stageMet(i)) return undefined
+  const passedToday = Object.values(progress.tribulations).some((t) => t >= midnight())
+  const failedToday = (progress.marks[`trib-fail-${i}`] ?? 0) >= midnight()
+  return passedToday || failedToday ? undefined : i
+})
+/** Why the next stage is met but not offered right now. */
+export const pendingBlocked = computed(() => {
+  const i = stage.value + 1
+  if (i >= STAGES.length || !stageMet(i) || pendingStage.value !== undefined) return null
+  return (progress.marks[`trib-fail-${i}`] ?? 0) >= midnight() ? 'failed' : 'passed'
 })
 export const nextStage = computed<Stage | undefined>(() => STAGES[stage.value + 1])
 
 export function passTribulation(stageIndex: number) {
   progress.tribulations[stageIndex] = Date.now()
 }
+export function failTribulation(stageIndex: number) {
+  progress.marks[`trib-fail-${stageIndex}`] = Date.now()
+}
 
-/** Words a stage's 天劫 draws from: everything started in the realm so far, weakest first. */
+/** Words a stage's 天劫 draws from: everything started in the realm so far, most likely forgotten first. */
 export function tribulationWords(stageIndex: number) {
   const s = STAGES[stageIndex]
   const ids =
     s.realm <= 1
       ? new Set(bandUnits(1).filter((u) => progress.lessons[u.id]).flatMap((u) => u.wordIds))
       : new Set(words.filter((w) => w.level >= 1 && w.level <= s.realm - 1).map((w) => w.id))
+  const now = Date.now()
   return [...ids]
     .filter(isKnown)
     .map((id) => wordById.get(id)!)
-    .sort((a, b) => progress.cards[a.id].stability - progress.cards[b.id].stability)
+    .sort((a, b) => recall(a.id, now) - recall(b.id, now))
+}
+
+// ---- weekly 试炼: the known words closest to fading; right keeps them known, wrong drops them ----
+export const TRIAL_DAYS = 7
+export const trialDue = computed(() => clock.value - (progress.marks.trial ?? 0) >= TRIAL_DAYS * DAY)
+export const trialDaysLeft = computed(() => Math.max(0, Math.ceil((TRIAL_DAYS * DAY - (clock.value - (progress.marks.trial ?? 0))) / DAY)))
+export function trialWords() {
+  const now = Date.now()
+  return Object.keys(progress.cards)
+    .filter(isMastered)
+    .map((id) => wordById.get(id)!)
+    .sort((a, b) => recall(a.id, now) - recall(b.id, now))
+}
+export function completeTrial() {
+  progress.marks.trial = Date.now()
 }
 
 export const stageLabel = (s: Stage) => {
@@ -218,13 +258,18 @@ export const stageLabel = (s: Stage) => {
 
 export const nextBand = computed(() => bandStats.value.find((b) => b.level === rank.value + 1))
 
-/** Grade a word. Creates the card on first grade. */
-export function grade(id: string, correct: boolean) {
+/**
+ * Grade a word. Creates the card on first grade.
+ * A correct answer on a word that isn't due yet doesn't reschedule it (redoing a lesson must not fake retention);
+ * misses always count. `force` is for the weekly trial, whose whole point is confirming early.
+ */
+export function grade(id: string, correct: boolean, force = false) {
   const now = new Date()
   const card = progress.cards[id] ?? createEmptyCard(now)
+  progress.history.push(now.getTime())
+  if (correct && !force && card.state === State.Review && card.due.getTime() > now.getTime()) return
   const { card: next } = scheduler.next(card, now, correct ? Rating.Good : Rating.Again)
   progress.cards[id] = next
-  progress.history.push(now.getTime())
 }
 
 export const streak = computed(() => {

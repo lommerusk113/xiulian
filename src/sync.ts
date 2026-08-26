@@ -1,17 +1,17 @@
 import { watch } from 'vue'
-import { progress, type Progress } from './store'
+import { progress, tick, type Progress } from './store'
 import { api, getToken } from './api'
 
 // What the server last confirmed, per entry, so each flush sends only what changed.
 // ponytail: last-write-wins on load — server state replaces local unless the account is empty.
 // Upgrade path if two devices go offline: merge cards by last_review instead of replacing.
-const snap = { cards: {} as Record<string, string>, lessons: {} as Record<string, string>, challenges: {} as Record<string, string>, tribulations: {} as Record<string, string>, history: 0, settings: '' }
+const snap = { cards: {} as Record<string, string>, lessons: {} as Record<string, string>, challenges: {} as Record<string, string>, tribulations: {} as Record<string, string>, marks: {} as Record<string, string>, history: 0, settings: '' }
 let timer: ReturnType<typeof setTimeout> | undefined
 let inflight = false
 let dirty = false
 
 function snapshot() {
-  for (const s of ['cards', 'lessons', 'challenges', 'tribulations'] as const) {
+  for (const s of ['cards', 'lessons', 'challenges', 'tribulations', 'marks'] as const) {
     snap[s] = Object.fromEntries(Object.entries(progress[s]).map(([k, v]) => [k, JSON.stringify(v)]))
   }
   snap.history = progress.history.length
@@ -20,7 +20,7 @@ function snapshot() {
 
 function delta(): Partial<Progress> | null {
   const d: Partial<Progress> = {}
-  for (const s of ['cards', 'lessons', 'challenges', 'tribulations'] as const) {
+  for (const s of ['cards', 'lessons', 'challenges', 'tribulations', 'marks'] as const) {
     for (const [k, v] of Object.entries(progress[s])) {
       if (snap[s][k] !== JSON.stringify(v)) ((d as any)[s] ??= {})[k] = v
     }
@@ -37,13 +37,14 @@ async function flush() {
   inflight = true
   // remember what this request carries; a change that lands while it is in flight must stay unsynced
   const ser = (m?: Record<string, unknown>) => Object.fromEntries(Object.entries(m ?? {}).map(([k, v]) => [k, JSON.stringify(v)]))
-  const sent = { cards: ser(d.cards), lessons: ser(d.lessons), challenges: ser(d.challenges), tribulations: ser(d.tribulations), history: d.history?.length ?? 0, settings: d.settings ? JSON.stringify(d.settings) : null }
+  const sent = { cards: ser(d.cards), lessons: ser(d.lessons), challenges: ser(d.challenges), tribulations: ser(d.tribulations), marks: ser(d.marks), history: d.history?.length ?? 0, settings: d.settings ? JSON.stringify(d.settings) : null }
   try {
     await api('PATCH', '/me/progress', d)
     Object.assign(snap.cards, sent.cards)
     Object.assign(snap.lessons, sent.lessons)
     Object.assign(snap.challenges, sent.challenges)
     Object.assign(snap.tribulations, sent.tribulations)
+    Object.assign(snap.marks, sent.marks)
     snap.history += sent.history
     if (sent.settings) snap.settings = sent.settings
   } catch {
@@ -81,11 +82,11 @@ export async function startSync() {
     if (empty) {
       // fresh account: keep whatever this device already has and push it
       snapshot()
-      snap.cards = snap.lessons = snap.challenges = snap.tribulations = {}
+      snap.cards = snap.lessons = snap.challenges = snap.tribulations = snap.marks = {}
       snap.history = 0
       snap.settings = ''
     } else {
-      Object.assign(progress, { cards: remote.cards, lessons: remote.lessons, challenges: remote.challenges, tribulations: remote.tribulations ?? {}, history: remote.history, settings: { ...progress.settings, ...remote.settings } })
+      Object.assign(progress, { cards: remote.cards, lessons: remote.lessons, challenges: remote.challenges, tribulations: remote.tribulations ?? {}, marks: remote.marks ?? {}, history: remote.history, settings: { ...progress.settings, ...remote.settings } })
       snapshot()
     }
   } catch {
@@ -93,6 +94,7 @@ export async function startSync() {
   }
   if (!started) {
     started = true
+    document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && tick())
     watch(progress, schedule, { deep: true })
     window.addEventListener('online', schedule)
   }

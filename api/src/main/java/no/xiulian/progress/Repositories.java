@@ -58,6 +58,14 @@ final class Repositories {
     }
 
     @Repository
+    interface Marks extends CrudRepository<MarkEntity, MarkEntity.Id> {
+
+        List<MarkEntity> findByIdUserId(UUID userId);
+
+        void deleteByIdUserId(UUID userId);
+    }
+
+    @Repository
     interface Settings extends CrudRepository<SettingsEntity, UUID> {
     }
 }

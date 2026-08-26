@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { words } from '../data'
-import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, coverage, REALMS, STAGES, stage, nextStage, pendingStage, stageValue, stageLabel, TIER_COLORS } from '../store'
+import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, coverage, REALMS, STAGES, stage, nextStage, pendingStage, pendingBlocked, stageValue, stageLabel, trialDue, trialDaysLeft, trialWords, TIER_COLORS } from '../store'
 
 const coreTotal = words.filter((w) => w.level > 0).length
 const readibu = computed(() => Math.round((matureCount.value / coreTotal) * 100))
@@ -57,6 +57,8 @@ const today = computed(() => {
       <UButton v-if="pending" size="xl" block class="mt-4" icon="i-lucide-zap" :to="`/session/tribulation/${pending.index}`">
         <span class="hanzi">天劫</span> — face the tribulation for <span class="hanzi">{{ pending.realm }}{{ pending.sub }}</span>
       </UButton>
+      <p v-else-if="pendingBlocked === 'failed'" class="mt-4 text-sm text-muted"><span class="hanzi text-default">天劫</span> — the heavens held you back today. Review, and face it again tomorrow.</p>
+      <p v-else-if="pendingBlocked === 'passed'" class="mt-4 text-sm text-muted">One breakthrough a day — the next <span class="hanzi text-default">天劫</span> awaits tomorrow.</p>
       <div v-else-if="toNext" class="mt-4">
         <div class="h-2.5 rounded-full bg-accented overflow-hidden relative">
           <div class="absolute inset-y-0 left-0 bg-(--accent)/30 transition-[width] duration-700" :style="`width:${toNext.ghost}%`" />
@@ -80,10 +82,22 @@ const today = computed(() => {
       </div>
       <p class="text-xs text-muted mt-3">
         <RouterLink v-if="stage" :to="`/session/tribulation/${stage}`" class="underline">Retake the last <span class="hanzi">天劫</span></RouterLink><template v-if="stage"> to check you still hold the realm. </template>
-        A word is <b>started</b> after its first lesson and <b>known</b> once you've remembered it for about three weeks. Readibu's easiest stories open up around <span class="hanzi">金丹</span>.</p>
+        A word is <b>started</b> after its first lesson and <b>known</b> while you've remembered it for about three weeks and still would today — skip reviews and words fade out of known, and the rank with them. Readibu's easiest stories open up around <span class="hanzi">金丹</span>.</p>
     </UCard>
 
     <template v-if="knownCount">
+      <UCard v-if="matureCount">
+        <div class="flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-xs text-muted uppercase tracking-wide"><span class="hanzi">试炼</span> weekly trial</p>
+            <p v-if="trialDue" class="text-lg font-semibold">{{ Math.min(20, trialWords().length) }} known words are fading</p>
+            <p v-else class="text-lg font-semibold">Next trial in {{ trialDaysLeft }} day{{ trialDaysLeft === 1 ? '' : 's' }}</p>
+            <p class="text-sm text-muted">Get them right and they stay known; miss and they drop out.</p>
+          </div>
+          <UButton v-if="trialDue" icon="i-lucide-shield-check" to="/session/trial">Take it</UButton>
+        </div>
+      </UCard>
+
       <UCard>
         <div class="flex items-center justify-between gap-3">
           <div class="min-w-0">
