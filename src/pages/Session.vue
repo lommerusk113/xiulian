@@ -67,7 +67,7 @@ function start() {
   matureBefore.value = matureCount.value
   lost.value = 0
   missedIds.value = []
-  preflight.value = strict.value && !progress.lessons[props.unit!] && prep.value.some((p) => !p.done)
+  preflight.value = attempt.value === 1 && strict.value && !progress.lessons[props.unit!] && prep.value.some((p) => !p.done)
   completed = false
   idx.value = 0
   answered.value = null
