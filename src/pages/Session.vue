@@ -27,8 +27,8 @@ const ex = computed(() => queue.value[idx.value])
 const total = computed(() => queue.value.length)
 const unitObj = computed(() => units.find((u) => u.id === props.unit))
 const unitTitle = computed(() => unitObj.value?.title)
-// HSK core lessons are strict on repeats: one mistake restarts the lesson. Never on the first time through.
-const strict = computed(() => props.mode === 'learn' && unitObj.value?.track === 'core' && !!progress.lessons[props.unit!])
+// HSK core lessons are strict: one mistake restarts the lesson — passing one means you actually know the words
+const strict = computed(() => props.mode === 'learn' && unitObj.value?.track === 'core')
 const knownBefore = ref(knownCount.value)
 const attempt = ref(1)
 const pinyinFirst = computed(() => progress.settings.focus === 'pinyin')
