@@ -153,6 +153,7 @@ export const coverage = computed(() => {
 /** Cultivation realms — 修炼 flavour for the rank card. Index = realm, not HSK band. */
 export const REALMS = ['凡人 Mortal', '聚气 Qi Building', '炼气 Qi Refining', '筑基 Foundation', '金丹 Golden Core', '元婴 Nascent Soul']
 const TEN = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
+const QUARTERS: [string, string, number][] = [['初期', 'Early', 0.1], ['中期', 'Mid', 0.4], ['后期', 'Late', 0.7], ['圆满', 'Peak', 1]]
 
 export interface Stage {
   realm: number
@@ -172,14 +173,15 @@ const bandUnits = (level: number) => units.filter((u) => u.track === 'core' && u
 export const bandCompleted = (level: number) => bandUnits(level).filter((u) => progress.lessons[u.id]).length
 
 /**
- * The ladder, lowest first, ten 层 per realm. Qi Building climbs with HSK 1 units *completed*;
- * Qi Refining with HSK 1 words *known* (once every HSK 1 unit is done); 筑基/金丹/元婴 with HSK 2/3/4 known, in order.
- * 炼气十层 = HSK rank 1, 筑基十层 = rank 2, and so on.
+ * The ladder, lowest first. Qi Building climbs ten 层 with HSK 1 units *completed*; Qi Refining ten 层 with HSK 1 words *known*
+ * (once every HSK 1 unit is done); the great realms 筑基/金丹/元婴 move slowly, as cultivation should — four stages each on HSK 2/3/4 known, in order.
+ * 炼气十层 = HSK rank 1, 筑基圆满 = rank 2, and so on.
  */
 export const STAGES: Stage[] = [
   { realm: 0, hanzi: '', name: '', metric: 'completed', band: 1, target: 0 },
   ...TEN.map((n, i) => ({ realm: 1, hanzi: `${n}层`, name: `${i + 1}`, metric: 'completed' as const, band: 1, target: Math.ceil((bandUnits(1).length * (i + 1)) / 10) })),
-  ...[1, 2, 3, 4].flatMap((band) => TEN.map((n, i) => ({ realm: band + 1, hanzi: `${n}层`, name: `${i + 1}`, metric: 'known' as const, band, target: Math.round((bandNeed(band) * (i + 1)) / 10) }))),
+  ...TEN.map((n, i) => ({ realm: 2, hanzi: `${n}层`, name: `${i + 1}`, metric: 'known' as const, band: 1, target: Math.round((bandNeed(1) * (i + 1)) / 10) })),
+  ...[2, 3, 4].flatMap((band, r) => QUARTERS.map(([hanzi, name, f]) => ({ realm: r + 3, hanzi, name, metric: 'known' as const, band, target: Math.round(bandNeed(band) * f) }))),
 ]
 
 /** Current count behind a stage's requirement; 0 until the previous realm is finished. */
