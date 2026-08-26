@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Exercise } from '../types'
 import { units } from '../data'
-import { grade, dueIds, isKnown, progress, completeLesson, lessonStrength, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
+import { grade, dueIds, isKnown, knownCount, nextBand, REALMS, progress, completeLesson, lessonStrength, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
 import { speak } from '../tts'
 import { buildLearn, buildReview, buildChallenge } from '../session'
 import { homophones, shuffle } from '../exercises'
@@ -27,8 +27,9 @@ const ex = computed(() => queue.value[idx.value])
 const total = computed(() => queue.value.length)
 const unitObj = computed(() => units.find((u) => u.id === props.unit))
 const unitTitle = computed(() => unitObj.value?.title)
-// HSK core lessons are strict: one mistake restarts the lesson
-const strict = computed(() => props.mode === 'learn' && unitObj.value?.track === 'core')
+// HSK core lessons are strict on repeats: one mistake restarts the lesson. Never on the first time through.
+const strict = computed(() => props.mode === 'learn' && unitObj.value?.track === 'core' && !!progress.lessons[props.unit!])
+const knownBefore = ref(knownCount.value)
 const attempt = ref(1)
 const pinyinFirst = computed(() => progress.settings.focus === 'pinyin')
 const text = (e: Exercise) => (e.sentence ? e.sentence.hanzi : e.word.hanzi)
@@ -39,6 +40,7 @@ const twins = computed(() => (ex.value && !ex.value.sentence ? homophones(ex.val
 
 function start() {
   queue.value = props.mode === 'learn' && props.unit ? buildLearn(props.unit) : props.mode === 'challenge' ? buildChallenge() : buildReview()
+  knownBefore.value = knownCount.value
   completed = false
   idx.value = 0
   answered.value = null
@@ -119,9 +121,9 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
 </script>
 
 <template>
-  <div class="flex flex-col min-h-dvh py-4 gap-4">
+  <div class="flex flex-col flex-1 py-4 gap-4">
     <header class="flex items-center gap-3">
-      <UButton icon="i-lucide-x" color="neutral" variant="ghost" aria-label="Quit" @click="router.push(mode === 'review' ? '/' : '/learn')" />
+      <UButton icon="i-lucide-x" color="neutral" variant="ghost" class="size-11 justify-center" aria-label="Quit" @click="router.push(mode === 'review' ? '/' : '/learn')" />
       <UProgress :model-value="Math.min(idx, total)" :max="total || 1" size="lg" class="flex-1" />
       <span class="text-sm text-muted tabular-nums">{{ Math.min(idx, total) }}/{{ total }}</span>
       <UBadge v-if="strict && attempt > 1" color="neutral" variant="subtle" size="sm">try {{ attempt }}</UBadge>
@@ -153,8 +155,15 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           <div class="h-2 rounded-full overflow-hidden" :style="`background:${strength.tier ? TIER_COLORS[(strength.tier - 1) % TIER_COLORS.length] : 'var(--ui-bg-accented)'}`">
             <div class="h-full" :style="`width:${strength.strength % 100}%;background:${TIER_COLORS[strength.tier % TIER_COLORS.length]}`" />
           </div>
-          <p class="text-muted mt-1">Done {{ strength.completions }}×. Loses {{ strength.loss }}% per day — repeat to slow the decay (floor 10%).</p>
+          <p class="text-muted mt-1">
+            <template v-if="strength.completions === 1">First time through! Repeat tomorrow to keep it strong.</template>
+            <template v-else>Done {{ strength.completions }}×. {{ strength.toNext }} more for ×{{ strength.tier + 1 }}; fades {{ strength.loss }}% a day.</template>
+          </p>
         </div>
+        <p v-if="mode === 'learn' && nextBand" class="text-sm text-muted -mt-3">
+          <span v-if="knownCount > knownBefore" class="text-primary font-medium">+{{ knownCount - knownBefore }} words started</span>
+          <span v-if="knownCount > knownBefore"> · </span>{{ nextBand.need - nextBand.known }} more known to reach <span class="hanzi">{{ REALMS[nextBand.level] }}</span>
+        </p>
         <div class="flex flex-col gap-2 w-full max-w-xs">
           <UButton v-if="dueIds.length" size="xl" block @click="router.replace('/session/review'); start()">
             Review {{ dueIds.length }} due
@@ -215,7 +224,7 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           :options="ex.options" :correct="ex.word.meaning" @answer="onAnswer"
         />
         <Choice v-else-if="optionsAreHanzi(ex.kind)" :options="ex.options" :correct="ex.word.hanzi" hanzi @answer="onAnswer" />
-        <Choice v-else-if="optionsArePinyin(ex.kind)" :options="ex.options" :correct="ex.word.pinyin" hanzi @answer="onAnswer" />
+        <Choice v-else-if="optionsArePinyin(ex.kind)" :options="ex.options" :correct="ex.word.pinyin" pinyin @answer="onAnswer" />
         <Tiles v-else-if="ex.kind === 'tiles'" :tiles="ex.tiles" :answer="[...ex.word.hanzi]" @answer="onAnswer" />
         <Tiles v-else-if="ex.kind === 'sentence'" :tiles="ex.tiles" :answer="ex.sentence!.tokens" :pinyin="pinyinFirst" @answer="onAnswer" />
         <Choice v-else-if="ex.kind === 'sentenceMeaning'" :options="ex.options" :correct="ex.sentence!.meaning" @answer="onAnswer" />
@@ -223,14 +232,14 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
 
       <footer
         v-if="answered !== null"
-        class="rounded-2xl p-4 flex flex-col gap-3 sticky bottom-0 pb-safe"
+        class="rounded-2xl p-4 flex flex-col gap-3 sticky bottom-[env(safe-area-inset-bottom)]"
         :class="answered ? 'bg-success/15' : 'bg-error/15'"
       >
         <div class="flex items-center gap-3">
           <UIcon :name="answered ? 'i-lucide-check-circle-2' : 'i-lucide-x-circle'" class="size-8 shrink-0" :class="answered ? 'text-success' : 'text-error'" />
           <div class="flex-1 min-w-0">
             <p class="text-primary text-lg">{{ pinyinOf(ex) }} <span class="hanzi text-default text-xl ml-2">{{ text(ex) }}</span></p>
-            <p class="text-sm text-muted truncate">{{ meaningOf(ex) }}</p>
+            <p class="text-sm text-muted line-clamp-2">{{ meaningOf(ex) }}</p>
             <p v-if="twins.length" class="text-xs text-muted mt-1">
               Sounds the same:
               <span v-for="(t, i) in twins" :key="t.id"><span class="hanzi text-default">{{ t.hanzi }}</span> {{ t.meaning }}{{ i < twins.length - 1 ? ' · ' : '' }}</span>

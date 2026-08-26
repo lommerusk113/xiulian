@@ -10,6 +10,7 @@ defineProps<{ text: string; size?: 'sm' | 'md' | 'lg' | 'xl' }>()
     color="neutral"
     variant="soft"
     :size="size ?? 'md'"
+    class="size-11 justify-center"
     aria-label="Play audio"
     @click.stop="speak(text)"
   />

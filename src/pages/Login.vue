@@ -5,7 +5,7 @@ import { api, setToken } from '../api'
 import { startSync } from '../sync'
 
 const router = useRouter()
-const mode = ref<'login' | 'signup'>('login')
+const mode = ref<'login' | 'signup'>(localStorage.getItem('xiulian.v1') ? 'login' : 'signup')
 const email = ref('')
 const password = ref('')
 const error = ref('')
@@ -28,17 +28,24 @@ async function submit() {
 </script>
 
 <template>
-  <div class="min-h-dvh flex flex-col items-center justify-center gap-6 py-6">
-    <p class="hanzi text-4xl font-bold">修炼 <span class="text-primary">Xiulian</span></p>
+  <div class="flex-1 flex flex-col items-center justify-center gap-6 py-6">
+    <div class="text-center px-6">
+      <p class="hanzi text-4xl font-bold">修炼 <span class="text-primary">Xiulian</span></p>
+      <p class="text-muted mt-2">Learn to read Chinese from zero. No keyboard, no Chinese needed — start with 你好.</p>
+    </div>
     <UCard class="w-full max-w-sm">
       <form class="flex flex-col gap-4" @submit.prevent="submit">
-        <UInput v-model="email" type="email" placeholder="Email" autocomplete="email" required size="xl" />
-        <UInput v-model="password" type="password" placeholder="Password (8+ characters)" :autocomplete="mode === 'login' ? 'current-password' : 'new-password'" required minlength="8" size="xl" />
-        <p v-if="error" class="text-sm text-error">{{ error }}</p>
+        <UFormField label="Email">
+          <UInput v-model="email" type="email" autocomplete="email" inputmode="email" required size="xl" class="w-full" />
+        </UFormField>
+        <UFormField label="Password" :hint="mode === 'signup' ? '8+ characters' : undefined">
+          <UInput v-model="password" type="password" :autocomplete="mode === 'login' ? 'current-password' : 'new-password'" required minlength="8" size="xl" class="w-full" />
+        </UFormField>
+        <p v-if="error" role="alert" class="text-sm text-error">{{ error }}</p>
         <UButton type="submit" size="xl" block :loading="busy">{{ mode === 'login' ? 'Log in' : 'Create account' }}</UButton>
       </form>
     </UCard>
-    <UButton variant="link" color="neutral" @click="mode = mode === 'login' ? 'signup' : 'login'">
+    <UButton variant="link" color="neutral" @click="mode = mode === 'login' ? 'signup' : 'login'; error = ''">
       {{ mode === 'login' ? 'New here? Create an account' : 'Have an account? Log in' }}
     </UButton>
   </div>

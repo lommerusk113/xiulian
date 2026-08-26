@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import type { Unit } from '../types'
 import { units } from '../data'
-import { unitLearned, nextUnit, lessonStrength, TIER_COLORS } from '../store'
+import { unitLearned, nextUnit, lessonStrength, knownCount, TIER_COLORS } from '../store'
 
 const track = ref<'theme' | 'core' | 'media'>('theme')
 const tabs = [
@@ -36,19 +36,19 @@ function ring(id: string) {
   <div class="flex flex-col gap-6 py-6">
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold">Learn</h1>
-      <UButton to="/sounds" color="neutral" variant="soft" icon="i-lucide-ear" size="sm">Sounds &amp; tones</UButton>
+      <UButton to="/sounds" color="neutral" variant="soft" icon="i-lucide-ear">Sounds &amp; tones</UButton>
     </div>
     <UTabs v-model="track" :items="tabs" :content="false" />
-    <p class="text-sm text-muted -mt-2">
+    <p v-if="knownCount" class="text-sm text-muted -mt-2">
       <template v-if="track === 'media'">Recurring words from xianxia / wuxia shows and comics. Not HSK — but you'll hear them every episode. </template>
       <template v-else-if="track === 'theme'">Words by theme, drilled with heavy repetition; each lesson ends with sentences mixing them with what you already know. </template>
-      Each completion adds a ring (+100%); rings fade daily unless you repeat — the more often you've done a lesson, the slower it fades.
+      Each completion fills the ring: one pass for ×1, two for ×2, four for every tier after. Rings fade at midnight unless you repeat — the more often you've done a lesson, the slower it fades.
     </p>
 
     <section v-for="[name, list] in groups" :key="name" class="flex flex-col gap-2">
       <div class="flex items-center gap-2">
         <UIcon v-if="list[0].icon" :name="list[0].icon" class="text-primary" />
-        <h2 class="font-semibold flex-1">{{ name }} <span class="text-muted text-sm font-normal">{{ groupPct(list) }}% of words started</span></h2>
+        <h2 class="font-semibold flex-1">{{ name }} <span v-if="groupPct(list)" class="text-muted text-sm font-normal">{{ groupPct(list) }}% of words started</span></h2>
       </div>
       <RouterLink
         v-for="(u, i) in list"

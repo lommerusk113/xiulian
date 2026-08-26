@@ -135,14 +135,19 @@ if (cardsAfter !== cardsBefore) errors.push(`challenge changed scheduling cards 
 await shot('challenge')
 
 // lesson strength recorded for the completed unit, decays as specified
-const lesson = await evaluate(`JSON.stringify(JSON.parse(localStorage.getItem('xiulian.v1')).lessons['t1-1'] ?? null)`)
-if (!lesson || JSON.parse(lesson).n !== 1 || JSON.parse(lesson).p !== 100) errors.push(`lesson strength not recorded: ${lesson}`)
+const lessonRaw = await evaluate(`JSON.stringify(JSON.parse(localStorage.getItem('xiulian.v1') ?? '{}').lessons?.['t1-1'] ?? null)`)
+const lesson = lessonRaw === undefined ? null : JSON.parse(lessonRaw)
+if (!lesson || lesson.n !== 1 || lesson.p !== 100) errors.push(`lesson strength not recorded: ${JSON.stringify(lesson)}`)
 
 const saved = await evaluate(`Object.keys(JSON.parse(localStorage.getItem('xiulian.v1')).cards).length`)
-// sync: after the debounce the account must hold the same cards
-await sleep(2500)
-const remote = await (await fetch(`${url}/api/me/progress`, { headers: { authorization: `Bearer ${token}` } })).json()
-const remoteCards = Object.keys(remote.cards ?? {}).length
+// sync: within a few seconds of the last change the account must hold the same cards
+let remote, remoteCards
+for (let i = 0; i < 16; i++) {
+  await sleep(500)
+  remote = await (await fetch(`${url}/api/me/progress`, { headers: { authorization: `Bearer ${token}` } })).json()
+  remoteCards = Object.keys(remote.cards ?? {}).length
+  if (remoteCards === saved && remote.lessons?.['t1-1']) break
+}
 if (remoteCards !== saved) errors.push(`account has ${remoteCards} cards, device has ${saved}`)
 if (remote.lessons?.['t1-1']?.n !== 1) errors.push(`lesson strength not synced: ${JSON.stringify(remote.lessons)}`)
 if (remote.history?.length < saved) errors.push(`history not synced: ${remote.history?.length}`)

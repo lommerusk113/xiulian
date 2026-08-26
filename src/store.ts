@@ -171,21 +171,27 @@ const DAY = 86_400_000
 export const TIER_COLORS = ['var(--ui-primary)', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#8b5cf6', '#ec4899']
 /** Daily loss in percent of current strength. 1 completion → 100, 2 → 99, … floor 10. */
 export const dailyLoss = (completions: number) => Math.max(10, 101 - completions)
+/** Completions needed to climb one tier: 1 to reach ×1, 2 to reach ×2, then 4 for every tier after. */
+export const tierCost = (tier: number) => Math.min(4, 2 ** tier)
+/** Decay ticks at local midnight, not 24 h after the completion. */
+const calendarDays = (from: number, to: number) => Math.round((new Date(to).setHours(0, 0, 0, 0) - new Date(from).setHours(0, 0, 0, 0)) / DAY)
 
 export function lessonStrength(unitId: string, now = Date.now()) {
   const l = progress.lessons[unitId]
-  if (!l) return { strength: 0, tier: 0, completions: 0, loss: dailyLoss(0) }
-  const days = Math.floor((now - l.t) / DAY)
+  if (!l) return { strength: 0, tier: 0, completions: 0, loss: dailyLoss(0), toNext: 1 }
+  const days = calendarDays(l.t, now)
   const loss = dailyLoss(l.n)
   const strength = l.p * Math.pow(1 - loss / 100, Math.max(0, days))
-  return { strength, tier: Math.floor(strength / 100), completions: l.n, loss }
+  const tier = Math.floor(strength / 100)
+  const toNext = Math.ceil(((tier + 1) * 100 - strength) / (100 / tierCost(tier)))
+  return { strength, tier, completions: l.n, loss, toNext }
 }
 
 export function completeLesson(unitId: string) {
   const now = Date.now()
-  const { strength } = lessonStrength(unitId, now)
+  const { strength, tier } = lessonStrength(unitId, now)
   const n = (progress.lessons[unitId]?.n ?? 0) + 1
-  progress.lessons[unitId] = { p: strength + 100, n, t: now }
+  progress.lessons[unitId] = { p: strength + 100 / tierCost(tier), n, t: now }
 }
 
 // ---- daily challenge: fixed for the day, mostly tomorrow's words → hard before the lesson, doable after ----

@@ -1,6 +1,6 @@
 # Xiulian 修炼
 
-*Xiūliàn* — to cultivate. A keyboard-free Mandarin (simplified) learning app for going from zero to reading web novels in [Readibu](https://readibu.com) and following donghua / manhua. Vue 3 · TypeScript · Tailwind v4 · Nuxt UI 4 · ts-fsrs. Works as an installable PWA on phone and desktop. Progress syncs to an account (Micronaut + Postgres, see below) and is cached in the browser for offline use.
+*Xiūliàn* — to cultivate. Your HSK rank is a cultivation realm (凡人 → 炼气 → 筑基 → 金丹 → 元婴); Home shows the realm, nine 层 layers toward the next one, and the whole path. A keyboard-free Mandarin (simplified) learning app for going from zero to reading web novels in [Readibu](https://readibu.com) and following donghua / manhua. Vue 3 · TypeScript · Tailwind v4 · Nuxt UI 4 · ts-fsrs. Works as an installable PWA on phone and desktop. Progress syncs to an account (Micronaut + Postgres, see below) and is cached in the browser for offline use.
 
 ## Run
 
@@ -27,7 +27,7 @@ Three tracks:
 
 **Daily challenge.** Ten recognition exercises fixed for the day (seeded by date), drawn mostly from your *next* unit plus your weakest recent words — hard before the day's lesson, doable after. Unlimited attempts, no effect on scheduling; the result screen lines up today's attempts and Home keeps a 7-day best-score strip, so the gap between the morning try and the evening try is your visible progress.
 
-**Lesson strength.** Finishing a lesson adds +100% to that lesson's strength; you can stack past 100% (the ring changes colour per tier: ×1, ×2, …). Strength decays every day by `max(10, 101 − completions)`% of its current value — done once, it's gone the next day; done twice, −99%/day; the more times you've completed it, the slower it fades, down to a floor of 10%/day. Repeating a lesson drills every word, not just the new ones.
+**Lesson strength.** The first completion of a lesson fills its ring to 100% (×1); the next tier takes two completions, and every tier after that takes four — so ×3 → ×4 is four passes whether you're at 300% or 1000%. The ring shows the previous tier's colour underneath and the current tier's colour filling over it. Strength decays at midnight by `max(10, 101 − completions)`% of its current value — done once, it's gone the next day; done twice, −99%/day; the more times you've completed it, the slower it fades, down to a floor of 10%/day. Repeating a lesson drills every word, not just the new ones.
 
 **Ranks.** A word is *known* when FSRS predicts you'll remember it for 21+ days (Anki's "mature" line). Known words keep coming back, just rarely. You earn HSK rank N when 90% of band N is known. Home also shows a **subtitle coverage** meter — the share of all words spoken in film/TV subtitles that you've met.
 

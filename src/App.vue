@@ -32,7 +32,7 @@ const links = [
         </RouterLink>
       </nav>
 
-      <main class="flex-1 w-full max-w-2xl mx-auto px-4 pt-safe" :class="inSession ? 'pb-4' : 'pb-24 md:pb-8'">
+      <main class="flex-1 flex flex-col w-full max-w-2xl mx-auto px-4 pt-safe" :class="inSession ? 'pb-4' : 'pb-24 md:pb-8'">
         <RouterView />
       </main>
 
