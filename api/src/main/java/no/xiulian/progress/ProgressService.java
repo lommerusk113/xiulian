@@ -22,18 +22,21 @@ public class ProgressService {
     private final Repositories.Lessons lessons;
     private final Repositories.Challenges challenges;
     private final Repositories.Settings settings;
+    private final Repositories.Tribulations tribulations;
 
     public ProgressService(Repositories.Cards cards,
                            Repositories.Reviews reviews,
                            Repositories.Lessons lessons,
                            Repositories.Challenges challenges,
-                           Repositories.Settings settings) {
+                           Repositories.Settings settings,
+                           Repositories.Tribulations tribulations) {
 
         this.cards = cards;
         this.reviews = reviews;
         this.lessons = lessons;
         this.challenges = challenges;
         this.settings = settings;
+        this.tribulations = tribulations;
     }
 
     public ProgressDto get(UUID userId) {
@@ -51,8 +54,9 @@ public class ProgressService {
         var s = settings.findById(userId)
             .map(e -> new ProgressDto.Settings(e.getFocus(), e.isQuiet(), e.isAudioAutoplay(), e.getNewPerLesson(), e.isDark()))
             .orElse(null);
+        var tribs = toMap(tribulations.findByIdUserId(userId), t -> String.valueOf(t.getId().stage()), t -> t.getPassedAt().toEpochMilli());
 
-        return new ProgressDto(cardMap, lessonMap, challengeMap, history, s);
+        return new ProgressDto(cardMap, lessonMap, challengeMap, history, s, tribs);
     }
 
     /** Upserts every entry present in {@code delta}; absent keys are left untouched. */
@@ -89,6 +93,11 @@ public class ProgressService {
             var s = delta.settings();
             settings.update(new SettingsEntity(userId, s.focus(), s.quiet(), s.audioAutoplay(), s.newPerLesson(), s.dark()));
         }
+
+        if (delta.tribulations() != null) {
+            tribulations.updateAll(delta.tribulations().entrySet().stream().map(e -> new TribulationEntity(
+                new TribulationEntity.Id(userId, Integer.parseInt(e.getKey())), Instant.ofEpochMilli(e.getValue()))).toList());
+        }
     }
 
     public void delete(UUID userId) {
@@ -97,6 +106,7 @@ public class ProgressService {
         reviews.deleteByIdUserId(userId);
         lessons.deleteByIdUserId(userId);
         challenges.deleteByIdUserId(userId);
+        tribulations.deleteByIdUserId(userId);
         settings.deleteById(userId);
     }
 

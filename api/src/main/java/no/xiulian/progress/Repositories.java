@@ -50,6 +50,14 @@ final class Repositories {
     }
 
     @Repository
+    interface Tribulations extends CrudRepository<TribulationEntity, TribulationEntity.Id> {
+
+        List<TribulationEntity> findByIdUserId(UUID userId);
+
+        void deleteByIdUserId(UUID userId);
+    }
+
+    @Repository
     interface Settings extends CrudRepository<SettingsEntity, UUID> {
     }
 }

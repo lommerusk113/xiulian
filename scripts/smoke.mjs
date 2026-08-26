@@ -61,9 +61,9 @@ while (steps++ < 200) {
     await evaluate(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Continue').click()`)
     await sleep(150); continue
   }
-  if (await evaluate(`[...document.querySelectorAll('button')].some(b => b.textContent.trim() === 'Restart lesson')`)) {
+  if (await evaluate(`[...document.querySelectorAll('button')].some(b => /restart lesson/i.test(b.textContent))`)) {
     restarts++
-    await evaluate(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Restart lesson').click()`)
+    await evaluate(`[...document.querySelectorAll('button')].find(b => /restart lesson/i.test(b.textContent)).click()`)
     await sleep(150); continue
   }
   if (shots < 4 && text) { await shot(`ex-${shots++}`) }
@@ -134,6 +134,14 @@ const cardsAfter = await evaluate(`Object.keys(JSON.parse(localStorage.getItem('
 if (!ch || JSON.parse(ch).length !== 1) errors.push(`challenge attempt not recorded: ${ch}`)
 if (cardsAfter !== cardsBefore) errors.push(`challenge changed scheduling cards (${cardsBefore} → ${cardsAfter})`)
 await shot('challenge')
+
+// tribulation for 炼气一层 (stage 11) draws from every started HSK 1 word: renders, has questions
+await send('Page.navigate', { url: `${url}/#/session/tribulation/11` })
+await sleep(1200)
+const tribTotal = +(await evaluate(`document.querySelector('header span')?.textContent.split('/')[1] ?? 0`))
+if (!(tribTotal > 0 && tribTotal <= 20)) errors.push(`tribulation has ${tribTotal} questions`)
+if (!(await evaluate(`document.body.innerText.includes('天劫')`))) errors.push('tribulation header missing')
+await shot('tribulation')
 
 // lesson strength recorded for the completed unit, decays as specified
 const lessonRaw = await evaluate(`JSON.stringify(JSON.parse(localStorage.getItem('xiulian.v1') ?? '{}').lessons?.['t1-1'] ?? null)`)

@@ -37,6 +37,8 @@ export interface Progress {
   /** review timestamps (ms) for streak/stats */
   history: number[]
   settings: Settings
+  /** ladder stage index → ms timestamp the 天劫 was passed */
+  tribulations: Record<string, number>
 }
 
 const KEY = 'xiulian.v1'
@@ -49,6 +51,7 @@ function load(): Progress {
     challenges: {},
     history: [],
     settings: { focus: 'pinyin', quiet: false, audioAutoplay: true, newPerLesson: 8, dark: true },
+    tribulations: {},
   }
   try {
     const raw = localStorage.getItem(KEY) ?? localStorage.getItem('chuolingo.v1') // pre-rename progress
@@ -178,9 +181,35 @@ export function stageValue(s: Stage) {
   return s.metric === 'completed' ? bandCompleted(s.band) : bands[s.band - 1].known
 }
 
-/** Highest stage whose requirement is met. */
-export const stage = computed(() => STAGES.reduce((best, s, i) => (stageValue(s) >= s.target ? i : best), 0))
+const stageMet = (i: number) => stageValue(STAGES[i]) >= STAGES[i].target
+/** Highest stage whose requirement is met *and* whose 天劫 has been passed. */
+export const stage = computed(() => STAGES.reduce((best, _, i) => (stageMet(i) && (i === 0 || progress.tribulations[i]) ? i : best), 0))
+/** Highest met stage above the current one — its tribulation is waiting. */
+export const pendingStage = computed<number | undefined>(() => {
+  let best: number | undefined
+  STAGES.forEach((_, i) => {
+    if (i > stage.value && stageMet(i)) best = i
+  })
+  return best
+})
 export const nextStage = computed<Stage | undefined>(() => STAGES[stage.value + 1])
+
+export function passTribulation(stageIndex: number) {
+  progress.tribulations[stageIndex] = Date.now()
+}
+
+/** Words a stage's 天劫 draws from: everything started in the realm so far, weakest first. */
+export function tribulationWords(stageIndex: number) {
+  const s = STAGES[stageIndex]
+  const ids =
+    s.realm <= 1
+      ? new Set(bandUnits(1).filter((u) => progress.lessons[u.id]).flatMap((u) => u.wordIds))
+      : new Set(words.filter((w) => w.level >= 1 && w.level <= s.realm - 1).map((w) => w.id))
+  return [...ids]
+    .filter(isKnown)
+    .map((id) => wordById.get(id)!)
+    .sort((a, b) => progress.cards[a.id].stability - progress.cards[b.id].stability)
+}
 
 export const stageLabel = (s: Stage) => {
   const [realmHanzi, ...rest] = REALMS[s.realm].split(' ')

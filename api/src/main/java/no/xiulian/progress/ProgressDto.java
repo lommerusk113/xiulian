@@ -15,7 +15,9 @@ public record ProgressDto(
     @Nullable Map<String, Lesson> lessons,
     @Nullable Map<String, Challenge> challenges,
     @Nullable List<Long> history,
-    @Nullable Settings settings
+    @Nullable Settings settings,
+    /** ladder stage index → epoch millis the tribulation was passed */
+    @Nullable Map<String, Long> tribulations
 ) {
 
     @Serdeable

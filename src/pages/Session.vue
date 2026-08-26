@@ -3,16 +3,16 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Exercise } from '../types'
 import { units } from '../data'
-import { grade, dueIds, isKnown, knownCount, nextStage, stageValue, stageLabel, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
+import { grade, dueIds, isKnown, knownCount, nextStage, stageValue, stageLabel, STAGES, passTribulation, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
 import { speak } from '../tts'
-import { buildLearn, buildReview, buildChallenge } from '../session'
+import { buildLearn, buildReview, buildChallenge, buildTribulation } from '../session'
 import { homophones, shuffle } from '../exercises'
 import Intro from '../components/Intro.vue'
 import Choice from '../components/Choice.vue'
 import Tiles from '../components/Tiles.vue'
 import Speak from '../components/Speak.vue'
 
-const props = defineProps<{ mode: 'learn' | 'review' | 'challenge'; unit?: string }>()
+const props = defineProps<{ mode: 'learn' | 'review' | 'challenge' | 'tribulation'; unit?: string }>()
 const router = useRouter()
 
 const queue = ref<Exercise[]>([])
@@ -30,7 +30,10 @@ const unitTitle = computed(() => unitObj.value?.title)
 // HSK core lessons are strict: two lives, the third miss restarts the lesson — passing one means you actually know the words
 const LIVES = 2
 const strict = computed(() => props.mode === 'learn' && unitObj.value?.track === 'core')
-const failed = computed(() => strict.value && stats.value.wrong > LIVES)
+const trib = computed(() => props.mode === 'tribulation')
+const tribStage = computed(() => (trib.value ? stageLabel(STAGES[+props.unit!]) : null))
+const lives = computed(() => strict.value || trib.value)
+const failed = computed(() => lives.value && stats.value.wrong > LIVES)
 const knownBefore = ref(knownCount.value)
 const attempt = ref(1)
 const pinyinFirst = computed(() => progress.settings.focus === 'pinyin')
@@ -45,7 +48,8 @@ function start() {
     router.replace('/learn')
     return
   }
-  queue.value = props.mode === 'learn' && props.unit ? buildLearn(props.unit) : props.mode === 'challenge' ? buildChallenge() : buildReview()
+  queue.value =
+    props.mode === 'learn' && props.unit ? buildLearn(props.unit) : props.mode === 'challenge' ? buildChallenge() : props.mode === 'tribulation' ? buildTribulation(+props.unit!) : buildReview()
   knownBefore.value = knownCount.value
   completed = false
   idx.value = 0
@@ -70,8 +74,8 @@ function onAnswer(correct: boolean) {
     grade(e.word.id, correct)
   }
   correct ? stats.value.right++ : stats.value.wrong++
-  if (!correct && strict.value && stats.value.wrong > LIVES) return // out of lives → footer offers Restart
-  if (!correct) {
+  if (!correct && lives.value && stats.value.wrong > LIVES) return // out of lives → footer offers Restart
+  if (!correct && !trib.value) {
     // missed → the same question goes to the back of the pile (options reshuffled), up to three times;
     // the intro card comes back before the third try
     const key = e.sentence?.hanzi ?? e.word.id
@@ -95,6 +99,7 @@ function next() {
     completed = true
     if (props.mode === 'learn' && props.unit) completeLesson(props.unit)
     if (props.mode === 'challenge') recordChallenge(stats.value.right)
+    if (props.mode === 'tribulation') passTribulation(+props.unit!) // reaching the end means the lives held
   }
 }
 const strength = computed(() => (props.unit ? lessonStrength(props.unit) : null))
@@ -129,19 +134,20 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
 <template>
   <div class="flex flex-col flex-1 py-4 gap-4">
     <header class="flex items-center gap-3">
-      <UButton icon="i-lucide-x" color="neutral" variant="ghost" class="size-11 justify-center" aria-label="Quit" @click="router.push(mode === 'review' ? '/' : '/learn')" />
+      <UButton icon="i-lucide-x" color="neutral" variant="ghost" class="size-11 justify-center" aria-label="Quit" @click="router.push(mode === 'learn' ? '/learn' : '/')" />
       <UProgress :model-value="Math.min(idx, total)" :max="total || 1" size="lg" class="flex-1" />
       <span class="text-sm text-muted tabular-nums">{{ Math.min(idx, total) }}/{{ total }}</span>
-      <span v-if="strict && !finished" class="flex items-center gap-0.5" :title="`${Math.max(0, LIVES - stats.wrong)} of ${LIVES} lives left`">
+      <span v-if="lives && !finished" class="flex items-center gap-0.5" :title="`${Math.max(0, LIVES - stats.wrong)} of ${LIVES} lives left`">
         <UIcon v-for="i in LIVES" :key="i" name="i-lucide-heart" class="size-4" :class="i <= LIVES - stats.wrong ? 'text-error' : 'text-muted/40'" />
       </span>
-      <UBadge v-if="strict && attempt > 1" color="neutral" variant="subtle" size="sm">try {{ attempt }}</UBadge>
+      <UBadge v-if="lives && attempt > 1" color="neutral" variant="subtle" size="sm">try {{ attempt }}</UBadge>
     </header>
 
     <template v-if="finished">
       <div class="flex-1 flex flex-col items-center justify-center text-center gap-6">
-        <UIcon name="i-lucide-party-popper" class="size-16 text-primary" />
-        <h1 class="text-3xl font-bold">{{ mode === 'learn' ? 'Unit done' : mode === 'challenge' ? `${stats.right} / ${total}` : 'Review done' }}</h1>
+        <UIcon :name="mode === 'tribulation' ? 'i-lucide-zap' : 'i-lucide-party-popper'" class="size-16 text-primary" />
+        <h1 class="text-3xl font-bold">{{ mode === 'learn' ? 'Unit done' : mode === 'challenge' ? `${stats.right} / ${total}` : mode === 'tribulation' ? '天劫 passed' : 'Review done' }}</h1>
+        <p v-if="mode === 'tribulation' && tribStage" class="text-xl"><span class="hanzi text-primary font-semibold">{{ tribStage.realm }}{{ tribStage.sub }}</span> {{ tribStage.name }} earned</p>
         <p class="text-muted">{{ stats.right }} correct · {{ stats.wrong }} missed</p>
         <div v-if="mode === 'challenge'" class="w-full max-w-xs rounded-xl bg-elevated p-3 text-sm">
           <p class="font-medium mb-2">Today's attempts</p>
@@ -187,6 +193,7 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
     <template v-else-if="ex">
       <p v-if="unitTitle && mode === 'learn'" class="text-xs text-muted -mb-2">{{ unitTitle }}<span v-if="strict"> · strict: {{ LIVES }} lives, the third miss restarts</span></p>
       <p v-else-if="mode === 'challenge'" class="text-xs text-muted -mb-2">Daily challenge — a test, not practice: no hints, no retries</p>
+      <p v-else-if="mode === 'tribulation' && tribStage" class="text-xs text-muted -mb-2"><span class="hanzi">天劫</span> for <span class="hanzi">{{ tribStage.realm }}{{ tribStage.sub }}</span> — {{ total }} questions from the whole realm, {{ LIVES }} lives</p>
       <Intro v-if="ex.kind === 'intro'" :key="idx" :word="ex.word" class="flex-1" @done="next" />
 
       <div v-else :key="idx" class="flex-1 flex flex-col gap-6">
@@ -260,7 +267,7 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           </div>
           <Speak :text="text(ex)" size="sm" />
         </div>
-        <UButton v-if="failed" size="xl" block color="error" icon="i-lucide-rotate-ccw" @click="restart">Out of lives — restart lesson</UButton>
+        <UButton v-if="failed" size="xl" block color="error" icon="i-lucide-rotate-ccw" @click="restart">{{ trib ? 'The heavens hold you back — try again' : 'Out of lives — restart lesson' }}</UButton>
         <UButton v-else size="xl" block :color="answered ? 'success' : 'error'" @click="next">Continue</UButton>
       </footer>
     </template>

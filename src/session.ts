@@ -1,7 +1,7 @@
 import type { Exercise, Word } from './types'
 import { units, sentences, words } from './data'
 import { State } from 'ts-fsrs'
-import { isKnown, dueIds, progress, wordById, todaysChallenge } from './store'
+import { isKnown, dueIds, progress, wordById, todaysChallenge, tribulationWords } from './store'
 import { makeExercise, randomKind, shuffle, sentenceExercise } from './exercises'
 
 const REVIEW_BATCH = 20
@@ -63,6 +63,16 @@ export function buildLearn(unitId: string): Exercise[] {
   const unknownCount = (s: { tokens: string[] }) => new Set(s.tokens.filter((t) => !ids.has(t) && !isKnown(t))).size
   out.push(...pickSentences((s) => s.tokens.some((t) => ids.has(t)) && unknownCount(s) <= 1, n))
   return out
+}
+
+/** 天劫: 20 questions from the whole realm, the 12 weakest words plus 8 at random; graded, no intros, no retries. */
+export const TRIBULATION_SIZE = 20
+export function buildTribulation(stageIndex: number): Exercise[] {
+  const { focus, quiet } = progress.settings
+  const all = tribulationWords(stageIndex)
+  const ws = all.length <= TRIBULATION_SIZE ? all : [...all.slice(0, 12), ...shuffle(all.slice(12)).slice(0, TRIBULATION_SIZE - 12)]
+  const pool = seenPool(ws)
+  return shuffle(ws.map((w) => makeExercise(randomKind(w, focus, { quiet, tier: tierOf(w.id) }), w, pool)))
 }
 
 /** Daily challenge: one recognition exercise per fixed word, no intros, no retries, no grading. */

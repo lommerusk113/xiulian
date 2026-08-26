@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { words } from '../data'
-import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, coverage, REALMS, STAGES, stage, nextStage, stageValue, stageLabel, TIER_COLORS } from '../store'
+import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, coverage, REALMS, STAGES, stage, nextStage, pendingStage, stageValue, stageLabel, TIER_COLORS } from '../store'
 
 const coreTotal = words.filter((w) => w.level > 0).length
 const readibu = computed(() => Math.round((matureCount.value / coreTotal) * 100))
@@ -22,6 +22,7 @@ const toNext = computed(() => {
   return { ...stageLabel(n), value, target: n.target, band: n.band, metric: n.metric, pct: Math.min(100, (value / n.target) * 100), ghost: Math.min(100, (started / n.target) * 100) }
 })
 const realmHanzi = (r: string) => r.split(' ')[0]
+const pending = computed(() => (pendingStage.value !== undefined ? { index: pendingStage.value, ...stageLabel(STAGES[pendingStage.value]) } : null))
 // ponytail: cards carry no "created" stamp, so a word counts as met today if its last review is today and no full day has passed since the one before — first-day cards always match
 const today = computed(() => {
   const midnight = new Date().setHours(0, 0, 0, 0)
@@ -53,7 +54,10 @@ const today = computed(() => {
         </div>
       </div>
 
-      <div v-if="toNext" class="mt-4">
+      <UButton v-if="pending" size="xl" block class="mt-4" icon="i-lucide-zap" :to="`/session/tribulation/${pending.index}`">
+        <span class="hanzi">天劫</span> — face the tribulation for <span class="hanzi">{{ pending.realm }}{{ pending.sub }}</span>
+      </UButton>
+      <div v-else-if="toNext" class="mt-4">
         <div class="h-2.5 rounded-full bg-accented overflow-hidden relative">
           <div class="absolute inset-y-0 left-0 bg-(--accent)/30 transition-[width] duration-700" :style="`width:${toNext.ghost}%`" />
           <div class="absolute inset-y-0 left-0 bg-(--accent) transition-[width] duration-700" :style="`width:${toNext.pct}%`" />
@@ -74,7 +78,9 @@ const today = computed(() => {
           </div>
         </template>
       </div>
-      <p class="text-xs text-muted mt-3">A word is <b>started</b> after its first lesson and <b>known</b> once you've remembered it for about three weeks. Readibu's easiest stories open up around <span class="hanzi">金丹</span>.</p>
+      <p class="text-xs text-muted mt-3">
+        <RouterLink v-if="stage" :to="`/session/tribulation/${stage}`" class="underline">Retake the last <span class="hanzi">天劫</span></RouterLink><template v-if="stage"> to check you still hold the realm. </template>
+        A word is <b>started</b> after its first lesson and <b>known</b> once you've remembered it for about three weeks. Readibu's easiest stories open up around <span class="hanzi">金丹</span>.</p>
     </UCard>
 
     <template v-if="knownCount">
