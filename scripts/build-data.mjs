@@ -34,7 +34,7 @@ for (const line of lines(await fetchCached('hsk30.csv', 'https://raw.githubuserc
   const [, simp, , pinyin] = line.split(',')
   if (simp && !official.has(simp)) official.set(simp, stripTones(pinyin))
 }
-const overrides = new Map(lines(readFileSync(join(root, 'scripts/overrides.txt'), 'utf8')).map((l) => { const [h, p, g] = l.split('|'); return [h, { pinyin: p, meaning: g }] }))
+const overrides = new Map(lines(readFileSync(join(root, 'scripts/overrides.txt'), 'utf8')).map((l) => { const [h, p, g, pattern] = l.split('|'); return [h, { pinyin: p, meaning: g, pattern }] }))
 // subtitle frequency share (hermitdave/FrequencyWords, OpenSubtitles zh_cn, CC BY-SA 4.0)
 const subCount = new Map()
 let subTotal = 0
@@ -68,6 +68,7 @@ for (const e of raw) {
     hanzi: e.simplified,
     pinyin: o?.pinyin ?? joinPinyin(f.f.transcriptions.pinyin),
     meaning,
+    ...(o?.pattern ? { pattern: o.pattern } : {}),
     level: lv,
     pos: e.pos?.[0],
     share: +((subCount.get(e.simplified) ?? 0) / subTotal).toFixed(7),
@@ -120,9 +121,10 @@ let group = null
 for (const line of readFileSync(join(root, 'scripts/media.txt'), 'utf8').split('\n')) {
   if (!line.trim() || line.startsWith('#')) continue
   if (line.startsWith('==')) { group = { title: line.slice(2).trim(), ids: [] }; units.push(group); continue }
-  const [hanzi, pinyin, meaning] = line.split('|').map((s) => s.trim())
+  const keep = line.startsWith('!') // genre sense of an everyday word (大人 = my lord)
+  const [hanzi, pinyin, meaning] = line.replace(/^!/, '').split('|').map((s) => s.trim())
   const hsk = byHanzi.get(hanzi)
-  if (hsk && hsk.level <= 2) continue // learned in the core track anyway
+  if (hsk && hsk.level <= 2 && !keep) continue // learned in the core track anyway
   const id = hsk ? `${hanzi}~m` : hanzi
   media.push({ id, hanzi, pinyin, meaning, level: 0, share: +((subCount.get(hanzi) ?? 0) / subTotal).toFixed(7) })
   group.ids.push(id)
@@ -132,7 +134,8 @@ for (let i = units.length - 1; i >= 0; i--) {
   const g = units[i]
   if (!g.ids) continue
   const parts = []
-  for (let j = 0; j < g.ids.length; j += UNIT_SIZE) parts.push(g.ids.slice(j, j + UNIT_SIZE))
+  const size = Math.ceil(g.ids.length / Math.ceil(g.ids.length / UNIT_SIZE)) // balanced: 11 words → 6 + 5, not 10 + 1
+  for (let j = 0; j < g.ids.length; j += size) parts.push(g.ids.slice(j, j + size))
   units.splice(i, 1, ...parts.map((ids, k) => ({ id: `m${i}-${k + 1}`, title: parts.length > 1 ? `${g.title} ${k + 1}` : g.title, track: 'media', wordIds: ids })))
 }
 const allWords = [...words, ...media]

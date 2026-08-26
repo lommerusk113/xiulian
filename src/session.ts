@@ -1,7 +1,7 @@
 import type { Exercise, Word } from './types'
 import { units, sentences, words } from './data'
 import { State } from 'ts-fsrs'
-import { isKnown, dueIds, progress, wordById, todaysChallenge, tribulationWords, trialWords } from './store'
+import { isKnown, dueIds, progress, wordById, todaysChallenge, tribulationWords, trialWords, readableSentences, READ_SIZE } from './store'
 import { makeExercise, randomKind, shuffle, sentenceExercise } from './exercises'
 
 const REVIEW_BATCH = 20
@@ -31,7 +31,8 @@ function pickSentences(filter: (s: (typeof sentences)[number]) => boolean, n: nu
     })
 }
 
-export function buildLearn(unitId: string): Exercise[] {
+/** @param missed words missed on the previous attempt — they get their intro card back, so a retake teaches before it tests */
+export function buildLearn(unitId: string, missed: string[] = []): Exercise[] {
   const unit = units.find((u) => u.id === unitId)
   if (!unit) return []
   const { focus, quiet } = progress.settings
@@ -46,7 +47,7 @@ export function buildLearn(unitId: string): Exercise[] {
     const drills: Exercise[] = []
     for (const w of chunk) {
       // repeats drill every word fully; only unseen words get an intro card
-      if (!isKnown(w.id)) out.push({ kind: 'intro', word: w, options: [], tiles: [] })
+      if (!isKnown(w.id) || missed.includes(w.id)) out.push({ kind: 'intro', word: w, options: [], tiles: [] })
       const tier = tierOf(w.id)
       const a = randomKind(w, focus, { quiet, tier })
       const b = randomKind(w, focus, { exclude: [a], quiet, tier })
@@ -59,10 +60,32 @@ export function buildLearn(unitId: string): Exercise[] {
   // finish by combining: sentences that mix this unit's words with everything already known (more as you know more),
   // allowing at most one brand-new word per sentence so vocabulary sneaks in through context
   const ids = new Set(unit.wordIds)
-  const n = Math.min(6, 3 + Math.floor(words.filter((w) => isKnown(w.id)).length / 40))
+  const n = Math.min(12, 6 + Math.floor(words.filter((w) => isKnown(w.id)).length / 40))
   const unknownCount = (s: { tokens: string[] }) => new Set(s.tokens.filter((t) => !ids.has(t) && !isKnown(t))).size
-  out.push(...pickSentences((s) => s.tokens.some((t) => ids.has(t)) && unknownCount(s) <= 1, n))
+  // greedy: each pick covers as many not-yet-shown unit words as possible, so every new word is met in a sentence when one exists
+  const candidates = shuffle(sentences.filter((s) => s.tokens.some((t) => ids.has(t)) && unknownCount(s) <= 1))
+  const uncovered = new Set(unit.wordIds)
+  const chosen: typeof candidates = []
+  while (chosen.length < n && candidates.length) {
+    candidates.sort((a, b) => b.tokens.filter((t) => uncovered.has(t)).length - a.tokens.filter((t) => uncovered.has(t)).length)
+    const s = candidates.shift()!
+    chosen.push(s)
+    for (const t of s.tokens) uncovered.delete(t)
+  }
+  out.push(...pickSentences((s) => chosen.includes(s), n))
   return out
+}
+
+/** Read: sentences you can understand (at most one new word), comprehension questions only — input, not a test. */
+export function buildRead(): Exercise[] {
+  return shuffle(readableSentences())
+    .slice(0, READ_SIZE)
+    .map((s) => {
+      const fresh = [...new Set(s.tokens.filter((t) => !isKnown(t)))].map(wordOf)
+      const ex = sentenceExercise(s, 'sentenceMeaning', wordOf)
+      ex.newWords = fresh
+      return ex
+    })
 }
 
 /** 天劫: 20 questions from the whole realm, the 12 most-likely-forgotten words plus 8 at random. Follows the Focus setting like lessons do. */

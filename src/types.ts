@@ -9,6 +9,8 @@ export interface Word {
   pos?: string
   /** share of running words in film/TV subtitles (0-1) */
   share: number
+  /** one-line usage pattern for grammar words, e.g. "S + 吗？" */
+  pattern?: string
 }
 
 export interface Unit {

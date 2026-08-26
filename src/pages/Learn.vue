@@ -48,7 +48,7 @@ const ring = (id: string) => rings.value.get(id)!
     <p v-if="knownCount" class="text-sm text-muted -mt-2">
       <template v-if="track === 'media'">Recurring words from xianxia / wuxia shows and comics. Not HSK — but you'll hear them every episode. </template>
       <template v-else-if="track === 'theme'">Words by theme, drilled with heavy repetition; each lesson ends with sentences mixing them with what you already know. </template>
-      <template v-else>Strict lessons that carry your rank: the markers show where each 天劫 unlocks. Opening a unit lists the theme lessons that prepare you for it. </template>
+      <template v-else>Strict lessons that carry your rank: the markers show where each 突破 (breakthrough) unlocks. Opening a unit lists the theme lessons that prepare you for it. </template>
       Each completion fills the ring: one pass for ×1, two for ×2, four for every tier after. Only your latest lesson in each track fades: one completion's worth per missed day, so repeating it daily holds the level. HSK units unlock in order.
     </p>
 
@@ -83,7 +83,7 @@ const ring = (id: string) => rings.value.get(id)!
       <div v-if="track === 'core' && name === 'HSK 1' && stageAtUnit(i + 1)" class="flex items-center gap-3 px-3 text-sm" :class="progress.tribulations[stageAtUnit(i + 1)!] ? 'text-muted' : 'text-primary'">
         <div class="flex-1 h-px" :class="progress.tribulations[stageAtUnit(i + 1)!] ? 'bg-accented' : 'bg-primary/40'" />
         <UIcon :name="progress.tribulations[stageAtUnit(i + 1)!] ? 'i-lucide-check' : 'i-lucide-zap'" class="size-4" />
-        <span class="hanzi">天劫 · {{ stageLabel(STAGES[stageAtUnit(i + 1)!]).realm }}{{ stageLabel(STAGES[stageAtUnit(i + 1)!]).sub }}</span>
+        <span class="hanzi">{{ STAGES[stageAtUnit(i + 1)!].rite }} · {{ stageLabel(STAGES[stageAtUnit(i + 1)!]).realm }}{{ stageLabel(STAGES[stageAtUnit(i + 1)!]).sub }}</span>
         <span class="text-muted">{{ stageLabel(STAGES[stageAtUnit(i + 1)!]).name }}</span>
         <div class="flex-1 h-px" :class="progress.tribulations[stageAtUnit(i + 1)!] ? 'bg-accented' : 'bg-primary/40'" />
       </div>

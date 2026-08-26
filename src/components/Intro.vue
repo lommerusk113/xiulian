@@ -33,6 +33,7 @@ onMounted(() => speak(props.word.hanzi, 0.85, true))
       </template>
     </button>
     <p class="text-xl">{{ word.meaning }}</p>
+    <p v-if="word.pattern" class="text-sm text-muted -mt-2"><span class="hanzi">{{ word.pattern }}</span></p>
     <Speak :text="word.hanzi" size="lg" />
     <div v-if="twins.length" class="text-sm bg-elevated rounded-xl p-4 w-full text-left">
       <p class="text-muted mb-2">Sounds the same — the character is the only difference:</p>

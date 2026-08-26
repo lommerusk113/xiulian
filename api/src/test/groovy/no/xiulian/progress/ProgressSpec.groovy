@@ -26,6 +26,7 @@ class ProgressSpec extends Specification {
         settings  : [focus: 'hanzi', quiet: true, audioAutoplay: false, newPerLesson: 4, dark: false],
         tribulations: ['1': 1756116000000L],
         marks     : [trial: 1756116000000L],
+        retention : ['2026-08-25': [12, 11]],
     ]
 
     def 'progress requires a token'() {
@@ -54,6 +55,7 @@ class ProgressSpec extends Specification {
             body.settings == [focus: 'hanzi', quiet: true, audioAutoplay: false, newPerLesson: 4, dark: false]
             body.tribulations == ['1': 1756116000000L]
             body.marks == [trial: 1756116000000L]
+            body.retention == ['2026-08-25': [12, 11]]
     }
 
     def 'patch upserts and history is idempotent'() {
@@ -86,6 +88,7 @@ class ProgressSpec extends Specification {
             body.settings == null
             body.tribulations == [:]
             body.marks == [:]
+            body.retention == [:]
     }
 
     private String signup() {

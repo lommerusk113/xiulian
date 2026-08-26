@@ -98,3 +98,484 @@
 今天很冷。|It's cold today.
 我的老师很好。|My teacher is very nice.
 这本书太难了。|This book is too hard.
+# panel 2026-08-26: zero-sentence HSK 1 words (2 each) + grammar words 的 吗 了 吧 也 都 很 和 再 从 能 跟 呢 们 可以 给 (3 each)
+不客气，不客气。|You're welcome, really.
+不客气，再见！|You're welcome, bye!
+没关系，是我不好。|It's fine, my fault.
+没关系，没关系。|It's fine, don't worry.
+我要八个。|I want eight.
+我有八块钱。|I have eight yuan.
+这是什么饭？|What kind of rice is this?
+饭好了！|Food's ready!
+你要什么菜？|What dish do you want?
+我在中国。|I'm in China.
+你去中国吗？|Are you going to China?
+他是中国人。|He's Chinese.
+我要回中国。|I want to go back to China.
+你今天回吗？|Are you going back today?
+他是男老师。|He's a male teacher.
+这里男学生多吗？|Are there many boys here?
+今天是几月几日？|What's the date today?
+今天十号。|Today's the 10th.
+两天前他来了。|He came two days ago.
+三天前我买的。|I bought it three days ago.
+老师在学校外。|The teacher is outside the school.
+我不知道路。|I don't know the way.
+这是去学校的路。|This is the road to school.
+请等我。|Please wait for me.
+他在等车。|He's waiting for the bus.
+门开了。|The door's open.
+谁开的门？|Who opened the door?
+他是个好男人。|He's a good man.
+这里没有男人。|There are no men here.
+她是个好女人。|She's a good woman.
+那女人是我妈妈。|That woman is my mom.
+你笑什么？|What are you laughing at?
+他笑了。|He laughed.
+我的手很大。|My hands are big.
+看我的手。|Look at my hand.
+他很快地走了。|He left quickly.
+我们好好地看看。|Let's take a good look.
+他话很多。|He talks a lot.
+你见他了吗？|Did you see him?
+这地方很好。|This place is nice.
+我不喜欢这地方。|I don't like this place.
+最后他来了。|In the end he came.
+我最后走。|I'll leave last.
+你放哪儿了？|Where did you put it?
+别放太多。|Don't put too much.
+书放在这里。|The book goes here.
+你进不进？|Are you coming in or not?
+他进了门。|He went in.
+现在九点五分。|It's 9:05.
+有些事我不知道。|Some things I don't know.
+太早了。|Too early.
+他很早就来了。|He came very early.
+现在还早。|It's still early.
+我要睡了。|I'm going to sleep.
+你几点睡？|What time do you go to sleep?
+妈，我回来了。|Mom, I'm home.
+我妈是老师。|My mom's a teacher.
+球在哪儿？|Where's the ball?
+他有一个球。|He has a ball.
+我是第二。|I'm second.
+他第二个来的。|He was the second to arrive.
+你是学生吗？|Are you a student?
+你认识他吗？|Do you know him?
+这是谁的书？|Whose book is this?
+这是我朋友的家。|This is my friend's home.
+我吃了。|I've eaten.
+他走了。|He left.
+我买了两本书。|I bought two books.
+你说吧。|Go ahead, say it.
+吃吧。|Eat.
+你先走吧。|You go first.
+我也去。|I'm going too.
+他也是老师。|He's a teacher too.
+我也不知道。|I don't know either.
+我们都是学生。|We're all students.
+他们都走了。|They all left.
+我都知道。|I know it all.
+他很高。|He's tall.
+这里人很多。|There are a lot of people here.
+我的书很多。|I have lots of books.
+我和你。|You and me.
+他和我是朋友。|He and I are friends.
+爸爸和妈妈都在。|Mom and dad are both here.
+再来一个。|One more.
+我再看看。|Let me look again.
+他从中国来。|He's from China.
+你从哪儿来？|Where are you from?
+我从学校来。|I came from school.
+你能来吗？|Can you come?
+我不能去。|I can't go.
+你能帮我吗？|Can you help me?
+跟我来。|Come with me.
+我跟你去。|I'll go with you.
+他跟老师说了。|He told the teacher.
+你呢？|And you?
+我的书呢？|Where's my book?
+你在做什么呢？|What are you doing?
+老师们都来了。|The teachers all came.
+孩子们在学校。|The kids are at school.
+我可以走了吗？|Can I go now?
+你可以用我的车。|You can use my car.
+不可以！|No, you can't.
+给我。|Give it to me.
+他给我一本书。|He gave me a book.
+这是给你的。|This is for you.
+我们有八个。|We have eight.
+这菜好吗？|Is this dish good?
+这是什么菜？|What dish is this?
+他十日回中国。|He goes back to China on the 10th.
+我十号走。|I leave on the 10th.
+你快快地吃吧。|Eat up quickly.
+她很快地来了。|She came quickly.
+他去见老师了。|He went to see the teacher.
+你今天见谁？|Who are you seeing today?
+这地方人很多。|This place is crowded.
+他六点五分到。|He arrives at 6:05.
+有些话我不想说。|Some things I'd rather not say.
+你明天再来。|Come again tomorrow.
+朋友们，你们好！|Hello, friends!
+学生们都走了。|The students have all left.
+老师的车在这里。|The teacher's car is here.
+你有车吗？|Do you have a car?
+他在等谁？|Who is he waiting for?
+他在学校外吃东西。|He's eating outside the school.
+他话不多。|He doesn't talk much.
+太晚了。|It's too late.
+现在很晚了。|It's late now.
+这书很重。|This book is heavy.
+我家有四口人。|There are four people in my family.
+你家几口人？|How many people are in your family?
+我喜欢这歌。|I like this song.
+这是什么歌？|What song is this?
+现在三点半。|It's 3:30.
+这书十元。|This book is ten yuan.
+一杯水两元。|A glass of water is two yuan.
+这是我的包。|This is my bag.
+你的包在这里。|Your bag is here.
+我在三楼。|I'm on the third floor.
+他家在几楼？|What floor does he live on?
+这楼很高。|This building is tall.
+我明天飞中国。|I fly to China tomorrow.
+他下午飞。|He flies this afternoon.
+我们出去吧。|Let's go out.
+他出去了。|He went out.
+你唱一个吧。|Sing one for us.
+我不会唱。|I can't sing.
+这歌我会唱。|I can sing this song.
+她们都是我朋友。|They're all my friends.
+她们在哪儿？|Where are they?
+我的手机在哪儿？|Where's my phone?
+这是你的手机吗？|Is this your phone?
+我要白的。|I want the white one.
+他的车是白的。|His car is white.
+我试试。|Let me try.
+你试试吧。|Give it a try.
+我们来到了中国。|We arrived in China.
+他来到我家。|He came to my house.
+这是新电脑吗？|Is this a new computer?
+他在用电脑。|He's using the computer.
+你有票吗？|Do you have a ticket?
+票多少钱？|How much is the ticket?
+我没有票。|I don't have a ticket.
+这是西吗？|Is this west?
+学校在西。|The school is to the west.
+我的床很大。|My bed is big.
+床太小了。|The bed's too small.
+我回到家了。|I got home.
+他回到中国了。|He returned to China.
+家里没有人。|Nobody's home.
+家里没有水了。|We're out of water at home.
+他很认真。|He's very serious.
+认真听！|Listen carefully!
+她学习很认真。|She studies hard.
+没电了。|The battery's dead.
+我的手机没电了。|My phone's dead.
+那山很高。|That mountain is high.
+我家在山里。|My home's in the mountains.
+我喜欢山。|I like mountains.
+他常来我家。|He often comes to my place.
+你常去哪儿？|Where do you usually go?
+我常看电视。|I often watch TV.
+飞机来了。|The plane's here.
+飞机几点到？|When does the plane land?
+门关了。|The door is closed.
+关电视吧。|Turn off the TV.
+手机关了吗？|Is the phone off?
+我哥是医生。|My brother's a doctor.
+哥，你去哪儿？|Bro, where are you going?
+我爸是老师。|My dad's a teacher.
+爸，你看！|Dad, look!
+爸，我走了。|Dad, I'm off.
+今天风很大。|It's windy today.
+没有风。|There's no wind.
+风太大了。|The wind's too strong.
+我们回去吧。|Let's go back.
+他回去了。|He went back.
+你几点回去？|When are you going back?
+病人在医院。|The patient's at the hospital.
+他是病人。|He's a patient.
+病人很多。|There are many patients.
+我一边吃一边看电视。|I eat while watching TV.
+他一边走一边说话。|He talks while walking.
+我洗了。|I washed it.
+我先洗。|I'll wash first.
+我来洗。|I'll wash up.
+两块六毛。|Two sixty.
+一杯水八毛。|A glass of water is eighty cents.
+我忘记了。|I forgot.
+别忘记了！|Don't forget!
+我忘记他的名字了。|I forgot his name.
+门在左。|The door's on the left.
+左还是右？|Left or right?
+从左到右看。|Read from left to right.
+他的动作很快。|His movements are fast.
+这动作很难。|This move is hard.
+动作快一点！|Hurry up!
+医院在右。|The hospital's on the right.
+今天是我的生日。|Today's my birthday.
+明天是他的生日。|Tomorrow is his birthday.
+你生日是哪天？|What day is your birthday?
+学校在东，医院在西。|The school's east, the hospital west.
+我家在东。|My home's to the east.
+我要一半。|I want half.
+我吃了一半。|I ate half.
+我的家人都在中国。|My family's all in China.
+他和家人一起吃饭。|He eats with his family.
+我有时不吃饭。|Sometimes I skip meals.
+他有时很忙。|He's sometimes busy.
+小姐，多少钱？|Miss, how much?
+小姐，我要一杯水。|Miss, a glass of water please.
+我们进去吧。|Let's go in.
+我在路上。|I'm on my way.
+他在路上，马上到。|He's on his way, arriving soon.
+路上人很多。|The road is crowded.
+我有时候很累。|Sometimes I'm very tired.
+他有时候不回家。|Sometimes he doesn't go home.
+这衣服很好看。|This outfit looks nice.
+这电影好看吗？|Is this movie good?
+我在中间。|I'm in the middle.
+中间的是我。|The one in the middle is me.
+他坐在中间。|He sits in the middle.
+她是我们班的女生。|She's a girl in our class.
+我们班女生多。|Our class has a lot of girls.
+雨很大。|It's raining hard.
+雨太大了，我不去了。|The rain's too heavy, I'm not going.
+我在车上。|I'm on the bus.
+他在车上睡觉。|He's sleeping on the bus.
+车上人很多。|The bus is crowded.
+明天考什么？|What's the test on tomorrow?
+他没考好。|He didn't do well on the test.
+我不想考。|I don't want to take the test.
+别生气。|Don't be angry.
+妈妈生气了。|Mom got angry.
+书在地上。|The book's on the floor.
+太贵了！|Too expensive!
+这书很贵。|This book is expensive.
+贵不贵？|Is it expensive?
+记住我的名字。|Remember my name.
+你记住了吗？|Got it memorized?
+他有很多知识。|He knows a lot.
+知识很重要。|Knowledge is important.
+那老人是谁？|Who's that old man?
+老人在休息。|The old man is resting.
+看第二页。|Look at page two.
+这页很难。|This page is hard.
+他是工人。|He's a worker.
+工人们在休息。|The workers are resting.
+他在那边。|He's over there.
+我们去那边坐吧。|Let's sit over there.
+那边是学校。|That's the school over there.
+他是我弟弟。|He's my little brother.
+弟弟在睡觉。|Little brother is sleeping.
+这里很干净。|It's clean here.
+我的房间很干净。|My room is clean.
+两百块。|200 yuan.
+这车五百块。|This car is 500 yuan.
+几百块？|How many hundred yuan?
+我在网上买的。|I bought it online.
+他在网上看电影。|He watches movies online.
+太重了！|Too heavy!
+我们五点半走。|We leave at 5:30.
+我家里有两个孩子。|There are two kids in my family.
+这是坏的，别吃。|This one's bad, don't eat it.
+手机坏，不能用。|The phone's broken, can't use it.
+别坐在地上。|Don't sit on the ground.
+车在左。|The car's on the left.
+他进去了。|He went in.
+我妹十岁。|My little sister is ten.
+她是我妹。|She's my little sister.
+不对，是那本。|No, it's that one.
+不对不对！|No, no!
+中午吃什么？|What's for lunch?
+我中午回家。|I go home at noon.
+你是不是学生？|Are you a student?
+他是不是不来了？|Is he not coming?
+是不是很贵？|Is it expensive?
+你会开车吗？|Can you drive?
+他开车去上班。|He drives to work.
+开车慢一点。|Drive slower.
+你在干什么？|What are you doing?
+他来干什么？|What did he come for?
+孩子在喝奶。|The baby's drinking milk.
+奶没有了。|We're out of milk.
+我常常来这儿。|I come here often.
+你常常看电影吗？|Do you often watch movies?
+请这边坐。|Please sit over here.
+我在这边。|I'm over here.
+男生在那边。|The boys are over there.
+我们班男生少。|Our class has few boys.
+我坐火车去。|I'm going by train.
+奶奶在家。|Grandma's at home.
+奶奶，我回来了。|Grandma, I'm home.
+上次你没来。|You didn't come last time.
+上次是他买的。|Last time he paid.
+我喜欢唱歌。|I like singing.
+我们去唱歌吧。|Let's go sing.
+你在哪儿上学？|Where do you go to school?
+他不上学了。|He quit school.
+她是我女朋友。|She's my girlfriend.
+我女朋友很忙。|My girlfriend is busy.
+我在上课。|I'm in class.
+几点上课？|What time does class start?
+新年好！|Happy New Year!
+新年我回家。|I'm going home for New Year.
+水果很贵。|Fruit is expensive.
+多吃水果。|Eat more fruit.
+商店在哪儿？|Where's the shop?
+我姐是医生。|My sister's a doctor.
+姐，你看！|Sis, look!
+坐下吧。|Sit down.
+坐下吃饭吧。|Sit down and eat.
+三点零五分。|3:05.
+他的号是三零五。|His number is 305.
+请问，学校在哪儿？|Excuse me, where's the school?
+请问，几点了？|Excuse me, what time is it?
+你喜欢哪些？|Which ones do you like?
+哪些是你的？|Which ones are yours?
+日期不对。|The date is wrong.
+写日期。|Write the date.
+我在上网。|I'm online.
+这里能上网吗？|Can I get online here?
+我们去商场吧。|Let's go to the mall.
+他在楼下。|He's downstairs.
+我们去楼下吃饭。|Let's go downstairs to eat.
+面包很好吃。|The bread's delicious.
+早上我吃面包。|I eat bread in the morning.
+他在外国工作。|He works abroad.
+我想去外国。|I want to go abroad.
+这歌真好听。|This song sounds great.
+她的名字很好听。|Her name sounds nice.
+我的钱包在哪儿？|Where's my wallet?
+钱包在包里。|The wallet's in the bag.
+他是大学生。|He's a college student.
+我姐是大学生。|My sister's a college student.
+车站在哪儿？|Where's the station?
+我在车站等你。|I'll wait for you at the station.
+我走路去。|I'll walk.
+他走路很快。|He walks fast.
+小朋友们都笑了。|The kids all laughed.
+商店在左边。|The shop's on the left.
+他在我左边。|He's on my left.
+这很有用。|This is useful.
+午饭吃什么？|What's for lunch?
+我没吃午饭。|I didn't eat lunch.
+上车吧。|Get in.
+快上车！|Hurry, get in the car!
+别在马路上跑。|Don't run on the road.
+他在马路那边。|He's across the road.
+门票多少钱？|How much is a ticket?
+门票很贵。|Tickets are expensive.
+机票太贵了。|Plane tickets are too expensive.
+我买了机票。|I bought a plane ticket.
+他在楼上。|He's upstairs.
+我们去楼上吧。|Let's go upstairs.
+我们去打球吧。|Let's go play ball.
+他喜欢打球。|He likes playing ball.
+我在这儿下车。|I get off here.
+杯子在桌子上。|The cup is on the table.
+这是我的杯子。|This is my cup.
+在路口等我。|Wait for me at the intersection.
+车在路口。|The car's at the intersection.
+他很有名。|He's famous.
+这饭店很有名。|This restaurant is famous.
+我弟十岁。|My little brother is ten.
+他是我弟。|He's my little brother.
+书店在哪儿？|Where's the bookstore?
+我在书店买的。|I bought it at the bookstore.
+几点放学？|What time does school end?
+放学了！|School's out!
+关上门。|Close the door.
+关上电视吧。|Turn off the TV.
+我们去玩儿吧。|Let's go have fun.
+你想玩儿什么？|What do you want to play?
+他等了半天。|He waited ages.
+半天没有人来。|Nobody came for ages.
+车票多少钱？|How much is the ticket?
+我买了车票。|I bought the ticket.
+你去看病吧。|Go see a doctor.
+电影院在哪儿？|Where's the cinema?
+电影院人很多。|The cinema is crowded.
+他前天来的。|He came the day before yesterday.
+前天下雨了。|It rained the day before yesterday.
+后天见！|See you the day after tomorrow!
+我后天走。|I leave the day after tomorrow.
+我渴了。|I'm thirsty.
+你渴不渴？|Are you thirsty?
+洗手间在哪儿？|Where's the restroom?
+我要去洗手间。|I need the restroom.
+下课了！|Class is over!
+几点下课？|When does class end?
+他在里边。|He's inside.
+请到里边坐。|Please sit inside.
+没事儿，别生气。|It's fine, don't be mad.
+你没事儿吧？|You OK?
+我们一块儿去吧。|Let's go together.
+一块儿走吧。|Let's walk together.
+他是中学生。|He's a middle school student.
+中学生很忙。|Middle school students are busy.
+这是我的本子。|This is my notebook.
+本子在桌子上。|The notebook's on the table.
+课本在哪儿？|Where's the textbook?
+看课本第二页。|Look at page two of the textbook.
+他在我后边。|He's behind me.
+坐后边吧。|Sit in the back.
+学校在西边。|The school is on the west side.
+西边是商场。|To the west is the mall.
+书在上边。|The book's on top.
+上边有什么？|What's on top?
+我们打车去吧。|Let's take a taxi.
+打车很贵。|Taxis are expensive.
+医院在东边。|The hospital is on the east side.
+东边是车站。|To the east is the station.
+我要两个包子。|Two baozi, please.
+包子很好吃。|The baozi are delicious.
+车站在南边。|The station's on the south side.
+南边是山。|To the south are mountains.
+商店在北边。|The shop's on the north side.
+北边很冷。|It's cold up north.
+那女孩儿是谁？|Who's that girl?
+她有一个女孩儿。|She has a daughter.
+书在桌子下边。|The book's under the table.
+他在下边。|He's down below.
+这汉字怎么写？|How do you write this character?
+汉字很难。|Chinese characters are hard.
+请进，请进。|Come in, come in.
+请进，他在里边。|Come in, he's inside.
+这里很好玩儿。|It's fun here.
+北京好玩儿吗？|Is Beijing fun?
+他在我前边。|He's in front of me.
+前边是车站。|Up ahead is the station.
+那小孩儿是谁的？|Whose kid is that?
+小孩儿在睡觉。|The kid is sleeping.
+教学楼在哪儿？|Where's the classroom building?
+我们在教学楼见吧。|Let's meet at the classroom building.
+他是我的网友。|He's my online friend.
+我和网友见面了。|I met up with an online friend.
+读课文。|Read the text.
+这课文很难。|This text is hard.
+请进，请坐。|Come in, have a seat.
+请坐，我马上来。|Please sit, I'll be right there.
+我在中国半年了。|I've been in China half a year.
+半年没见了。|Haven't seen you in half a year.
+明天听写。|Dictation tomorrow.
+听写很难。|Dictation is hard.
+我要面条儿。|I want noodles.
+中午吃面条儿吧。|Let's have noodles for lunch.
+那男孩儿是谁？|Who's that boy?
+她有两个男孩儿。|She has two boys.
+你看一下儿。|Take a look.
+我有一些书。|I have some books.
+这里有一些水果。|There's some fruit here.
+我要半杯。|Half a cup, please.
+火车来了。|The train's here.
+这商店很大。|This shop is big.
+商场在那边。|The mall is over there.
+小朋友们在唱歌。|The kids are singing.
+下车吧。|Get off.
+他去医院看病了。|He went to the hospital to see a doctor.
+试一下儿吧。|Give it a try.
+手机很有用。|Phones are useful.

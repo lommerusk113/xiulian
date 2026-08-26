@@ -67,9 +67,9 @@ while (steps++ < 200) {
     await evaluate(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Start the unit').click()`)
     await sleep(150); continue
   }
-  if (await evaluate(`[...document.querySelectorAll('button')].some(b => /restart lesson/i.test(b.textContent))`)) {
+  if (await evaluate(`[...document.querySelectorAll('button')].some(b => /restart lesson|fresh start/i.test(b.textContent))`)) {
     restarts++
-    await evaluate(`[...document.querySelectorAll('button')].find(b => /restart lesson/i.test(b.textContent)).click()`)
+    await evaluate(`[...document.querySelectorAll('button')].find(b => /restart lesson|fresh start/i.test(b.textContent)).click()`)
     await sleep(150); continue
   }
   if (shots < 4 && text) { await shot(`ex-${shots++}`) }
@@ -146,7 +146,7 @@ await send('Page.navigate', { url: `${url}/#/session/tribulation/11` })
 await sleep(1200)
 const tribTotal = +(await evaluate(`document.querySelector('header span')?.textContent.split('/')[1] ?? 0`))
 if (!(tribTotal > 0 && tribTotal <= 20)) errors.push(`tribulation has ${tribTotal} questions`)
-if (!(await evaluate(`document.body.innerText.includes('天劫')`))) errors.push('tribulation header missing')
+if (!(await evaluate(`/天劫|突破/.test(document.body.innerText)`))) errors.push('tribulation header missing')
 await shot('tribulation')
 
 // lesson strength recorded for the completed unit, decays as specified

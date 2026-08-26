@@ -24,6 +24,7 @@ public class ProgressService {
     private final Repositories.Settings settings;
     private final Repositories.Tribulations tribulations;
     private final Repositories.Marks marks;
+    private final Repositories.Retention retention;
 
     public ProgressService(Repositories.Cards cards,
                            Repositories.Reviews reviews,
@@ -31,7 +32,8 @@ public class ProgressService {
                            Repositories.Challenges challenges,
                            Repositories.Settings settings,
                            Repositories.Tribulations tribulations,
-                           Repositories.Marks marks) {
+                           Repositories.Marks marks,
+                           Repositories.Retention retention) {
 
         this.cards = cards;
         this.reviews = reviews;
@@ -40,6 +42,7 @@ public class ProgressService {
         this.settings = settings;
         this.tribulations = tribulations;
         this.marks = marks;
+        this.retention = retention;
     }
 
     public ProgressDto get(UUID userId) {
@@ -61,7 +64,9 @@ public class ProgressService {
 
         var markMap = toMap(marks.findByIdUserId(userId), m -> m.getId().key(), m -> m.getAt().toEpochMilli());
 
-        return new ProgressDto(cardMap, lessonMap, challengeMap, history, s, tribs, markMap);
+        var ret = toMap(retention.findByIdUserId(userId), r -> r.getId().day().toString(), r -> List.of(r.getAsked(), r.getCorrect()));
+
+        return new ProgressDto(cardMap, lessonMap, challengeMap, history, s, tribs, markMap, ret);
     }
 
     /** Upserts every entry present in {@code delta}; absent keys are left untouched. */
@@ -108,6 +113,11 @@ public class ProgressService {
             marks.updateAll(delta.marks().entrySet().stream().map(e -> new MarkEntity(
                 new MarkEntity.Id(userId, e.getKey()), Instant.ofEpochMilli(e.getValue()))).toList());
         }
+
+        if (delta.retention() != null) {
+            retention.updateAll(delta.retention().entrySet().stream().map(e -> new RetentionEntity(
+                new RetentionEntity.Id(userId, LocalDate.parse(e.getKey())), e.getValue().get(0), e.getValue().get(1))).toList());
+        }
     }
 
     public void delete(UUID userId) {
@@ -118,6 +128,7 @@ public class ProgressService {
         challenges.deleteByIdUserId(userId);
         tribulations.deleteByIdUserId(userId);
         marks.deleteByIdUserId(userId);
+        retention.deleteByIdUserId(userId);
         settings.deleteById(userId);
     }
 

@@ -126,7 +126,10 @@ export function makeExercise(kind: ExerciseKind, word: Word, pool: Word[]): Exer
 export function sentenceExercise(s: Sentence, kind: 'sentence' | 'sentenceMeaning', wordOf: (id: string) => Word): Exercise {
   const ex: Exercise = { kind, word: wordOf(s.tokens[0]), options: [], tiles: shuffle(s.tokens), sentence: s }
   if (kind === 'sentenceMeaning') {
-    const others = shuffle(sentences.filter((o) => o.meaning !== s.meaning && Math.abs(o.tokens.length - s.tokens.length) <= 2)).slice(0, 3)
+    // distractors share a word with the sentence, so spotting one word isn't enough; fall back to similar length
+    const similar = sentences.filter((o) => o.meaning !== s.meaning && Math.abs(o.tokens.length - s.tokens.length) <= 2)
+    const shared = shuffle(similar.filter((o) => o.tokens.some((t) => s.tokens.includes(t))))
+    const others = [...shared, ...shuffle(similar.filter((o) => !shared.includes(o)))].slice(0, 3)
     ex.options = shuffle([s.meaning, ...others.map((o) => o.meaning)])
   }
   return ex
@@ -144,8 +147,8 @@ const WEIGHTS: Record<Focus, Partial<Record<ExerciseKind, number>>> = {
  */
 export const TIER: Record<ExerciseKind, number> = {
   intro: 0, meaning: 0, pinyinMeaning: 0, audioMeaning: 0,
-  hanzi: 1, meaningPinyin: 1, audio: 1, tiles: 1, sentence: 1, sentenceMeaning: 1,
-  pinyin: 2, audioPinyin: 2,
+  hanzi: 1, meaningPinyin: 1, audio: 1, tiles: 1, sentence: 1, sentenceMeaning: 1, audioPinyin: 1, // hear it → pick the pinyin: tones are tested from the first review
+  pinyin: 2,
 }
 
 export function kindsFor(word: Word, focus: Focus, quiet = false, tier = 2): ExerciseKind[] {

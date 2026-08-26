@@ -1,6 +1,6 @@
 import { reactive, ref, watch, computed } from 'vue'
 import { createEmptyCard, fsrs, generatorParameters, Rating, State, type Card } from 'ts-fsrs'
-import { words, units } from './data'
+import { words, units, sentences } from './data'
 import type { Focus } from './types'
 import { setAutoplay } from './tts'
 
@@ -39,8 +39,10 @@ export interface Progress {
   settings: Settings
   /** ladder stage index → ms timestamp the 天劫 was passed */
   tribulations: Record<string, number>
-  /** named timestamps: `trial` = last weekly 试炼, `trib-fail-<stage>` = last failed 天劫 attempt */
+  /** named timestamps: `trial` = last weekly 试炼, `trib-fail-<stage>` = last failed 天劫 attempt, `read-<realm>` = Readibu milestone */
   marks: Record<string, number>
+  /** true retention per local day: yyyy-mm-dd → [due reviews asked, answered right] */
+  retention: Record<string, [number, number]>
 }
 
 const KEY = 'xiulian.v1'
@@ -55,6 +57,7 @@ function load(): Progress {
     settings: { focus: 'pinyin', quiet: false, audioAutoplay: true, newPerLesson: 8, dark: true },
     tribulations: {},
     marks: {},
+    retention: {},
   }
   try {
     const raw = localStorage.getItem(KEY) ?? localStorage.getItem('chuolingo.v1') // pre-rename progress
@@ -86,10 +89,13 @@ export function unitLearned(unitId: string) {
   return u.wordIds.filter(isKnown).length
 }
 
+/** Due is day-granular: a card due at 21:00 is due all day, so an evening review doesn't slip it a day. */
+const endOfToday = () => new Date().setHours(24, 0, 0, 0)
 export const dueIds = computed(() => {
-  const now = Date.now()
+  clock.value // re-evaluate when the clock ticks
+  const end = endOfToday()
   return Object.entries(progress.cards)
-    .filter(([, c]) => c.due.getTime() <= now)
+    .filter(([, c]) => c.due.getTime() < end)
     .sort((a, b) => a[1].due.getTime() - b[1].due.getTime())
     .map(([id]) => id)
 })
@@ -102,7 +108,7 @@ export const KNOWN_DAYS = 21
 export const RANK_THRESHOLD = 0.9
 
 /** Below this chance of recalling a word right now, it stops counting as known — rank decays with neglect. */
-export const KNOWN_RECALL = 0.7
+export const KNOWN_RECALL = 0.8
 /** Coarse clock so "known" is re-evaluated as time passes without a change; bumped on app start and each session. */
 export const clock = ref(Date.now())
 export const tick = () => (clock.value = Date.now())
@@ -151,7 +157,9 @@ export const coverage = computed(() => {
 })
 
 /** Cultivation realms — 修炼 flavour for the rank card. Index = realm, not HSK band. */
-export const REALMS = ['凡人 Mortal', '聚气 Qi Building', '炼气 Qi Refining', '筑基 Foundation', '金丹 Golden Core', '元婴 Nascent Soul']
+export const REALMS = ['凡人 Mortal', '炼体 Body Tempering', '炼气 Qi Refining', '筑基 Foundation', '金丹 Golden Core', '元婴 Nascent Soul']
+/** grey mortal, blood-orange tempering, cyan qi, earth-green foundation, gold core, purple soul */
+export const REALM_COLORS = ['#a3a3a3', '#f97316', '#06b6d4', '#84cc16', '#eab308', '#8b5cf6']
 const TEN = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
 const QUARTERS: [string, string, number][] = [['初期', 'Early', 0.1], ['中期', 'Mid', 0.4], ['后期', 'Late', 0.7], ['圆满', 'Peak', 1]]
 
@@ -164,6 +172,8 @@ export interface Stage {
   metric: 'completed' | 'known'
   band: number
   target: number
+  /** what stands between you and this stage: a 突破 (breakthrough) for 层 steps, a 天劫 (heavenly tribulation) at the gates of the great realms */
+  rite: '突破' | '天劫'
 }
 
 const bandTotal = (level: number) => words.filter((w) => w.level === level).length
@@ -178,10 +188,10 @@ export const bandCompleted = (level: number) => bandUnits(level).filter((u) => p
  * 炼气十层 = HSK rank 1, 筑基圆满 = rank 2, and so on.
  */
 export const STAGES: Stage[] = [
-  { realm: 0, hanzi: '', name: '', metric: 'completed', band: 1, target: 0 },
-  ...TEN.map((n, i) => ({ realm: 1, hanzi: `${n}层`, name: `${i + 1}`, metric: 'completed' as const, band: 1, target: Math.ceil((bandUnits(1).length * (i + 1)) / 10) })),
-  ...TEN.map((n, i) => ({ realm: 2, hanzi: `${n}层`, name: `${i + 1}`, metric: 'known' as const, band: 1, target: Math.round((bandNeed(1) * (i + 1)) / 10) })),
-  ...[2, 3, 4].flatMap((band, r) => QUARTERS.map(([hanzi, name, f]) => ({ realm: r + 3, hanzi, name, metric: 'known' as const, band, target: Math.round(bandNeed(band) * f) }))),
+  { realm: 0, hanzi: '', name: '', metric: 'completed', band: 1, target: 0, rite: '突破' },
+  ...TEN.map((n, i) => ({ realm: 1, hanzi: `${n}层`, name: `${i + 1}`, metric: 'completed' as const, band: 1, target: Math.ceil((bandUnits(1).length * (i + 1)) / 10), rite: '突破' as const })),
+  ...TEN.map((n, i) => ({ realm: 2, hanzi: `${n}层`, name: `${i + 1}`, metric: 'known' as const, band: 1, target: Math.round((bandNeed(1) * (i + 1)) / 10), rite: '突破' as const })),
+  ...[2, 3, 4].flatMap((band, r) => QUARTERS.map(([hanzi, name, f]) => ({ realm: r + 3, hanzi, name, metric: 'known' as const, band, target: Math.round(bandNeed(band) * f), rite: (hanzi === '初期' || hanzi === '圆满' ? '天劫' : '突破') as '突破' | '天劫' }))),
 ]
 
 /** Current count behind a stage's requirement; 0 until the previous realm is finished. */
@@ -276,6 +286,28 @@ export function completeTrial() {
   progress.marks.trial = Date.now()
 }
 
+/** Share of due reviews answered right over the last 7 days, or null with too little data. */
+export const retention7 = computed(() => {
+  let asked = 0
+  let right = 0
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(clock.value)
+    d.setDate(d.getDate() - i)
+    const r = progress.retention[todayKey(d)]
+    if (r) {
+      asked += r[0]
+      right += r[1]
+    }
+  }
+  return asked >= 20 ? right / asked : null
+})
+
+// ---- read mode: sentences you can understand, no hearts, no grading ----
+export const READ_SIZE = 20
+export function readableSentences() {
+  return sentences.filter((s) => s.tokens.filter((t) => !isKnown(t)).length <= 1 && s.tokens.some(isKnown))
+}
+
 export const stageLabel = (s: Stage) => {
   const [realmHanzi, ...rest] = REALMS[s.realm].split(' ')
   return { realm: realmHanzi, sub: s.hanzi, name: `${rest.join(' ')}${s.name ? ' ' + s.name : ''}` }
@@ -292,7 +324,13 @@ export function grade(id: string, correct: boolean, force = false) {
   const now = new Date()
   const card = progress.cards[id] ?? createEmptyCard(now)
   progress.history.push(now.getTime())
-  if (correct && !force && card.state === State.Review && card.due.getTime() > now.getTime()) return
+  const due = card.due.getTime() < endOfToday()
+  if (correct && !force && card.state === State.Review && !due) return
+  if (card.state === State.Review && due) {
+    const r = (progress.retention[todayKey(now)] ??= [0, 0])
+    r[0]++
+    if (correct) r[1]++
+  }
   const { card: next } = scheduler.next(card, now, correct ? Rating.Good : Rating.Again)
   progress.cards[id] = next
 }

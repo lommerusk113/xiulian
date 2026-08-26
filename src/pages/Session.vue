@@ -3,16 +3,16 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Exercise } from '../types'
 import { units } from '../data'
-import { grade, dueIds, isKnown, knownCount, matureCount, nextStage, stageValue, stageLabel, STAGES, passTribulation, failTribulation, completeTrial, tick, unitsWith, themeUnitsFor, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
+import { grade, dueIds, isKnown, knownCount, matureCount, streak, nextStage, stageValue, stageLabel, STAGES, passTribulation, failTribulation, completeTrial, tick, unitsWith, themeUnitsFor, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
 import { speak } from '../tts'
-import { buildLearn, buildReview, buildChallenge, buildTribulation, buildTrial } from '../session'
+import { buildLearn, buildReview, buildChallenge, buildTribulation, buildTrial, buildRead } from '../session'
 import { homophones, shuffle } from '../exercises'
 import Intro from '../components/Intro.vue'
 import Choice from '../components/Choice.vue'
 import Tiles from '../components/Tiles.vue'
 import Speak from '../components/Speak.vue'
 
-const props = defineProps<{ mode: 'learn' | 'review' | 'challenge' | 'tribulation' | 'trial'; unit?: string }>()
+const props = defineProps<{ mode: 'learn' | 'review' | 'challenge' | 'tribulation' | 'trial' | 'read'; unit?: string }>()
 const router = useRouter()
 
 const queue = ref<Exercise[]>([])
@@ -28,13 +28,14 @@ const total = computed(() => queue.value.length)
 const unitObj = computed(() => units.find((u) => u.id === props.unit))
 const unitTitle = computed(() => unitObj.value?.title)
 // HSK core lessons are strict: four hearts, the fourth miss restarts the lesson — passing one means you actually know the words.
-// A 天劫 gives three. Losing the last heart is the fail; reaching the end is the pass.
+// A 天劫/突破 gets four too (three failed 16–32% of learners at target retention by chance alone). Losing the last heart is the fail.
 const strict = computed(() => props.mode === 'learn' && unitObj.value?.track === 'core')
 const trib = computed(() => props.mode === 'tribulation')
 const trial = computed(() => props.mode === 'trial')
-const tribStage = computed(() => (trib.value ? stageLabel(STAGES[+props.unit!]) : null))
+const tribStage = computed(() => (trib.value ? { ...stageLabel(STAGES[+props.unit!]), rite: STAGES[+props.unit!].rite } : null))
+const reading = computed(() => props.mode === 'read')
 const lives = computed(() => strict.value || trib.value)
-const LIVES = computed(() => (trib.value ? 3 : 4))
+const LIVES = computed(() => 4)
 const lost = ref(0)
 const missedIds = ref<string[]>([])
 const failed = computed(() => lives.value && lost.value >= LIVES.value)
@@ -57,8 +58,10 @@ function start() {
     return
   }
   tick()
+  const missed = attempt.value > 1 ? [...missedIds.value] : []
   queue.value =
-    props.mode === 'learn' && props.unit ? buildLearn(props.unit)
+    props.mode === 'read' ? buildRead()
+    : props.mode === 'learn' && props.unit ? buildLearn(props.unit, missed)
     : props.mode === 'challenge' ? buildChallenge()
     : props.mode === 'tribulation' ? buildTribulation(+props.unit!)
     : props.mode === 'trial' ? buildTrial()
@@ -98,7 +101,7 @@ function onAnswer(correct: boolean) {
     if (trib.value) failTribulation(+props.unit!)
     return // out of lives → footer offers Restart
   }
-  if (!correct && !trib.value && !trial.value) {
+  if (!correct && !trib.value && !trial.value && !reading.value) {
     // missed → the same question goes to the back of the pile (options reshuffled), up to three times;
     // the intro card comes back before the third try
     const key = e.sentence?.hanzi ?? e.word.id
@@ -125,6 +128,7 @@ function next() {
     if (props.mode === 'challenge') recordChallenge(stats.value.right)
     if (props.mode === 'tribulation') passTribulation(+props.unit!) // reaching the end means the lives held
     if (props.mode === 'trial') completeTrial()
+    if (props.mode === 'read') progress.marks.read = Date.now()
   }
 }
 const strength = computed(() => (props.unit ? lessonStrength(props.unit) : null))
@@ -190,9 +194,12 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
     <template v-else-if="finished">
       <div class="flex-1 flex flex-col items-center justify-center text-center gap-6">
         <UIcon :name="mode === 'tribulation' ? 'i-lucide-zap' : 'i-lucide-party-popper'" class="size-16 text-primary" />
-        <h1 class="text-3xl font-bold">{{ mode === 'learn' ? 'Unit done' : mode === 'challenge' ? `${stats.right} / ${total}` : mode === 'tribulation' ? '天劫 passed' : mode === 'trial' ? '试炼 done' : 'Review done' }}</h1>
+        <h1 class="text-3xl font-bold">{{ mode === 'learn' ? (Object.keys(progress.lessons).length === 1 ? '第一课' : 'Unit done') : mode === 'challenge' ? `${stats.right} / ${total}` : mode === 'tribulation' ? `${tribStage?.rite} passed` : mode === 'trial' ? '试炼 done' : mode === 'read' ? 'Read done' : 'Review done' }}</h1>
+        <p v-if="mode === 'learn' && Object.keys(progress.lessons).length === 1" class="text-muted -mt-4">Your first ten words of Mandarin.</p>
+        <p v-if="streak === 3 || streak === 7" class="text-sm text-primary -mt-4">{{ streak }}-day streak — that's a habit forming.</p>
         <p v-if="mode === 'tribulation' && tribStage" class="text-xl"><span class="hanzi text-primary font-semibold">{{ tribStage.realm }}{{ tribStage.sub }}</span> {{ tribStage.name }} earned</p>
         <p class="text-muted">{{ stats.right }} correct · {{ stats.wrong }} missed</p>
+        <p v-if="mode === 'read'" class="text-sm text-muted -mt-3">{{ stats.right }} of {{ total }} understood. Nothing was graded — this was reading, not a test.</p>
         <p v-if="mode === 'trial'" class="text-sm text-muted -mt-3">{{ stats.right }} words stay known<template v-if="stats.wrong"> · {{ stats.wrong }} dropped back into learning</template>. Next 试炼 in a week.</p>
         <p v-if="(mode === 'review' || mode === 'trial') && nextStage?.metric === 'known'" class="text-sm text-muted -mt-3">
           <span v-if="matureCount > matureBefore" class="text-primary font-medium">+{{ matureCount - matureBefore }} words known · </span>{{ Math.max(0, nextStage.target - stageValue(nextStage)) }} more to <span class="hanzi">{{ stageLabel(nextStage).realm }}{{ stageLabel(nextStage).sub }}</span>
@@ -239,10 +246,11 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
     </template>
 
     <template v-else-if="ex">
-      <p v-if="unitTitle && mode === 'learn'" class="text-xs text-muted -mb-2">{{ unitTitle }}<span v-if="strict"> · strict: {{ LIVES }} hearts, lose them all and the lesson restarts</span></p>
+      <p v-if="unitTitle && mode === 'learn'" class="text-xs text-muted -mb-2">{{ unitTitle }}</p>
+      <p v-else-if="mode === 'read'" class="text-xs text-muted -mb-2">Reading — {{ total }} sentences you can understand; nothing is graded</p>
       <p v-else-if="mode === 'trial'" class="text-xs text-muted -mb-2"><span class="hanzi">试炼</span> weekly trial — the {{ total }} known words closest to fading; right keeps them, wrong drops them</p>
       <p v-else-if="mode === 'challenge'" class="text-xs text-muted -mb-2">Daily challenge — a test, not practice: no hints, no retries</p>
-      <p v-else-if="mode === 'tribulation' && tribStage" class="text-xs text-muted -mb-2"><span class="hanzi">天劫</span> for <span class="hanzi">{{ tribStage.realm }}{{ tribStage.sub }}</span> — {{ total }} questions from the whole realm, {{ LIVES }} hearts</p>
+      <p v-else-if="mode === 'tribulation' && tribStage" class="text-xs text-muted -mb-2"><span class="hanzi">{{ tribStage.rite }}</span> for <span class="hanzi">{{ tribStage.realm }}{{ tribStage.sub }}</span> — {{ total }} questions from the whole realm, {{ LIVES }} hearts</p>
       <Intro v-if="ex.kind === 'intro'" :key="idx" :word="ex.word" class="flex-1" @done="next" />
 
       <div v-else :key="idx" class="flex-1 flex flex-col gap-6">
@@ -317,11 +325,11 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           <Speak :text="text(ex)" size="sm" />
         </div>
         <template v-if="failed && trib">
-          <p class="text-sm text-muted">The heavens hold you back. Repeat a lesson with the words you missed, then face it again:</p>
+          <p class="text-sm text-muted">{{ tribStage?.rite === '天劫' ? 'The heavens hold you back.' : 'The bottleneck holds.' }} {{ stats.wrong }} of {{ total }} missed — {{ stats.wrong }} words, not a verdict. Repeat a lesson with them, then try again:</p>
           <UButton v-for="u in unitsWith(missedIds).slice(0, 3)" :key="u.id" size="xl" block color="neutral" variant="soft" icon="i-lucide-repeat" :to="`/session/learn/${u.id}`">{{ u.title }}</UButton>
           <UButton size="xl" block color="neutral" variant="ghost" to="/">Home</UButton>
         </template>
-        <UButton v-else-if="failed" size="xl" block color="error" icon="i-lucide-rotate-ccw" @click="restart">Out of lives — restart lesson</UButton>
+        <UButton v-else-if="failed" size="xl" block color="error" icon="i-lucide-rotate-ccw" @click="restart">Fresh start — same words, you've met them now</UButton>
         <UButton v-else size="xl" block :color="answered ? 'success' : 'error'" @click="next">Continue</UButton>
       </footer>
     </template>

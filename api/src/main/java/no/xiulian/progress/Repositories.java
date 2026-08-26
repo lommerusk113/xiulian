@@ -66,6 +66,14 @@ final class Repositories {
     }
 
     @Repository
+    interface Retention extends CrudRepository<RetentionEntity, RetentionEntity.Id> {
+
+        List<RetentionEntity> findByIdUserId(UUID userId);
+
+        void deleteByIdUserId(UUID userId);
+    }
+
+    @Repository
     interface Settings extends CrudRepository<SettingsEntity, UUID> {
     }
 }

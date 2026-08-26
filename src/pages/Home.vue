@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { words } from '../data'
-import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, coverage, REALMS, STAGES, stage, nextStage, pendingStage, pendingBlocked, stageValue, stageLabel, trialDue, trialDaysLeft, trialWords, TRIAL_MIN_WORDS, latestIn, lessonStrength, TIER_COLORS } from '../store'
+import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, bandCompleted, coverage, REALMS, REALM_COLORS, STAGES, stage, nextStage, pendingStage, pendingBlocked, stageValue, stageLabel, trialDue, trialDaysLeft, trialWords, TRIAL_MIN_WORDS, latestIn, lessonStrength, retention7, readableSentences, READ_SIZE } from '../store'
 import { units } from '../data'
 
 const coreTotal = words.filter((w) => w.level > 0).length
@@ -14,7 +14,7 @@ const greeting = hour < 12 ? '早上好' : hour < 18 ? '下午好' : '晚上好'
 
 // realm hero: the current stage in its realm's colour, one bar toward the next stage
 const current = computed(() => stageLabel(STAGES[stage.value]))
-const accent = computed(() => TIER_COLORS[STAGES[stage.value].realm % TIER_COLORS.length])
+const accent = computed(() => REALM_COLORS[STAGES[stage.value].realm])
 const toNext = computed(() => {
   const n = nextStage.value
   if (!n) return null
@@ -23,13 +23,19 @@ const toNext = computed(() => {
   return { ...stageLabel(n), value, target: n.target, band: n.band, metric: n.metric, pct: Math.min(100, (value / n.target) * 100), ghost: Math.min(100, (started / n.target) * 100) }
 })
 const realmHanzi = (r: string) => r.split(' ')[0]
+const firstTheme = units.find((u) => u.track === 'theme')
+const readable = computed(() => readableSentences().length)
+const BACKLOG = 40
+/** Readibu milestone per great realm: read one chapter, tick it off. */
+const READ_AT: Record<number, string> = { 3: "Readibu's HSK 2 graded stories", 4: "Readibu's HSK 3–4 shelf", 5: 'a real xianxia web novel — with the Sect, Cultivation and Narration decks done' }
+const realmNow = computed(() => STAGES[stage.value].realm)
 // the one lesson per track that fades tonight unless repeated
 const fading = computed(() =>
   (['core', 'theme', 'media'] as const)
     .map((t) => latestIn(t))
     .filter((id): id is string => !!id)
     .map((id) => ({ unit: units.find((u) => u.id === id)!, ...lessonStrength(id) }))
-    .filter((f) => f.strength > 0),
+    .filter((f) => f.strength > 0 && !(f.unit.track === 'core' && f.unit.wordIds.every((w) => progress.cards[w]?.state === 2))),
 )
 const pending = computed(() => (pendingStage.value !== undefined ? { index: pendingStage.value, ...stageLabel(STAGES[pendingStage.value]) } : null))
 // ponytail: cards carry no "created" stamp, so a word counts as met today if its last review is today and no full day has passed since the one before — first-day cards always match
@@ -46,10 +52,16 @@ const today = computed(() => {
       <p class="text-muted text-sm">{{ hour < 12 ? 'zǎoshang hǎo' : hour < 18 ? 'xiàwǔ hǎo' : 'wǎnshang hǎo' }} — good {{ hour < 12 ? 'morning' : hour < 18 ? 'afternoon' : 'evening' }}</p>
     </div>
 
-    <UButton v-if="dueIds.length" size="xl" block icon="i-lucide-brain" to="/session/review">Review {{ dueIds.length }} due</UButton>
-    <UButton v-else-if="!knownCount && nextUnit" size="xl" block icon="i-lucide-sparkles" :to="`/session/learn/${nextUnit.id}`">Get started — your first 10 words</UButton>
-    <UButton v-else-if="nextUnit" size="xl" block icon="i-lucide-book-open" :to="`/session/learn/${nextUnit.id}`">Continue · {{ nextUnit.title }}</UButton>
-    <UButton v-else size="xl" block icon="i-lucide-book-open" to="/learn">Continue learning</UButton>
+    <template v-if="!knownCount && firstTheme">
+      <UButton size="xl" block icon="i-lucide-sparkles" :to="`/session/learn/${firstTheme.id}`">Start gently — {{ firstTheme.wordIds.length }} words, no hearts</UButton>
+      <UButton size="lg" block color="neutral" variant="soft" icon="i-lucide-ear" to="/sounds">5 minutes on tones first</UButton>
+    </template>
+    <template v-else>
+      <UButton v-if="dueIds.length > BACKLOG" size="xl" block icon="i-lucide-brain" to="/session/review">Clear reviews first · {{ dueIds.length }} due</UButton>
+      <UButton v-else-if="dueIds.length" size="xl" block icon="i-lucide-brain" to="/session/review">Review {{ dueIds.length }} due</UButton>
+      <UButton v-if="nextUnit" size="xl" block icon="i-lucide-book-open" :to="`/session/learn/${nextUnit.id}`" :color="dueIds.length ? 'neutral' : 'primary'" :variant="dueIds.length ? 'soft' : 'solid'" :class="dueIds.length > BACKLOG && 'opacity-70'">Continue · {{ nextUnit.title }}</UButton>
+      <UButton v-else size="xl" block icon="i-lucide-book-open" to="/learn" :color="dueIds.length ? 'neutral' : 'primary'" :variant="dueIds.length ? 'soft' : 'solid'">Continue learning</UButton>
+    </template>
 
     <UCard :style="`--accent:${accent}`" class="ring-(--accent)/40">
       <div class="flex items-start gap-4">
@@ -65,10 +77,10 @@ const today = computed(() => {
       </div>
 
       <UButton v-if="pending" size="xl" block class="mt-4" icon="i-lucide-zap" :to="`/session/tribulation/${pending.index}`">
-        <span class="hanzi">天劫</span> — face the tribulation for <span class="hanzi">{{ pending.realm }}{{ pending.sub }}</span>
+        <span class="hanzi">{{ STAGES[pending.index].rite }}</span> — {{ STAGES[pending.index].rite === '天劫' ? 'face the heavenly tribulation for' : 'break through to' }} <span class="hanzi">{{ pending.realm }}{{ pending.sub }}</span>
       </UButton>
-      <p v-else-if="pendingBlocked === 'failed'" class="mt-4 text-sm text-muted"><span class="hanzi text-default">天劫</span> — the heavens held you back. Complete a lesson, then face it again.</p>
-      <p v-else-if="pendingBlocked === 'passed'" class="mt-4 text-sm text-muted">One breakthrough a day — the next <span class="hanzi text-default">天劫</span> awaits tomorrow.</p>
+      <p v-else-if="pendingBlocked === 'failed'" class="mt-4 text-sm text-muted"><span class="hanzi text-default">{{ STAGES[stage + 1].rite }}</span> — held back. Complete a lesson, then try again.</p>
+      <p v-else-if="pendingBlocked === 'passed'" class="mt-4 text-sm text-muted">One breakthrough a day — the next <span class="hanzi text-default">{{ STAGES[stage + 1].rite }}</span> awaits tomorrow.</p>
       <div v-else-if="toNext" class="mt-4">
         <div class="h-2.5 rounded-full bg-accented overflow-hidden relative">
           <div class="absolute inset-y-0 left-0 bg-(--accent)/30 transition-[width] duration-700" :style="`width:${toNext.ghost}%`" />
@@ -79,7 +91,7 @@ const today = computed(() => {
           → <span class="hanzi text-default">{{ toNext.realm }}{{ toNext.sub }}</span>
         </p>
       </div>
-      <p v-else class="text-sm text-muted mt-4">Every realm earned — go read.</p>
+      <p v-else class="text-sm text-muted mt-4">Every realm earned — read Readibu's HSK 4 shelf; real web novels are the next mountain.</p>
 
       <div class="flex items-center mt-4">
         <template v-for="(r, i) in REALMS" :key="r">
@@ -91,16 +103,32 @@ const today = computed(() => {
         </template>
       </div>
       <p class="text-xs text-muted mt-3">
-        <RouterLink v-if="stage" :to="`/session/tribulation/${stage}`" class="underline">Retake the last <span class="hanzi">天劫</span></RouterLink><template v-if="stage"> for practice. </template>
-        A word is <b>started</b> after its first lesson and <b>known</b> while you've remembered it for about three weeks and still would today — skip reviews and words fade out of known, and the rank with them. Readibu's easiest stories open up around <span class="hanzi">金丹</span>.</p>
+        <RouterLink v-if="stage" :to="`/session/tribulation/${stage}`" class="underline">Retake the last <span class="hanzi">{{ STAGES[stage].rite }}</span></RouterLink><template v-if="stage"> for practice. </template>
+        A word is <b>started</b> after its first lesson and <b>known</b> while you've remembered it for about three weeks and still would today — skip reviews and words fade out of known, and the rank with them. Readibu's graded stories open up around <span class="hanzi">筑基后期</span>; its xianxia shelf needs <span class="hanzi">元婴</span> plus the Donghua decks.</p>
+      <div v-if="READ_AT[realmNow]" class="mt-3 flex items-center gap-3 rounded-xl bg-elevated p-3 text-sm">
+        <UIcon :name="progress.marks[`read-${realmNow}`] ? 'i-lucide-check-circle-2' : 'i-lucide-book-open-text'" class="size-5 shrink-0" :class="progress.marks[`read-${realmNow}`] ? 'text-success' : 'text-(--accent)'" />
+        <span class="flex-1">Read one chapter of {{ READ_AT[realmNow] }}, then come back.</span>
+        <UButton v-if="!progress.marks[`read-${realmNow}`]" size="sm" color="neutral" variant="soft" @click="progress.marks[`read-${realmNow}`] = Date.now()">Done</UButton>
+      </div>
     </UCard>
 
     <template v-if="knownCount">
       <p v-if="fading.length" class="text-sm text-muted px-1 -mt-2">
-        Fading tonight:
-        <template v-for="(f, i) in fading" :key="f.unit.id"><RouterLink :to="`/session/learn/${f.unit.id}`" class="text-default underline">{{ f.unit.title }}</RouterLink> −{{ f.step }}%<template v-if="i < fading.length - 1"> · </template></template>
-        — repeat to hold it.
+        Hold your rings:
+        <template v-for="(f, i) in fading" :key="f.unit.id"><RouterLink :to="`/session/learn/${f.unit.id}`" class="text-default underline">{{ f.unit.title }}</RouterLink> ×{{ f.tier }}<template v-if="i < fading.length - 1"> · </template></template>
+        — repeat today to keep it.
       </p>
+
+      <UCard v-if="readable >= 10">
+        <div class="flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-xs text-muted uppercase tracking-wide">Read</p>
+            <p class="text-lg font-semibold">{{ Math.min(READ_SIZE, readable) }} sentences you can understand</p>
+            <p class="text-sm text-muted">No hearts, nothing graded — just read. <template v-if="retention7 !== null">Your 7-day true retention: {{ Math.round(retention7 * 100) }}%.</template></p>
+          </div>
+          <UButton icon="i-lucide-book-open-text" color="neutral" to="/session/read">Read</UButton>
+        </div>
+      </UCard>
 
       <UCard v-if="matureCount">
         <div class="flex items-center justify-between gap-3">
@@ -115,7 +143,7 @@ const today = computed(() => {
         </div>
       </UCard>
 
-      <UCard>
+      <UCard v-if="bandCompleted(1) >= 2">
         <div class="flex items-center justify-between gap-3">
           <div class="min-w-0">
             <p class="text-xs text-muted uppercase tracking-wide">Daily challenge</p>
@@ -149,7 +177,7 @@ const today = computed(() => {
       </UCard>
 
       <div class="text-sm text-muted px-1">
-        <div class="flex justify-between mb-1"><span>Subtitle coverage</span><span class="tabular-nums">{{ (coverage.known * 100).toFixed(1) }}% known · {{ (coverage.started * 100).toFixed(1) }}% started</span></div>
+        <div class="flex justify-between mb-1"><span>Spoken (donghua) coverage</span><span class="tabular-nums">{{ (coverage.known * 100).toFixed(1) }}% known · {{ (coverage.started * 100).toFixed(1) }}% started</span></div>
         <div class="h-1 rounded-full bg-accented overflow-hidden relative">
           <div class="absolute inset-y-0 left-0 bg-primary/30" :style="`width:${coverage.started * 100}%`" />
           <div class="absolute inset-y-0 left-0 bg-primary" :style="`width:${coverage.known * 100}%`" />

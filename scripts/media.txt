@@ -1,5 +1,5 @@
 # Media phrases for donghua / manhua. Format: hanzi|pinyin|meaning. Lines starting with == start a group (split into units of 10 at build).
-# Entries that are HSK 1-2 words are skipped automatically (learned in the core track).
+# Entries that are HSK 1-2 words are skipped automatically (learned in the core track); prefix with ! to keep one with its genre gloss (大人 = my lord).
 == Basic reactions
 什么|shénme|what
 为什么|wèishénme|why
@@ -47,81 +47,6 @@
 呢|ne|(and you? / what about…)
 啦|la|(了+啊, excited)
 哎|āi|hey / sigh
-== Commands & shouting
-等等|děngděng|wait! (also: etc.)
-快点|kuàidiǎn|hurry up
-走吧|zǒu ba|let's go
-走|zǒu|go! / move!
-小心|xiǎoxīn|careful!
-住手|zhùshǒu|stop! (stop what you're doing)
-放开我|fàngkāi wǒ|let go of me
-别动|bié dòng|don't move
-闭嘴|bìzuǐ|shut up
-滚|gǔn|get lost
-跟我来|gēn wǒ lái|follow me
-快出来|kuài chūlái|come out, now!
-交出来|jiāo chūlái|hand it over
-退下|tuìxià|withdraw / stand down
-救命|jiùmìng|help! (save my life)
-拜托|bàituō|please, I beg you
-放心|fàngxīn|relax / don't worry
-站住|zhànzhù|halt!
-快跑|kuài pǎo|run!
-让开|ràngkāi|out of the way!
-闪开|shǎnkāi|move aside!
-别过来|bié guòlái|stay back!
-让我来|ràng wǒ lái|let me handle it
-交给我|jiāo gěi wǒ|leave it to me
-动手|dòngshǒu|make your move / attack!
-给我上|gěi wǒ shàng|get him! / attack!
-接招|jiēzhāo|take this!
-住口|zhùkǒu|hold your tongue!
-饶命|ráomìng|spare my life!
-休想|xiūxiǎng|don't even think about it
-大胆|dàdǎn|how dare you!
-放肆|fàngsì|insolence!
-你敢|nǐ gǎn|you dare?!
-== Insults & fighting words
-可恶|kěwù|damn / detestable
-混蛋|húndàn|bastard
-该死|gāisǐ|damn it
-废物|fèiwù|trash / useless
-找死|zhǎosǐ|asking to die
-杀|shā|kill
-受死|shòusǐ|die! (accept death)
-去死|qùsǐ|go die!
-死|sǐ|die / dead
-小子|xiǎozi|brat / kid
-老头|lǎotóu|old man (rude when shouted)
-无耻|wúchǐ|shameless
-蠢货|chǔnhuò|fool / idiot
-老东西|lǎo dōngxi|old geezer
-家伙|jiāhuo|guy (这家伙 = this guy)
-妈的|mā de|damn (vulgar)
-== Replies & courtesies
-遵命|zūnmìng|as you command
-多谢|duōxiè|many thanks
-无妨|wúfáng|no matter / it's fine
-请赐教|qǐng cìjiào|please instruct me
-承让|chéngràng|you let me win
-告辞|gàocí|I take my leave
-得罪了|dézuì le|pardon the offense (before attacking)
-幸会|xìnghuì|an honor to meet you
-后会有期|hòuhuì yǒuqī|until we meet again
-保重|bǎozhòng|take care
-敢问|gǎnwèn|may I ask…
-来者何人|láizhě hérén|who goes there?
-== Family & friends
-大哥|dàgē|big brother / boss
-哥|gē|bro / older brother
-姐|jiě|sis / older sister
-兄弟|xiōngdì|brother / bro
-爹|diē|dad (period)
-娘|niáng|mom (period)
-主人|zhǔrén|master (owner)
-人类|rénlèi|humans
-妖精|yāojing|spirit / monster
-妖怪|yāoguài|monster
 == Sect address & honorifics
 师父|shīfu|master (teacher)
 师尊|shīzūn|revered master
@@ -143,45 +68,6 @@
 家主|jiāzhǔ|clan head
 老祖|lǎozǔ|patriarch / ancestor
 道友|dàoyǒu|fellow Daoist
-== Court & society address
-大人|dàren|my lord / sir
-公子|gōngzǐ|young master
-姑娘|gūniang|miss / young lady
-阁下|géxià|Your Excellency
-在下|zàixià|I (humble)
-本座|běnzuò|I (lofty, this seat)
-老夫|lǎofū|I (old man speaking)
-陛下|bìxià|Your Majesty
-殿下|diànxià|Your Highness
-皇上|huángshang|Your Majesty (spoken address)
-少爷|shàoye|young master (of a house)
-小姐|xiǎojiě|miss / young lady (period address)
-将军|jiāngjūn|general
-皇帝|huángdì|emperor
-朕|zhèn|I (the emperor)
-太子|tàizǐ|crown prince
-王爷|wángye|prince / lord
-本王|běnwáng|I, this prince
-属下|shǔxià|I, your subordinate
-公主|gōngzhǔ|princess
-娘娘|niángniang|Your Highness (empress / consort)
-夫人|fūren|madam
-老爷|lǎoye|master of the house
-== Items & world
-丹药|dānyào|pill / elixir
-灵石|língshí|spirit stone
-法宝|fǎbǎo|magic treasure
-剑|jiàn|sword
-宗门|zōngmén|sect
-门派|ménpài|sect / school
-江湖|jiānghú|the martial world
-系统|xìtǒng|system (game-like)
-重生|chóngshēng|reborn
-穿越|chuānyuè|transmigrate
-天下|tiānxià|the whole world
-武功|wǔgōng|martial arts skill
-敌人|dírén|enemy
-报仇|bàochóu|take revenge
 == Cultivation basics
 修炼|xiūliàn|to cultivate
 修仙|xiūxiān|immortal cultivation
@@ -217,13 +103,13 @@
 天才|tiāncái|genius
 秘境|mìjìng|secret realm
 散修|sǎnxiū|rogue cultivator
-== Surprise & realisation
-果然|guǒrán|as expected
-竟然|jìngrán|to think that… / actually
-居然|jūrán|unexpectedly
-难道|nándào|could it be…?
-没想到|méi xiǎngdào|didn't expect that
-不愧是|búkuì shì|truly worthy of being…
+修士|xiūshì|cultivator
+心魔|xīnmó|inner demon
+瓶颈|píngjǐng|bottleneck (before a breakthrough)
+妖孽|yāoniè|fiend / monster
+老子|lǎozi|I (arrogant: "this old man")
+本尊|běnzūn|I (this venerable one)
+尔等|ěrděng|you lot (archaic)
 == Realms & tribulations
 炼气|liànqì|Qi Refining
 筑基|zhùjī|Foundation Establishment
@@ -238,6 +124,149 @@
 妖兽|yāoshòu|demonic beast
 妖|yāo|monster / demon spirit
 鬼|guǐ|ghost
+== Surprise & realisation
+果然|guǒrán|as expected
+竟然|jìngrán|to think that… / actually
+居然|jūrán|unexpectedly
+难道|nándào|could it be…?
+没想到|méi xiǎngdào|didn't expect that
+不愧是|búkuì shì|truly worthy of being…
+== Commands & shouting
+等等|děngděng|wait! (also: etc.)
+快点|kuàidiǎn|hurry up
+走吧|zǒu ba|let's go
+走|zǒu|go! / move!
+小心|xiǎoxīn|careful!
+住手|zhùshǒu|stop! (stop what you're doing)
+放开我|fàngkāi wǒ|let go of me
+别动|bié dòng|don't move
+闭嘴|bìzuǐ|shut up
+滚|gǔn|get lost
+跟我来|gēn wǒ lái|follow me
+快出来|kuài chūlái|come out, now!
+交出来|jiāo chūlái|hand it over
+退下|tuìxià|withdraw / stand down
+救命|jiùmìng|help! (save my life)
+拜托|bàituō|please, I beg you
+放心|fàngxīn|relax / don't worry
+站住|zhànzhù|halt!
+快跑|kuài pǎo|run!
+让开|ràngkāi|out of the way!
+闪开|shǎnkāi|move aside!
+别过来|bié guòlái|stay back!
+让我来|ràng wǒ lái|let me handle it
+交给我|jiāo gěi wǒ|leave it to me
+动手|dòngshǒu|make your move / attack!
+给我上|gěi wǒ shàng|get him! / attack!
+接招|jiēzhāo|take this!
+住口|zhùkǒu|hold your tongue!
+饶命|ráomìng|spare my life!
+休想|xiūxiǎng|don't even think about it
+大胆|dàdǎn|how dare you!
+放肆|fàngsì|insolence!
+你敢|nǐ gǎn|you dare?!
+== Court & society address
+!大人|dàren|my lord / sir
+公子|gōngzǐ|young master
+姑娘|gūniang|miss / young lady
+阁下|géxià|Your Excellency
+在下|zàixià|I (humble)
+本座|běnzuò|I (lofty, this seat)
+老夫|lǎofū|I (old man speaking)
+陛下|bìxià|Your Majesty
+殿下|diànxià|Your Highness
+皇上|huángshang|Your Majesty (spoken address)
+少爷|shàoye|young master (of a house)
+!小姐|xiǎojiě|miss / young lady (period address)
+将军|jiāngjūn|general
+皇帝|huángdì|emperor
+朕|zhèn|I (the emperor)
+太子|tàizǐ|crown prince
+王爷|wángye|prince / lord
+本王|běnwáng|I, this prince
+属下|shǔxià|I, your subordinate
+公主|gōngzhǔ|princess
+娘娘|niángniang|Your Highness (empress / consort)
+夫人|fūren|madam
+老爷|lǎoye|master of the house
+== Family & friends
+大哥|dàgē|big brother / boss
+哥|gē|bro / older brother
+姐|jiě|sis / older sister
+兄弟|xiōngdì|brother / bro
+爹|diē|dad (period)
+娘|niáng|mom (period)
+!主人|zhǔrén|master (owner)
+人类|rénlèi|humans
+妖精|yāojing|spirit / monster
+妖怪|yāoguài|monster
+== Items & world
+丹药|dānyào|pill / elixir
+灵石|língshí|spirit stone
+法宝|fǎbǎo|magic treasure
+剑|jiàn|sword
+宗门|zōngmén|sect
+门派|ménpài|sect / school
+江湖|jiānghú|the martial world
+系统|xìtǒng|system (game-like)
+重生|chóngshēng|reborn
+穿越|chuānyuè|transmigrate
+天下|tiānxià|the whole world
+武功|wǔgōng|martial arts skill
+敌人|dírén|enemy
+报仇|bàochóu|take revenge
+== Replies & courtesies
+遵命|zūnmìng|as you command
+多谢|duōxiè|many thanks
+无妨|wúfáng|no matter / it's fine
+请赐教|qǐng cìjiào|please instruct me
+承让|chéngràng|you let me win
+告辞|gàocí|I take my leave
+得罪了|dézuì le|pardon the offense (before attacking)
+幸会|xìnghuì|an honor to meet you
+后会有期|hòuhuì yǒuqī|until we meet again
+保重|bǎozhòng|take care
+敢问|gǎnwèn|may I ask…
+来者何人|láizhě hérén|who goes there?
+== Insults & fighting words
+可恶|kěwù|damn / detestable
+混蛋|húndàn|bastard
+该死|gāisǐ|damn it
+废物|fèiwù|trash / useless
+找死|zhǎosǐ|asking to die
+杀|shā|kill
+受死|shòusǐ|die! (accept death)
+去死|qùsǐ|go die!
+死|sǐ|die / dead
+小子|xiǎozi|brat / kid
+老头|lǎotóu|old man (rude when shouted)
+无耻|wúchǐ|shameless
+蠢货|chǔnhuò|fool / idiot
+老东西|lǎo dōngxi|old geezer
+家伙|jiāhuo|guy (这家伙 = this guy)
+妈的|mā de|damn (vulgar)
+== Novel narration
+# the words a first Readibu chapter dies on — narration, not dialogue
+却|què|but; however (narrative)
+便|biàn|then; and so
+竟|jìng|unexpectedly; actually
+顿时|dùnshí|at once; immediately
+淡淡|dàndàn|lightly; indifferently (说)
+冷冷|lěnglěng|coldly
+微微|wēiwēi|slightly
+缓缓|huǎnhuǎn|slowly
+只见|zhǐjiàn|(one) saw only…
+此时|cǐshí|at this moment
+随即|suíjí|immediately after
+不由|bùyóu|can't help but
+目光|mùguāng|gaze
+身影|shēnyǐng|figure; silhouette
+气息|qìxī|aura; breath
+脸色|liǎnsè|complexion; expression
+嘴角|zuǐjiǎo|corner of the mouth
+一声|yīshēng|(said) in one voice; a sound
+乃|nǎi|to be (classical 是)
+此人|cǐrén|this person
 == Show-specific deep cuts
 斗气|dòuqì|dou qi (斗破苍穹)
 异火|yìhuǒ|heavenly flame (斗破苍穹)

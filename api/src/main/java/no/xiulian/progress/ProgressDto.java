@@ -19,7 +19,9 @@ public record ProgressDto(
     /** ladder stage index → epoch millis the tribulation was passed */
     @Nullable Map<String, Long> tribulations,
     /** named timestamps (epoch millis): last weekly trial, failed tribulation attempts, … */
-    @Nullable Map<String, Long> marks
+    @Nullable Map<String, Long> marks,
+    /** yyyy-mm-dd → [due reviews asked, answered right] */
+    @Nullable Map<String, List<Integer>> retention
 ) {
 
     @Serdeable
