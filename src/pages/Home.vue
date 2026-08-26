@@ -22,7 +22,11 @@ const layerFill = (i: number) => {
   const pct = (v: number) => Math.max(0, Math.min(100, ((v / b.need) * LAYERS - i) * 100))
   return { known: pct(b.known), started: pct(b.started) }
 }
-const today = computed(() => progress.history.filter((t) => t >= new Date().setHours(0, 0, 0, 0)).length)
+// ponytail: cards carry no "created" stamp, so a word counts as met today if its last review is today and no full day has passed since the one before — first-day cards always match
+const today = computed(() => {
+  const midnight = new Date().setHours(0, 0, 0, 0)
+  return Object.values(progress.cards).filter((c) => c.last_review && c.last_review.getTime() >= midnight && c.elapsed_days === 0).length
+})
 </script>
 
 <template>
@@ -45,7 +49,7 @@ const today = computed(() => progress.history.filter((t) => t >= new Date().setH
         <div class="text-right shrink-0">
           <p class="text-2xl font-bold tabular-nums flex items-center justify-end gap-1"><UIcon name="i-lucide-flame" :class="streak ? 'text-(--accent)' : 'text-muted'" />{{ streak }}</p>
           <p class="text-xs text-muted">day streak</p>
-          <UBadge v-if="today" color="primary" variant="subtle" size="sm" class="mt-1 animate-pulse">+{{ today }} today</UBadge>
+          <UBadge v-if="today" color="primary" variant="subtle" size="sm" class="mt-1 animate-pulse">{{ today }} words met today</UBadge>
         </div>
       </div>
 
