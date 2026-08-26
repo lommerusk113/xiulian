@@ -4,6 +4,8 @@ import type { Unit } from '../types'
 import { units } from '../data'
 import { unitLearned, unitLocked, nextUnit, lessonStrength, knownCount, progress, stageAtUnit, stageLabel, STAGES, TIER_COLORS } from '../store'
 
+/** which realm each HSK band feeds once its words are known — HSK 1 also carries the unit-based 聚气 markers below */
+const REALM_FOR: Record<string, string> = { 'HSK 1': '炼气 Qi Refining', 'HSK 2': '筑基 Foundation', 'HSK 3': '金丹 Golden Core', 'HSK 4': '元婴 Nascent Soul' }
 const track = ref<'theme' | 'core' | 'media'>((localStorage.getItem('xiulian.track') as 'theme' | 'core' | 'media') ?? 'theme')
 watch(track, (t) => localStorage.setItem('xiulian.track', t))
 const tabs = [
@@ -57,6 +59,10 @@ const ring = (id: string) => rings.value.get(id)!
         <UIcon v-if="list[0].icon" :name="list[0].icon" class="text-primary" />
         <h2 class="font-semibold flex-1">{{ name }} <span v-if="groupPct(list)" class="text-muted text-sm font-normal">{{ groupPct(list) }}% of words started</span></h2>
       </div>
+      <p v-if="track === 'core' && REALM_FOR[name]" class="text-xs text-muted -mt-1 flex items-center gap-2">
+        <UIcon name="i-lucide-zap" class="size-3.5" />
+        <span><span class="hanzi">{{ REALM_FOR[name] }}</span> — earned as these words become <b>known</b> (remembered for weeks), not by finishing units; the bar on Home tracks it.</span>
+      </p>
       <template v-for="(u, i) in list" :key="u.id">
       <component
         :is="unitLocked(u.id) ? 'div' : 'RouterLink'"

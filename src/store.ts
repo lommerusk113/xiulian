@@ -157,8 +157,8 @@ export const coverage = computed(() => {
 })
 
 /** Cultivation realms — 修炼 flavour for the rank card. Index = realm, not HSK band. */
-export const REALMS = ['凡人 Mortal', '炼体 Body Tempering', '炼气 Qi Refining', '筑基 Foundation', '金丹 Golden Core', '元婴 Nascent Soul']
-/** grey mortal, blood-orange tempering, cyan qi, earth-green foundation, gold core, purple soul */
+export const REALMS = ['凡人 Mortal', '聚气 Qi Building', '炼气 Qi Refining', '筑基 Foundation', '金丹 Golden Core', '元婴 Nascent Soul']
+/** grey mortal, orange qi-building, cyan qi, earth-green foundation, gold core, purple soul */
 export const REALM_COLORS = ['#a3a3a3', '#f97316', '#06b6d4', '#84cc16', '#eab308', '#8b5cf6']
 const TEN = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十']
 const QUARTERS: [string, string, number][] = [['初期', 'Early', 0.1], ['中期', 'Mid', 0.4], ['后期', 'Late', 0.7], ['圆满', 'Peak', 1]]
