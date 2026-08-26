@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { words } from '../data'
-import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, coverage, REALMS, STAGES, stage, nextStage, pendingStage, pendingBlocked, stageValue, stageLabel, trialDue, trialDaysLeft, trialWords, TIER_COLORS } from '../store'
+import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, coverage, REALMS, STAGES, stage, nextStage, pendingStage, pendingBlocked, stageValue, stageLabel, trialDue, trialDaysLeft, trialWords, TRIAL_MIN_WORDS, latestIn, lessonStrength, TIER_COLORS } from '../store'
+import { units } from '../data'
 
 const coreTotal = words.filter((w) => w.level > 0).length
 const readibu = computed(() => Math.round((matureCount.value / coreTotal) * 100))
@@ -22,6 +23,14 @@ const toNext = computed(() => {
   return { ...stageLabel(n), value, target: n.target, band: n.band, metric: n.metric, pct: Math.min(100, (value / n.target) * 100), ghost: Math.min(100, (started / n.target) * 100) }
 })
 const realmHanzi = (r: string) => r.split(' ')[0]
+// the one lesson per track that fades tonight unless repeated
+const fading = computed(() =>
+  (['core', 'theme', 'media'] as const)
+    .map((t) => latestIn(t))
+    .filter((id): id is string => !!id)
+    .map((id) => ({ unit: units.find((u) => u.id === id)!, ...lessonStrength(id) }))
+    .filter((f) => f.strength > 0),
+)
 const pending = computed(() => (pendingStage.value !== undefined ? { index: pendingStage.value, ...stageLabel(STAGES[pendingStage.value]) } : null))
 // ponytail: cards carry no "created" stamp, so a word counts as met today if its last review is today and no full day has passed since the one before — first-day cards always match
 const today = computed(() => {
@@ -39,6 +48,7 @@ const today = computed(() => {
 
     <UButton v-if="dueIds.length" size="xl" block icon="i-lucide-brain" to="/session/review">Review {{ dueIds.length }} due</UButton>
     <UButton v-else-if="!knownCount && nextUnit" size="xl" block icon="i-lucide-sparkles" :to="`/session/learn/${nextUnit.id}`">Get started — your first 10 words</UButton>
+    <UButton v-else-if="nextUnit" size="xl" block icon="i-lucide-book-open" :to="`/session/learn/${nextUnit.id}`">Continue · {{ nextUnit.title }}</UButton>
     <UButton v-else size="xl" block icon="i-lucide-book-open" to="/learn">Continue learning</UButton>
 
     <UCard :style="`--accent:${accent}`" class="ring-(--accent)/40">
@@ -48,7 +58,7 @@ const today = computed(() => {
           <p class="font-semibold mt-1">{{ current.name }} <span class="text-muted font-normal text-sm">· HSK rank {{ rank }}</span></p>
         </div>
         <div class="text-right shrink-0">
-          <p class="text-2xl font-bold tabular-nums flex items-center justify-end gap-1"><UIcon name="i-lucide-flame" :class="streak ? 'text-(--accent)' : 'text-muted'" />{{ streak }}</p>
+          <p class="text-2xl font-bold tabular-nums flex items-center justify-end gap-1" title="Any graded answer or daily challenge keeps the streak"><UIcon name="i-lucide-flame" :class="streak ? 'text-(--accent)' : 'text-muted'" />{{ streak }}</p>
           <p class="text-xs text-muted">day streak</p>
           <UBadge v-if="today" color="primary" variant="subtle" size="sm" class="mt-1 animate-pulse">{{ today }} words met today</UBadge>
         </div>
@@ -81,16 +91,23 @@ const today = computed(() => {
         </template>
       </div>
       <p class="text-xs text-muted mt-3">
-        <RouterLink v-if="stage" :to="`/session/tribulation/${stage}`" class="underline">Retake the last <span class="hanzi">天劫</span></RouterLink><template v-if="stage"> to check you still hold the realm. </template>
+        <RouterLink v-if="stage" :to="`/session/tribulation/${stage}`" class="underline">Retake the last <span class="hanzi">天劫</span></RouterLink><template v-if="stage"> for practice. </template>
         A word is <b>started</b> after its first lesson and <b>known</b> while you've remembered it for about three weeks and still would today — skip reviews and words fade out of known, and the rank with them. Readibu's easiest stories open up around <span class="hanzi">金丹</span>.</p>
     </UCard>
 
     <template v-if="knownCount">
+      <p v-if="fading.length" class="text-sm text-muted px-1 -mt-2">
+        Fading tonight:
+        <template v-for="(f, i) in fading" :key="f.unit.id"><RouterLink :to="`/session/learn/${f.unit.id}`" class="text-default underline">{{ f.unit.title }}</RouterLink> −{{ f.step }}%<template v-if="i < fading.length - 1"> · </template></template>
+        — repeat to hold it.
+      </p>
+
       <UCard v-if="matureCount">
         <div class="flex items-center justify-between gap-3">
           <div class="min-w-0">
             <p class="text-xs text-muted uppercase tracking-wide"><span class="hanzi">试炼</span> weekly trial</p>
-            <p v-if="trialDue" class="text-lg font-semibold">{{ Math.min(20, trialWords().length) }} known words are fading</p>
+            <p v-if="trialDue" class="text-lg font-semibold">The {{ Math.min(20, trialWords().length) }} known words closest to fading</p>
+            <p v-else-if="matureCount < TRIAL_MIN_WORDS" class="text-lg font-semibold">Opens at {{ TRIAL_MIN_WORDS }} known words</p>
             <p v-else class="text-lg font-semibold">Next trial in {{ trialDaysLeft }} day{{ trialDaysLeft === 1 ? '' : 's' }}</p>
             <p class="text-sm text-muted">Get them right and they stay known; miss and they drop out.</p>
           </div>

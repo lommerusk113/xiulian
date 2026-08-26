@@ -45,7 +45,7 @@ for (const line of lines(await fetchCached('zh_cn_50k.txt', 'https://raw.githubu
 }
 
 // ---- words ---------------------------------------------------------------
-const junk = /^(variant of|old variant|see |CL:|surname |abbr\.|used in|used before|\(archaic\)|\(literary\)|\(old\)|[A-Z][a-z]+ \(surname\))/i
+const junk = /^(variant of|old variant|euphemistic|erhua variant|see |CL:|surname |abbr\.|used in|used before|\(archaic\)|\(literary\)|\(old\)|[A-Z][a-z]+ \(surname\))|variant of/i
 const clean = (m) => m.replace(/^\([^)]*\)\s*/, '').replace(/\s*\([^)]*\)$/, '').replace(/;?\s*also pr\..*$/, '').trim() || m.replace(/[()]/g, '').trim()
 const words = []
 const seen = new Set()

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { Unit } from '../types'
 import { units } from '../data'
 import { unitLearned, unitLocked, nextUnit, lessonStrength, knownCount, progress, stageAtUnit, stageLabel, STAGES, TIER_COLORS } from '../store'
 
-const track = ref<'theme' | 'core' | 'media'>('theme')
+const track = ref<'theme' | 'core' | 'media'>((localStorage.getItem('xiulian.track') as 'theme' | 'core' | 'media') ?? 'theme')
+watch(track, (t) => localStorage.setItem('xiulian.track', t))
 const tabs = [
   { label: 'Themes', value: 'theme', icon: 'i-lucide-layers' },
   { label: 'HSK core', value: 'core', icon: 'i-lucide-graduation-cap' },
@@ -23,13 +24,18 @@ const groupPct = (list: Unit[]) => {
   const total = list.reduce((s, u) => s + u.wordIds.length, 0)
   return Math.round((list.reduce((s, u) => s + unitLearned(u.id), 0) / total) * 100)
 }
-/** Ring: current tier fills over the previous tier's colour. */
-function ring(id: string) {
-  const s = lessonStrength(id)
-  const fill = s.tier ? TIER_COLORS[s.tier % TIER_COLORS.length] : 'var(--ui-primary)'
-  const base = s.tier ? TIER_COLORS[(s.tier - 1) % TIER_COLORS.length] : 'var(--ui-bg-accented)'
-  return { ...s, style: `background: conic-gradient(${fill} ${s.strength % 100}%, ${base} 0)` }
-}
+/** Ring: current tier fills over the previous tier's colour. One map per render — the core list has 300+ rows. */
+const rings = computed(() => {
+  const m = new Map<string, ReturnType<typeof lessonStrength> & { style: string }>()
+  for (const u of units.filter((u) => u.track === track.value)) {
+    const s = lessonStrength(u.id)
+    const fill = s.tier ? TIER_COLORS[s.tier % TIER_COLORS.length] : 'var(--ui-primary)'
+    const base = s.tier ? TIER_COLORS[(s.tier - 1) % TIER_COLORS.length] : 'var(--ui-bg-accented)'
+    m.set(u.id, { ...s, style: `background: conic-gradient(${fill} ${s.strength % 100}%, ${base} 0)` })
+  }
+  return m
+})
+const ring = (id: string) => rings.value.get(id)!
 </script>
 
 <template>

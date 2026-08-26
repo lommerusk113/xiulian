@@ -173,3 +173,23 @@
 让|ràng|to let; to make (someone do)
 把|bǎ|(marks the object moved before the verb)
 被|bèi|(passive marker: by)
+# teacher review 2026-08-26: dictionary fall-through picked wrong readings/senses
+比|bǐ|than (A 比 B 大); to compare
+累|lèi|tired
+得|de|(verb + 得 + how well: 说得好)
+差|chà|bad; poor; to differ
+干|gàn|to do
+一块儿|yíkuàir|together
+还是|háishi|or (in questions); still
+先生|xiānsheng|Mr.; sir
+早上|zǎoshang|morning
+哪|nǎ|which
+长|cháng|long
+一点儿|yìdiǎnr|a bit; a little
+女孩儿|nǚháir|girl
+小孩儿|xiǎoháir|child
+男孩儿|nánháir|boy
+一会儿|yíhuìr|a little while
+哪儿|nǎr|where
+这儿|zhèr|here
+那儿|nàr|there

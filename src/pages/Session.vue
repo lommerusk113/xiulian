@@ -27,17 +27,17 @@ const ex = computed(() => queue.value[idx.value])
 const total = computed(() => queue.value.length)
 const unitObj = computed(() => units.find((u) => u.id === props.unit))
 const unitTitle = computed(() => unitObj.value?.title)
-// HSK core lessons are strict: three lives, one more miss restarts the lesson — passing one means you actually know the words.
-// A 天劫 gives two. Reaching the end with lives left is the pass.
+// HSK core lessons are strict: four hearts, the fourth miss restarts the lesson — passing one means you actually know the words.
+// A 天劫 gives three. Losing the last heart is the fail; reaching the end is the pass.
 const strict = computed(() => props.mode === 'learn' && unitObj.value?.track === 'core')
 const trib = computed(() => props.mode === 'tribulation')
 const trial = computed(() => props.mode === 'trial')
 const tribStage = computed(() => (trib.value ? stageLabel(STAGES[+props.unit!]) : null))
 const lives = computed(() => strict.value || trib.value)
-const LIVES = computed(() => (trib.value ? 2 : 3))
+const LIVES = computed(() => (trib.value ? 3 : 4))
 const lost = ref(0)
 const missedIds = ref<string[]>([])
-const failed = computed(() => lives.value && lost.value > LIVES.value)
+const failed = computed(() => lives.value && lost.value >= LIVES.value)
 const knownBefore = ref(knownCount.value)
 const matureBefore = ref(matureCount.value)
 // first attempt at a strict unit: show which theme lessons cover its words before starting
@@ -173,7 +173,7 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
         <div>
           <p class="text-xs text-muted uppercase tracking-wide">{{ unitTitle }}</p>
           <h1 class="text-2xl font-bold">Ready for a strict unit?</h1>
-          <p class="text-muted text-sm mt-1">{{ LIVES }} lives, one more miss restarts. These theme lessons teach the same words — doing them first makes this easy.</p>
+          <p class="text-muted text-sm mt-1">{{ LIVES }} hearts; lose them all and it restarts. These theme lessons teach the same words — doing them first makes this easy.</p>
         </div>
         <RouterLink v-for="p in prep" :key="p.unit.id" :to="`/session/learn/${p.unit.id}`" class="flex items-center gap-3 rounded-xl border border-default bg-elevated/50 p-3" :class="p.done ? 'opacity-60' : 'hover:border-primary'">
           <UIcon :name="p.done ? 'i-lucide-check-circle-2' : 'i-lucide-circle'" class="size-5 shrink-0" :class="p.done ? 'text-success' : 'text-muted'" />
@@ -239,10 +239,10 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
     </template>
 
     <template v-else-if="ex">
-      <p v-if="unitTitle && mode === 'learn'" class="text-xs text-muted -mb-2">{{ unitTitle }}<span v-if="strict"> · strict: {{ LIVES }} lives, one more miss restarts</span></p>
+      <p v-if="unitTitle && mode === 'learn'" class="text-xs text-muted -mb-2">{{ unitTitle }}<span v-if="strict"> · strict: {{ LIVES }} hearts, lose them all and the lesson restarts</span></p>
       <p v-else-if="mode === 'trial'" class="text-xs text-muted -mb-2"><span class="hanzi">试炼</span> weekly trial — the {{ total }} known words closest to fading; right keeps them, wrong drops them</p>
       <p v-else-if="mode === 'challenge'" class="text-xs text-muted -mb-2">Daily challenge — a test, not practice: no hints, no retries</p>
-      <p v-else-if="mode === 'tribulation' && tribStage" class="text-xs text-muted -mb-2"><span class="hanzi">天劫</span> for <span class="hanzi">{{ tribStage.realm }}{{ tribStage.sub }}</span> — {{ total }} questions from the whole realm, {{ LIVES }} lives</p>
+      <p v-else-if="mode === 'tribulation' && tribStage" class="text-xs text-muted -mb-2"><span class="hanzi">天劫</span> for <span class="hanzi">{{ tribStage.realm }}{{ tribStage.sub }}</span> — {{ total }} questions from the whole realm, {{ LIVES }} hearts</p>
       <Intro v-if="ex.kind === 'intro'" :key="idx" :word="ex.word" class="flex-1" @done="next" />
 
       <div v-else :key="idx" class="flex-1 flex flex-col gap-6">

@@ -13,7 +13,7 @@ export function shuffle<T>(arr: T[]): T[] {
 export const stripTones = (p: string) => p.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[\s'’]/g, '').toLowerCase()
 const syllables = (w: Word) => [...w.hanzi].length
 const STOP = new Set(['to', 'the', 'a', 'an', 'of', 'in', 'on', 'at', 'for', 'and', 'or', 'be', 'is', 'it', 'up', 'sb', 'sth'])
-const glossTokens = (m: string) => new Set(m.split(';')[0].toLowerCase().match(/[a-z']+/g)?.filter((t) => t.length > 2 && !STOP.has(t)) ?? [])
+const glossTokens = (m: string) => new Set(m.toLowerCase().match(/[a-z']+/g)?.filter((t) => t.length > 2 && !STOP.has(t)) ?? [])
 const overlaps = (a: Word, b: Word) => {
   const ta = glossTokens(a.meaning)
   for (const t of glossTokens(b.meaning)) if (ta.has(t)) return true

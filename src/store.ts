@@ -237,11 +237,13 @@ export function themeUnitsFor(unitId: string) {
 export const unitsWith = (ids: string[]) => units.filter((u) => u.track === 'core' && u.wordIds.some((w) => ids.includes(w)))
 export const nextStage = computed<Stage | undefined>(() => STAGES[stage.value + 1])
 
+/** A retake keeps the original stamp, so practising an old 天劫 never spends today's breakthrough. */
 export function passTribulation(stageIndex: number) {
-  progress.tribulations[stageIndex] = Date.now()
+  progress.tribulations[stageIndex] ??= Date.now()
 }
+/** Failing a stage you already hold is practice — no mark. */
 export function failTribulation(stageIndex: number) {
-  progress.marks[`trib-fail-${stageIndex}`] = Date.now()
+  if (!progress.tribulations[stageIndex]) progress.marks[`trib-fail-${stageIndex}`] = Date.now()
 }
 
 /** Words a stage's 天劫 draws from: everything started in the realm so far, most likely forgotten first. */
@@ -260,7 +262,8 @@ export function tribulationWords(stageIndex: number) {
 
 // ---- weekly 试炼: the known words closest to fading; right keeps them known, wrong drops them ----
 export const TRIAL_DAYS = 7
-export const trialDue = computed(() => clock.value - (progress.marks.trial ?? 0) >= TRIAL_DAYS * DAY)
+export const TRIAL_MIN_WORDS = 10
+export const trialDue = computed(() => clock.value - (progress.marks.trial ?? 0) >= TRIAL_DAYS * DAY && matureCount.value >= TRIAL_MIN_WORDS)
 export const trialDaysLeft = computed(() => Math.max(0, Math.ceil((TRIAL_DAYS * DAY - (clock.value - (progress.marks.trial ?? 0))) / DAY)))
 export function trialWords() {
   const now = Date.now()
@@ -327,7 +330,7 @@ export const stepAt = (strength: number) => 100 / tierCost(Math.floor(strength /
 const calendarDays = (from: number, to: number) => Math.round((new Date(to).setHours(0, 0, 0, 0) - new Date(from).setHours(0, 0, 0, 0)) / DAY)
 const trackOf = (unitId: string) => units.find((u) => u.id === unitId)?.track
 /** Only the most recently completed lesson in each track fades; the rest keep the strength they had when you moved on. */
-function latestIn(track: string | undefined) {
+export function latestIn(track: string | undefined) {
   let best: string | undefined
   for (const [id, l] of Object.entries(progress.lessons)) {
     if (trackOf(id) === track && (!best || l.t > progress.lessons[best].t)) best = id
@@ -359,7 +362,8 @@ export function completeLesson(unitId: string) {
 
 // ---- daily challenge: fixed for the day, mostly tomorrow's words → hard before the lesson, doable after ----
 export const CHALLENGE_SIZE = 10
-export const todayKey = (d = new Date()) => d.toISOString().slice(0, 10)
+/** Local calendar day (sv-SE formats as yyyy-mm-dd) — same boundary as streak, fading and 天劫. */
+export const todayKey = (d = new Date()) => d.toLocaleDateString('sv-SE')
 
 export function todaysChallenge() {
   const key = todayKey()
@@ -382,6 +386,7 @@ export function todaysChallenge() {
 
 export function recordChallenge(score: number) {
   todaysChallenge().attempts.push(score)
+  progress.history.push(Date.now()) // a challenge counts as a study day for the streak
 }
 
 /** Best score per day for the last n days (oldest first). */

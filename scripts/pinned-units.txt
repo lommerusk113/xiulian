@@ -8,3 +8,10 @@ How much?|两 几 多少 钱 买 块 东西 水 饭 菜
 Where and when|在 哪儿 这里 现在 今天 明天 时候 家 中国 吧
 Doing and liking|做 喜欢 都 怎么 叫 名字 太 就 对 还
 People and going|她 他们 你们 您 走 到 回 大 小 多
+# units 10–15 (teacher review 2026-08-26): concrete words with at most one grammar word each, instead of a particle wall
+Family|爸爸 妈妈 儿子 女儿 孩子 老师 学生 男 女 和
+Time|年 月 日 号 天 点 小时 早上 晚上 再
+Places|里 中 前 后 外 门 路 学校 从 着
+Doing things|工作 用 等 找 打 开 写 问 听 过
+Talking to people|别人 男人 女人 们 认识 帮 送 笑 跟 呢
+How and how much|真 最 非常 一样 一些 这些 快 新 给 地
