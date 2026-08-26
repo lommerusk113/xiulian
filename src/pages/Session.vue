@@ -27,8 +27,10 @@ const ex = computed(() => queue.value[idx.value])
 const total = computed(() => queue.value.length)
 const unitObj = computed(() => units.find((u) => u.id === props.unit))
 const unitTitle = computed(() => unitObj.value?.title)
-// HSK core lessons are strict: one mistake restarts the lesson — passing one means you actually know the words
+// HSK core lessons are strict: two lives, the third miss restarts the lesson — passing one means you actually know the words
+const LIVES = 2
 const strict = computed(() => props.mode === 'learn' && unitObj.value?.track === 'core')
+const failed = computed(() => strict.value && stats.value.wrong > LIVES)
 const knownBefore = ref(knownCount.value)
 const attempt = ref(1)
 const pinyinFirst = computed(() => progress.settings.focus === 'pinyin')
@@ -64,7 +66,7 @@ function onAnswer(correct: boolean) {
     grade(e.word.id, correct)
   }
   correct ? stats.value.right++ : stats.value.wrong++
-  if (!correct && strict.value) return // footer offers Restart
+  if (!correct && strict.value && stats.value.wrong > LIVES) return // out of lives → footer offers Restart
   if (!correct) {
     // missed → the same question goes to the back of the pile (options reshuffled), up to three times;
     // the intro card comes back before the third try
@@ -94,7 +96,7 @@ function next() {
 const strength = computed(() => (props.unit ? lessonStrength(props.unit) : null))
 const attempts = computed(() => todaysChallenge().attempts)
 function onKey(e: KeyboardEvent) {
-  if (e.key === 'Enter' && answered.value !== null) answered.value === false && strict.value ? restart() : next()
+  if (e.key === 'Enter' && answered.value !== null) failed.value ? restart() : next()
 }
 onMounted(() => window.addEventListener('keydown', onKey))
 onUnmounted(() => window.removeEventListener('keydown', onKey))
@@ -126,6 +128,9 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
       <UButton icon="i-lucide-x" color="neutral" variant="ghost" class="size-11 justify-center" aria-label="Quit" @click="router.push(mode === 'review' ? '/' : '/learn')" />
       <UProgress :model-value="Math.min(idx, total)" :max="total || 1" size="lg" class="flex-1" />
       <span class="text-sm text-muted tabular-nums">{{ Math.min(idx, total) }}/{{ total }}</span>
+      <span v-if="strict && !finished" class="flex items-center gap-0.5" :title="`${Math.max(0, LIVES - stats.wrong)} of ${LIVES} lives left`">
+        <UIcon v-for="i in LIVES" :key="i" name="i-lucide-heart" class="size-4" :class="i <= LIVES - stats.wrong ? 'text-error' : 'text-muted/40'" />
+      </span>
       <UBadge v-if="strict && attempt > 1" color="neutral" variant="subtle" size="sm">try {{ attempt }}</UBadge>
     </header>
 
@@ -176,7 +181,7 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
     </template>
 
     <template v-else-if="ex">
-      <p v-if="unitTitle && mode === 'learn'" class="text-xs text-muted -mb-2">{{ unitTitle }}<span v-if="strict"> · strict: a mistake restarts the lesson</span></p>
+      <p v-if="unitTitle && mode === 'learn'" class="text-xs text-muted -mb-2">{{ unitTitle }}<span v-if="strict"> · strict: {{ LIVES }} lives, the third miss restarts</span></p>
       <p v-else-if="mode === 'challenge'" class="text-xs text-muted -mb-2">Daily challenge — a test, not practice: no hints, no retries</p>
       <Intro v-if="ex.kind === 'intro'" :key="idx" :word="ex.word" class="flex-1" @done="next" />
 
@@ -251,7 +256,7 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           </div>
           <Speak :text="text(ex)" size="sm" />
         </div>
-        <UButton v-if="!answered && strict" size="xl" block color="error" icon="i-lucide-rotate-ccw" @click="restart">Restart lesson</UButton>
+        <UButton v-if="failed" size="xl" block color="error" icon="i-lucide-rotate-ccw" @click="restart">Out of lives — restart lesson</UButton>
         <UButton v-else size="xl" block :color="answered ? 'success' : 'error'" @click="next">Continue</UButton>
       </footer>
     </template>
