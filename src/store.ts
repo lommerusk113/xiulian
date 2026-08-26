@@ -147,23 +147,26 @@ export interface Stage {
   /** sub-stage, e.g. 三层 / 中期 (empty for Mortal) */
   hanzi: string
   name: string
-  /** which count of which HSK band must reach `target` */
-  metric: 'started' | 'known'
+  /** which count of which HSK band must reach `target`: core units completed, or words known */
+  metric: 'completed' | 'known'
   band: number
   target: number
 }
 
 const bandTotal = (level: number) => words.filter((w) => w.level === level).length
 const bandNeed = (level: number) => Math.ceil(bandTotal(level) * RANK_THRESHOLD)
+const bandUnits = (level: number) => units.filter((u) => u.track === 'core' && u.title.startsWith(`HSK ${level} `))
+/** Core units of a band completed at least once. */
+export const bandCompleted = (level: number) => bandUnits(level).filter((u) => progress.lessons[u.id]).length
 
 /**
- * The ladder, lowest first. Qi Building climbs with HSK 1 words *started* (moves every lesson);
+ * The ladder, lowest first. Qi Building climbs with HSK 1 units *completed* (a strict pass every few units);
  * Qi Refining with HSK 1 words *known*; the three big realms with HSK 2/3/4 known, earned in order.
  * Reaching 炼气十层 = HSK rank 1, 筑基圆满 = rank 2, and so on.
  */
 export const STAGES: Stage[] = [
-  { realm: 0, hanzi: '', name: '', metric: 'started', band: 1, target: 0 },
-  ...TEN.map((n, i) => ({ realm: 1, hanzi: `${n}层`, name: `${i + 1}`, metric: 'started' as const, band: 1, target: Math.round((bandTotal(1) * (i + 1)) / 10) })),
+  { realm: 0, hanzi: '', name: '', metric: 'completed', band: 1, target: 0 },
+  ...TEN.map((n, i) => ({ realm: 1, hanzi: `${n}层`, name: `${i + 1}`, metric: 'completed' as const, band: 1, target: Math.ceil((bandUnits(1).length * (i + 1)) / 10) })),
   ...TEN.map((n, i) => ({ realm: 2, hanzi: `${n}层`, name: `${i + 1}`, metric: 'known' as const, band: 1, target: Math.round((bandNeed(1) * (i + 1)) / 10) })),
   ...[2, 3, 4].flatMap((band, r) => QUARTERS.map(([hanzi, name, f]) => ({ realm: r + 3, hanzi, name, metric: 'known' as const, band, target: Math.round(bandNeed(band) * f) }))),
 ]
@@ -172,8 +175,7 @@ export const STAGES: Stage[] = [
 export function stageValue(s: Stage) {
   const bands = bandStats.value
   if (s.band > 1 && bands[s.band - 2].known < bands[s.band - 2].need) return 0
-  const b = bands[s.band - 1]
-  return s.metric === 'started' ? b.started : b.known
+  return s.metric === 'completed' ? bandCompleted(s.band) : bands[s.band - 1].known
 }
 
 /** Highest stage whose requirement is met. */

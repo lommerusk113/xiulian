@@ -59,7 +59,7 @@ const today = computed(() => {
           <div class="absolute inset-y-0 left-0 bg-(--accent) transition-[width] duration-700" :style="`width:${toNext.pct}%`" />
         </div>
         <p class="text-sm text-muted mt-2">
-          <span class="tabular-nums text-default font-medium">{{ toNext.value }} / {{ toNext.target }}</span> HSK {{ toNext.band }} words {{ toNext.metric }}
+          <span class="tabular-nums text-default font-medium">{{ toNext.value }} / {{ toNext.target }}</span> HSK {{ toNext.band }} {{ toNext.metric === 'completed' ? 'units completed' : 'words known' }}
           → <span class="hanzi text-default">{{ toNext.realm }}{{ toNext.sub }}</span>
         </p>
       </div>

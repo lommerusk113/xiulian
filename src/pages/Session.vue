@@ -171,7 +171,7 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
         </div>
         <p v-if="mode === 'learn' && nextStage" class="text-sm text-muted -mt-3">
           <span v-if="knownCount > knownBefore" class="text-primary font-medium">+{{ knownCount - knownBefore }} words started</span>
-          <span v-if="knownCount > knownBefore"> · </span>{{ nextStage.target - stageValue(nextStage) }} more HSK {{ nextStage.band }} words {{ nextStage.metric }} to <span class="hanzi">{{ stageLabel(nextStage).realm }}{{ stageLabel(nextStage).sub }}</span>
+          <span v-if="knownCount > knownBefore"> · </span>{{ nextStage.target - stageValue(nextStage) }} more HSK {{ nextStage.band }} {{ nextStage.metric === 'completed' ? 'units completed' : 'words known' }} to <span class="hanzi">{{ stageLabel(nextStage).realm }}{{ stageLabel(nextStage).sub }}</span>
         </p>
         <div class="flex flex-col gap-2 w-full max-w-xs">
           <UButton v-if="dueIds.length" size="xl" block @click="router.replace('/session/review'); start()">
