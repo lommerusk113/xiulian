@@ -193,3 +193,7 @@
 哪儿|nǎr|where
 这儿|zhèr|here
 那儿|nàr|there
+# panel 2026-08-26 (Prof. Li): HSK 1 sense, not the dictionary's first sense
+正|zhèng|just; right now (正在)
+毛|máo|mao (10 cents; 一块五毛)
+子|zi|(suffix: 儿子, 孩子, 桌子)
