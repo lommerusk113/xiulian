@@ -41,22 +41,38 @@ export function buildLearn(unitId: string, missed: string[] = []): Exercise[] {
   const out: Exercise[] = []
   // theme lessons: heavy repetition — three drills per new word and a full second pass
   const heavy = unit.track === 'theme'
-  // ponytail: chunks of 4 — introduce, then drill, then next chunk; keeps short-term load low
-  for (let i = 0; i < unitWords.length; i += 4) {
-    const chunk = unitWords.slice(i, i + 4)
-    const drills: Exercise[] = []
+  // ponytail: chunks of 4 — introduce, then drill, then next chunk; keeps short-term load low.
+  // The second drill of each word is deferred into the next chunk: a few minutes' gap makes the retrieval worth something.
+  let deferred: Exercise[] = []
+  const CHUNK = unitWords.length <= 6 ? 3 : 4
+  for (let i = 0; i < unitWords.length; i += CHUNK) {
+    const chunk = unitWords.slice(i, i + CHUNK)
+    const drills: Exercise[] = [...deferred]
+    deferred = []
     for (const w of chunk) {
-      // repeats drill every word fully; only unseen words get an intro card
+      // repeats drill every word fully; only unseen (or just-missed) words get an intro card
       if (!isKnown(w.id) || missed.includes(w.id)) out.push({ kind: 'intro', word: w, options: [], tiles: [] })
       const tier = tierOf(w.id)
       const a = randomKind(w, focus, { quiet, tier })
       const b = randomKind(w, focus, { exclude: [a], quiet, tier })
-      drills.push(makeExercise(a, w, pool), makeExercise(b, w, pool))
+      drills.push(makeExercise(a, w, pool))
+      deferred.push(makeExercise(b, w, pool))
       if (heavy) drills.push(makeExercise(randomKind(w, focus, { exclude: [a, b], quiet, tier }), w, pool))
     }
     out.push(...shuffle(drills))
   }
-  if (heavy) out.push(...shuffle(unitWords.map((w) => makeExercise(randomKind(w, focus, { quiet, tier: tierOf(w.id) }), w, pool))))
+  out.push(...shuffle(deferred))
+  if (heavy) {
+    // revisit the theme: up to 5 words from this theme's earlier lessons, weakest first, mixed into the second pass
+    const earlier = units
+      .filter((u) => u.track === 'theme' && u.theme === unit.theme && u.id !== unit.id && units.indexOf(u) < units.indexOf(unit))
+      .flatMap((u) => u.wordIds)
+      .filter((id) => isKnown(id) && !unit.wordIds.includes(id))
+      .sort((a, b) => progress.cards[a].stability - progress.cards[b].stability)
+      .slice(0, 5)
+      .map(wordOf)
+    out.push(...shuffle([...unitWords, ...earlier].map((w) => makeExercise(randomKind(w, focus, { quiet, tier: tierOf(w.id) }), w, pool))))
+  }
   // finish by combining: sentences that mix this unit's words with everything already known (more as you know more),
   // allowing at most one brand-new word per sentence so vocabulary sneaks in through context
   const ids = new Set(unit.wordIds)
@@ -74,6 +90,13 @@ export function buildLearn(unitId: string, missed: string[] = []): Exercise[] {
   }
   out.push(...pickSentences((s) => chosen.includes(s), n))
   return out
+}
+
+/** A missed word comes back as a different exercise kind, with fresh distractors — not the same four options again. */
+export function retry(e: Exercise): Exercise {
+  if (e.sentence) return { ...e, options: shuffle(e.options), tiles: shuffle(e.tiles) }
+  const { focus, quiet } = progress.settings
+  return makeExercise(randomKind(e.word, focus, { exclude: [e.kind], quiet, tier: tierOf(e.word.id) }), e.word, seenPool([e.word]))
 }
 
 /** Read: sentences you can understand (at most one new word), comprehension questions only — input, not a test. */

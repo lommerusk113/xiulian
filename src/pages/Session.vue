@@ -5,8 +5,8 @@ import type { Exercise } from '../types'
 import { units } from '../data'
 import { grade, dueIds, isKnown, knownCount, matureCount, streak, nextStage, stageValue, stageLabel, STAGES, passTribulation, failTribulation, completeTrial, tick, unitsWith, themeUnitsFor, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
 import { speak } from '../tts'
-import { buildLearn, buildReview, buildChallenge, buildTribulation, buildTrial, buildRead } from '../session'
-import { homophones, shuffle } from '../exercises'
+import { buildLearn, buildReview, buildChallenge, buildTribulation, buildTrial, buildRead, retry } from '../session'
+import { homophones } from '../exercises'
 import Intro from '../components/Intro.vue'
 import Choice from '../components/Choice.vue'
 import Tiles from '../components/Tiles.vue'
@@ -94,8 +94,8 @@ function onAnswer(correct: boolean) {
     grade(e.word.id, correct, trial.value)
   }
   correct ? stats.value.right++ : stats.value.wrong++
-  // a sentence that smuggled in a brand-new word is a guess, never a lost life
-  if (!correct && lives.value && !e.newWords?.length) lost.value++
+  // a sentence that smuggled in a brand-new word is a guess, and tile-ordering tests word order nobody taught: neither costs a heart
+  if (!correct && lives.value && !e.newWords?.length && e.kind !== 'sentence') lost.value++
   if (!correct && !isSentence) missedIds.value.push(e.word.id)
   if (failed.value) {
     if (trib.value) failTribulation(+props.unit!)
@@ -109,7 +109,7 @@ function onAnswer(correct: boolean) {
     misses.set(key, n)
     if (n <= 3) {
       if (n === 2 && !isSentence) queue.value.push({ kind: 'intro', word: e.word, options: [], tiles: [] })
-      queue.value.push({ ...e, options: shuffle(e.options), tiles: shuffle(e.tiles) })
+      queue.value.push(retry(e))
     }
   }
   if (!e.kind.startsWith('audio')) speak(text(e), 0.85, true)

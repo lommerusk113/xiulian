@@ -327,20 +327,20 @@
 这么|zhème|so (这么大 so big)
 认为|rènwéi|to think (hold the opinion)
 带|dài|to bring (carry along)
-位|wèi|classifier for people (polite)
+位|wèi|measure word for people (polite)
 发现|fāxiàn|to discover
 一定|yīdìng|definitely
 生活|shēnghuó|life
 一直|yīzhí|all along (continuously)
 不过|bùguò|but (however)
 成|chéng|to become
-名|míng|classifier for people (一名学生)
+名|míng|measure word for people (一名学生)
 而且|érqiě|and also (moreover)
 必须|bìxū|must
 事情|shìqing|matter (thing to do)
-条|tiáo|classifier for long things (一条鱼)
-场|chǎng|classifier for events (一场比赛)
-件|jiàn|classifier for items (一件衣服)
+条|tiáo|measure word for long things (一条鱼)
+场|chǎng|measure word for events (一场比赛)
+件|jiàn|measure word for items (一件衣服)
 进行|jìnxíng|to carry out
 或|huò|or
 通过|tōngguò|through (by means of)
@@ -358,7 +358,7 @@
 原因|yuányīn|reason
 只要|zhǐyào|as long as
 其中|qízhōng|among them
-道|dào|classifier for questions (一道题)
+道|dào|measure word for questions (一道题)
 能够|nénggòu|can (be able to)
 求|qiú|to ask for (beg)
 帮助|bāngzhù|to help
@@ -377,7 +377,7 @@
 方面|fāngmiàn|aspect
 面|miàn|side (前面 front, 里面 inside)
 活动|huódòng|activity
-份|fèn|classifier for portions (一份报纸)
+份|fèn|measure word for portions (一份报纸)
 换|huàn|to change (swap)
 段|duàn|section (一段时间 a period of time)
 检查|jiǎnchá|to check (examine)
@@ -389,7 +389,7 @@
 药|yào|medicine
 留|liú|to stay (remain behind)
 交|jiāo|to hand in (交作业 hand in homework)
-套|tào|classifier for sets (一套衣服)
+套|tào|measure word for sets (一套衣服)
 全部|quánbù|all (the whole lot)
 正常|zhèngcháng|normal
 店|diàn|shop
@@ -400,7 +400,7 @@
 愿意|yuànyì|to be willing
 装|zhuāng|to pretend (装睡 pretend to sleep)
 感谢|gǎnxiè|to thank
-座|zuò|classifier for big things (一座山)
+座|zuò|measure word for big things (一座山)
 往|wǎng|towards (往前走 go forward)
 故事|gùshi|story
 气|qì|air
@@ -441,14 +441,14 @@
 举行|jǔxíng|to hold (an event)
 明星|míngxīng|star (celebrity)
 借|jiè|to borrow
-封|fēng|classifier for letters (一封信)
+封|fēng|measure word for letters (一封信)
 占|zhàn|to occupy (take up)
 疼|téng|to hurt (ache)
 态度|tàidu|attitude
 数字|shùzì|number (digit)
 酒店|jiǔdiàn|hotel
 交通|jiāotōng|traffic
-篇|piān|classifier for articles (一篇文章)
+篇|piān|measure word for articles (一篇文章)
 提高|tígāo|to improve
 司机|sījī|driver
 大部分|dàbùfen|most (the majority)
@@ -580,3 +580,71 @@
 晴天|qíngtiān|sunny day
 米|mǐ|meter (一米 = 1 m)
 背|bèi|to recite from memory (背课文)
+# gloss verification 2026-08-27: distinguish confusables, fix rare senses, 'measure word' wording
+有一些|yǒuyìxiē|some; a few (= 有些)
+间|jiān|measure word for rooms (一间房子)
+刚刚|gānggāng|just now (= 刚, before a verb)
+多么|duōme|how…! (多么美 = how beautiful!)
+就要|jiùyào|about to (就要下雨了)
+后来|hòulái|later on (past events only)
+装|zhuāng|to pack; to fill (装进包里)
+提出|tíchū|to put forward (提出问题)
+养|yǎng|to keep (a pet); to raise (kids)
+轻|qīng|light (not heavy)
+北方|běifāng|the North (northern China)
+南方|nánfāng|the South (southern China)
+东方|dōngfāng|the East (the Orient)
+想|xiǎng|would like to; to think; to miss (我想去)
+要|yào|to want (firm); must; going to (我要水)
+能|néng|can; be able to (你能来吗？)
+可以|kěyǐ|may; allowed to (可以进来吗？)
+讲|jiǎng|to explain; to talk about (讲故事)
+告诉|gàosu|to tell somebody (告诉我)
+看到|kàndào|to see (result of looking: 看到他了)
+看见|kànjiàn|to see (= 看到, spoken)
+见|jiàn|to see / meet somebody (见朋友)
+见面|jiànmiàn|to meet up (跟他见面; no object)
+见到|jiàndào|to get to see somebody (见到你很高兴)
+一些|yìxiē|some; a few (after verb/number: 买一些)
+有些|yǒuxiē|some (of them): 有些人 = some people
+有的|yǒude|some… (others…): 有的人…有的人…
+一点儿|yìdiǎnr|a little (amount: 一点儿水; 好一点儿)
+有点儿|yǒudiǎnr|a bit (too), before adj (有点儿贵)
+有一点儿|yǒuyìdiǎnr|a bit (too) (= 有点儿)
+一下儿|yíxiàr|briefly, after a verb (看一下儿)
+又|yòu|again (already happened: 又来了)
+再|zài|again (future: 再来, 再见)
+重新|chóngxīn|all over again (重新开始)
+中|zhōng|middle; among (中间, 中国)
+里|lǐ|inside (家里 = at home)
+干|gàn|to do (spoken: 干什么？)
+帮忙|bāngmáng|to help out (帮个忙; no object)
+小朋友|xiǎopéngyou|kid (friendly address: 小朋友们好)
+小孩儿|xiǎoháir|small child (spoken)
+孩子|háizi|child; one's kids
+起|qǐ|to rise; to get up (起床, 起来)
+级|jí|grade; rank (一级 = level 1)
+水平|shuǐpíng|level (of skill: 汉语水平)
+那样|nàyàng|that way (like that)
+的话|dehuà|if… (at end of clause: 下雨的话)
+眼|yǎn|eye (看一眼 = take a look)
+口|kǒu|mouth; measure word for people (三口人)
+气|qì|air; gas (天气, 空气)
+生|shēng|to give birth; to be born (生孩子)
+句|jù|measure word for sentences (一句话)
+小组|xiǎozǔ|small group (工作小组)
+词语|cíyǔ|words and expressions
+找出|zhǎochū|to find out; to pick out (找出问题)
+名称|míngchēng|name (of a thing or place)
+走进|zǒujìn|to walk into
+交给|jiāogěi|to hand over to (交给老师)
+接到|jiēdào|to receive (call/letter: 接到电话)
+想法|xiǎngfǎ|idea; opinion
+个子|gèzi|height (of a person): 个子高
+位|wèi|measure word for people (polite: 一位老师)
+辆|liàng|measure word for vehicles (一辆车)
+名|míng|measure word for people (一名学生)
+条|tiáo|measure word for long things (一条鱼)
+地|de|(-ly: 慢慢地走 = walk slowly)
+还|hái|still; in addition (还要 = also want)
+花|huā|to spend (花钱); flower

@@ -28,6 +28,19 @@ type Key = 'meaning' | 'hanzi' | 'pinyin'
  * share a (tone-insensitive) pronunciation with it either: 他/她/它 are all tā, so an option set holding two
  * of them can only be settled by guessing. Homophones are taught side by side instead (see `homophones`).
  */
+const TONES: Record<string, string[]> = {
+  a: ['ā', 'á', 'ǎ', 'à'], e: ['ē', 'é', 'ě', 'è'], i: ['ī', 'í', 'ǐ', 'ì'], o: ['ō', 'ó', 'ǒ', 'ò'], u: ['ū', 'ú', 'ǔ', 'ù'], ü: ['ǖ', 'ǘ', 'ǚ', 'ǜ'],
+}
+const MARKED = new Map(Object.entries(TONES).flatMap(([base, marks]) => marks.map((m) => [m, base])))
+/** Same first syllable with another tone (nǐ → ní); null if no marked vowel to swap. */
+function retone(pinyin: string, tone: number): string | null {
+  for (const ch of pinyin) {
+    const base = MARKED.get(ch)
+    if (base) return pinyin.replace(ch, TONES[base][tone - 1])
+  }
+  return null
+}
+
 function distractors(word: Word, n: number, key: Key, pool: Word[], opts: { toneVariants?: number } = {}) {
   const chosen: Word[] = []
   const used = new Set<string>([word[key]])
@@ -50,6 +63,14 @@ function distractors(word: Word, n: number, key: Key, pool: Word[], opts: { tone
     for (const w of shuffle(words.filter((w) => stripTones(w.pinyin) === base && w.pinyin !== word.pinyin))) {
       if (chosen.length >= opts.toneVariants) break
       if (w.id !== word.id && !used.has(w[key])) take(w)
+    }
+    // no real word with that syllable and another tone → make one up, so a "tones!" question really contrasts tones
+    if (key === 'pinyin') {
+      for (const tone of shuffle([1, 2, 3, 4])) {
+        if (chosen.length >= opts.toneVariants) break
+        const variant = retone(word.pinyin, tone)
+        if (variant && variant !== word.pinyin && !used.has(variant)) take({ ...word, id: `~${variant}`, pinyin: variant })
+      }
     }
   }
   const score = (w: Word) => (syllables(w) === syllables(word) ? 2 : 0) + (w.pos && w.pos === word.pos ? 1 : 0) + Math.random()

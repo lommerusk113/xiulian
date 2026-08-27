@@ -86,7 +86,13 @@ const byHanzi = new Map(words.map((w) => [w.hanzi, w]))
 // ---- units: pinned first, then band + frequency --------------------------
 const units = []
 const placed = new Set()
+const late = new Map() // word → earliest HSK 1 unit number it may appear in
 for (const l of lines(readFileSync(join(root, 'scripts/pinned-units.txt'), 'utf8'))) {
+  if (l.startsWith('@late')) {
+    const [n, list] = l.slice(5).split('|')
+    for (const h of list.split(/\s+/).filter(Boolean)) late.set(h, +n)
+    continue
+  }
   const [title, list] = l.split('|')
   const ids = list.split(/\s+/).filter((h) => {
     if (!byHanzi.has(h)) { console.warn(`pinned word not in HSK 1-4 list: ${h}`); return false }
@@ -99,9 +105,16 @@ for (const l of lines(readFileSync(join(root, 'scripts/pinned-units.txt'), 'utf8
 for (let lv = 1; lv <= MAX_LEVEL; lv++) {
   const rest = words.filter((w) => w.level === lv && !placed.has(w.hanzi))
   const start = lv === 1 ? units.length : 0
-  for (let i = 0; i < rest.length; i += UNIT_SIZE) {
-    const n = start + i / UNIT_SIZE + 1
-    units.push({ id: `c${lv}-${n}`, title: `HSK ${lv} · Unit ${n}`, track: 'core', wordIds: rest.slice(i, i + UNIT_SIZE).map((w) => w.id) })
+  let n = start
+  while (rest.length) {
+    n++
+    // frequency order, except words held back with @late until their unit number
+    const take = []
+    for (let i = 0; i < rest.length && take.length < UNIT_SIZE; i++) {
+      if ((late.get(rest[i].hanzi) ?? 0) <= n) take.push(...rest.splice(i--, 1))
+    }
+    if (!take.length) take.push(...rest.splice(0, UNIT_SIZE)) // nothing eligible: release whatever is left
+    units.push({ id: `c${lv}-${n}`, title: `HSK ${lv} · Unit ${n}`, track: 'core', wordIds: take.map((w) => w.id) })
   }
 }
 
@@ -109,10 +122,9 @@ for (let lv = 1; lv <= MAX_LEVEL; lv++) {
 for (const [ti, l] of lines(readFileSync(join(root, 'scripts/themes.txt'), 'utf8')).entries()) {
   const [name, icon, list] = l.split('|')
   const ids = list.split(/\s+/).filter((h) => byHanzi.has(h) || console.warn(`theme word not in HSK 1-4 list: ${h}`))
-  const size = Math.ceil(ids.length / Math.ceil(ids.length / 7)) // balanced chunks, no 1-word leftovers
-  for (let i = 0; i < ids.length; i += size) {
-    const k = i / size + 1
-    units.push({ id: `t${ti + 1}-${k}`, title: `${name} · ${k}`, track: 'theme', theme: name, icon, wordIds: ids.slice(i, i + size) })
+  const parts = Math.ceil(ids.length / 5) // ~5 new words per theme lesson, spread evenly (22 words → 6 5 6 5, never a 2-word lesson)
+  for (let k = 0; k < parts; k++) {
+    units.push({ id: `t${ti + 1}-${k + 1}`, title: `${name} · ${k + 1}`, track: 'theme', theme: name, icon, wordIds: ids.slice(Math.round((k * ids.length) / parts), Math.round(((k + 1) * ids.length) / parts)) })
   }
 }
 
