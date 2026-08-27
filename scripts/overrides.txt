@@ -313,3 +313,270 @@
 听写|tīngxiě|dictation
 一下儿|yīxiàr|a bit; briefly (看一下儿)
 读书|dúshū|to study (at school); to read
+大家|dàjiā|everyone
+# beginner glosses 2026-08-27: one common meaning per HSK 2 word
+啊|ā|ah! (exclamation)
+为|wèi|for (为了 for the sake of)
+这样|zhèyàng|this way (like this)
+更|gèng|even more (更好 even better)
+可能|kěnéng|maybe (possibly)
+才|cái|only then (他才来 he only just came)
+像|xiàng|to be like (look like)
+当|dāng|to work as (当老师 be a teacher)
+那么|nàme|so (那么大 so big)
+这么|zhème|so (这么大 so big)
+认为|rènwéi|to think (hold the opinion)
+带|dài|to bring (carry along)
+位|wèi|classifier for people (polite)
+发现|fāxiàn|to discover
+一定|yīdìng|definitely
+生活|shēnghuó|life
+一直|yīzhí|all along (continuously)
+不过|bùguò|but (however)
+成|chéng|to become
+名|míng|classifier for people (一名学生)
+而且|érqiě|and also (moreover)
+必须|bìxū|must
+事情|shìqing|matter (thing to do)
+条|tiáo|classifier for long things (一条鱼)
+场|chǎng|classifier for events (一场比赛)
+件|jiàn|classifier for items (一件衣服)
+进行|jìnxíng|to carry out
+或|huò|or
+通过|tōngguò|through (by means of)
+周|zhōu|week
+结果|jiéguǒ|result
+不错|bùcuò|not bad (pretty good)
+完全|wánquán|completely
+发|fā|to send (发短信 send a text)
+以后|yǐhòu|afterwards (later)
+要求|yāoqiú|to require (demand)
+队|duì|team
+接|jiē|to pick up (接人 meet someone)
+相信|xiāngxìn|to believe
+刚|gāng|just (a moment ago)
+原因|yuányīn|reason
+只要|zhǐyào|as long as
+其中|qízhōng|among them
+道|dào|classifier for questions (一道题)
+能够|nénggòu|can (be able to)
+求|qiú|to ask for (beg)
+帮助|bāngzhù|to help
+当时|dāngshí|at that time
+努力|nǔlì|to work hard
+办法|bànfǎ|method (way to do sth)
+特别|tèbié|especially (special)
+真正|zhēnzhèng|real (true)
+掉|diào|to drop (fall off)
+讲|jiǎng|to tell (explain)
+离开|líkāi|to leave
+片|piàn|slice (一片面包 a slice of bread)
+以为|yǐwéi|to mistakenly think
+越|yuè|the more... (越多越好)
+组|zǔ|group
+方面|fāngmiàn|aspect
+面|miàn|side (前面 front, 里面 inside)
+活动|huódòng|activity
+份|fèn|classifier for portions (一份报纸)
+换|huàn|to change (swap)
+段|duàn|section (一段时间 a period of time)
+检查|jiǎnchá|to check (examine)
+行动|xíngdòng|action
+开心|kāixīn|happy
+卡|kǎ|card (银行卡 bank card)
+办|bàn|to handle (办事 run errands)
+算|suàn|to calculate (count)
+药|yào|medicine
+留|liú|to stay (remain behind)
+交|jiāo|to hand in (交作业 hand in homework)
+套|tào|classifier for sets (一套衣服)
+全部|quánbù|all (the whole lot)
+正常|zhèngcháng|normal
+店|diàn|shop
+服务|fúwù|service
+行为|xíngwéi|behavior
+挺|tǐng|quite (挺好 quite good)
+克|kè|gram
+愿意|yuànyì|to be willing
+装|zhuāng|to pretend (装睡 pretend to sleep)
+感谢|gǎnxiè|to thank
+座|zuò|classifier for big things (一座山)
+往|wǎng|towards (往前走 go forward)
+故事|gùshi|story
+气|qì|air
+酒|jiǔ|alcohol (wine, liquor)
+原来|yuánlái|originally (it turns out)
+一般|yībān|generally (ordinary)
+声音|shēngyīn|sound (voice)
+受到|shòudào|to be subjected to (受到影响)
+经过|jīngguò|to pass by
+离|lí|away from (离这儿远 far from here)
+提|tí|to mention (bring up)
+度|dù|degree (温度 temperature)
+弄|nòng|to make (弄坏 break)
+作用|zuòyòng|effect (function)
+满|mǎn|full
+意思|yìsi|meaning
+意见|yìjiàn|opinion
+查|chá|to check (look up)
+市|shì|city (北京市)
+加油|jiāyóu|Come on! (cheer)
+省|shěng|province
+海|hǎi|sea
+称|chēng|to call (称为 be called)
+广告|guǎnggào|advertisement
+运动|yùndòng|sports (exercise)
+爱情|àiqíng|love (romantic)
+节|jié|festival (春节 Spring Festival)
+教育|jiàoyù|education
+层|céng|floor/layer (三层 third floor)
+心里|xīnli|in one's heart (mind)
+听说|tīngshuō|to hear that (听说...)
+喂|wéi|hello (on the phone)
+接着|jiēzhe|then (next, continuing)
+表|biǎo|table (form to fill in)
+鸡|jī|chicken
+遍|biàn|classifier: one time through (一遍)
+咱们|zánmen|we (you and I)
+举行|jǔxíng|to hold (an event)
+明星|míngxīng|star (celebrity)
+借|jiè|to borrow
+封|fēng|classifier for letters (一封信)
+占|zhàn|to occupy (take up)
+疼|téng|to hurt (ache)
+态度|tàidu|attitude
+数字|shùzì|number (digit)
+酒店|jiǔdiàn|hotel
+交通|jiāotōng|traffic
+篇|piān|classifier for articles (一篇文章)
+提高|tígāo|to improve
+司机|sījī|driver
+大部分|dàbùfen|most (the majority)
+成绩|chéngjì|grades (results)
+那时|nàshí|at that time
+实际|shíjì|actual (practical)
+心中|xīnzhōng|in one's heart
+可怕|kěpà|scary
+爬|pá|to climb (爬山)
+以下|yǐxià|below (a number or level)
+讲话|jiǎnghuà|to speak (give a talk)
+随便|suíbiàn|as you like (whatever)
+相同|xiāngtóng|the same
+以上|yǐshàng|above (a number or level)
+答应|dāying|to agree to (a request)
+热情|rèqíng|warm; enthusiastic
+放下|fàngxià|to put down
+早就|zǎojiù|long ago (already, for a while)
+骑|qí|to ride (a bike, horse)
+响|xiǎng|to ring; to sound (电话响了)
+收入|shōurù|income
+租|zū|to rent
+单位|dānwèi|workplace; unit
+角|jiǎo|jiao (money unit, 1/10 yuan)
+主人|zhǔrén|host; owner
+闻|wén|to smell
+看法|kànfǎ|opinion; view
+正好|zhènghǎo|just right; happen to (正好有空)
+道理|dàoli|reason; sense (有道理 = makes sense)
+好处|hǎochu|benefit; advantage
+旅游|lǚyóu|to travel (for fun); tourism
+作业|zuòyè|homework
+家长|jiāzhǎng|parent (of a student)
+感动|gǎndòng|to be moved; touching
+好事|hǎoshì|good thing; good deed
+不如|bùrú|not as good as
+题|tí|question (on a test); problem
+流行|liúxíng|popular; fashionable
+送给|sònggěi|to give (as a gift)
+不久|bùjiǔ|soon; before long
+客人|kèrén|guest
+平时|píngshí|usually; normally
+碰|pèng|to bump (into)
+接下来|jiēxiàlái|next; following that
+做法|zuòfǎ|way of doing sth; method
+全体|quántǐ|all (members); entire
+地铁|dìtiě|subway; metro
+熟|shú|cooked (food); ripe
+咱|zán|we (you and I)
+对话|duìhuà|dialogue; conversation
+停车|tíngchē|to park (a car)
+云|yún|cloud
+大声|dàshēng|loudly (in a loud voice)
+校长|xiàozhǎng|principal; headmaster
+影片|yǐngpiàn|film; movie
+重视|zhòngshì|to value; to take seriously
+今后|jīnhòu|from now on; in the future
+晚餐|wǎncān|dinner (evening meal)
+大门|dàmén|gate; main door
+大小|dàxiǎo|size
+少年|shàonián|teenager; young boy
+难受|nánshòu|to feel bad (ill or upset)
+刻|kè|quarter of an hour (一刻 = 15 min)
+参观|cānguān|to visit (a place, museum)
+太太|tàitai|Mrs.; wife
+平常|píngcháng|usually; ordinary
+商量|shāngliang|to discuss; to talk over
+一部分|yībùfen|a part; some of
+球场|qiúchǎng|sports field; court
+教学|jiàoxué|teaching
+游客|yóukè|tourist
+脏|zāng|dirty
+饱|bǎo|full (after eating)
+打工|dǎgōng|to work a part-time job
+不满|bùmǎn|dissatisfied
+例子|lìzi|example
+快要|kuàiyào|about to; soon
+商人|shāngrén|businessman
+少数|shǎoshù|a few; minority
+得出|déchū|to reach (a conclusion)
+出租|chūzū|to rent out
+这时候|zhèshíhòu|at this time
+天上|tiānshàng|in the sky
+旅客|lǚkè|passenger; traveler
+学期|xuéqī|semester
+路边|lùbiān|roadside
+实习|shíxí|to intern; internship
+院长|yuànzhǎng|dean; director (of a hospital, college)
+夜里|yèli|at night
+分数|fēnshù|score; marks
+笔记|bǐjì|notes
+外地|wàidì|out of town (another region)
+送到|sòngdào|to deliver to
+打印|dǎyìn|to print (from a computer)
+斤|jīn|jin (unit of weight, 500 g)
+老年|lǎonián|old age; elderly
+关机|guānjī|to turn off (phone, computer)
+晴|qíng|sunny; clear (weather)
+常用|chángyòng|commonly used
+请客|qǐngkè|to treat (pay for others' meal)
+开学|kāixué|school starts (new term begins)
+作文|zuòwén|essay; composition
+有点儿|yǒudiǎnr|a little; somewhat
+站住|zhànzhù|to stop (Halt!)
+开机|kāijī|to turn on (phone, computer)
+字典|zìdiǎn|dictionary
+干杯|gānbēi|cheers! (bottoms up)
+中餐|zhōngcān|Chinese food
+外卖|wàimài|takeout; food delivery
+一路顺风|yīlùshùnfēng|have a good trip! (bon voyage)
+药水|yàoshuǐ|liquid medicine
+中医|zhōngyī|traditional Chinese medicine
+坏处|huàichu|disadvantage; drawback
+叫作|jiàozuò|to be called
+凉快|liángkuai|pleasantly cool
+药片|yàopiàn|pill; tablet
+中级|zhōngjí|intermediate
+一路平安|yīlùpíng'ān|have a safe trip! (bon voyage)
+不一会儿|bùyīhuìr|after a little while; soon
+不太|bùtài|not very
+公交车|gōngjiāochē|bus
+见过|jiànguò|have seen (before)
+快点儿|kuàidiǎnr|hurry up; quicker
+挺好|tǐnghǎo|pretty good
+笑话儿|xiàohuar|joke
+有空儿|yǒukòngr|to have free time
+走开|zǒukāi|to go away; to walk away
+海边|hǎibiān|seaside
+晴天|qíngtiān|sunny day
+米|mǐ|meter (一米 = 1 m)
+背|bèi|to recite from memory (背课文)
