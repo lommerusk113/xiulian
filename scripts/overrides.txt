@@ -190,7 +190,6 @@
 小孩儿|xiǎoháir|child
 男孩儿|nánháir|boy
 一会儿|yíhuìr|a little while
-哪儿|nǎr|where
 这儿|zhèr|here
 那儿|nàr|there
 # panel 2026-08-26 (Prof. Li): HSK 1 sense, not the dictionary's first sense
@@ -199,3 +198,118 @@
 子|zi|(suffix: 儿子, 孩子, 桌子)
 # panel 2026-08-26: one-line usage patterns (4th column), shown on the intro card
 
+# beginner glosses 2026-08-27: one common meaning per HSK 1 word
+别|bié|don't (别走 = don't go)
+先|xiān|first (先走 = go first)
+日|rì|day (生日, 日期)
+站|zhàn|to stand
+正在|zhèngzài|(doing) right now (正在吃饭)
+门|mén|door
+身上|shēnshang|on one's body
+认识|rènshi|to know (a person)
+回来|huílai|to come back
+妈|mā|mom
+学习|xuéxí|to study
+妈妈|māma|mother
+错|cuò|wrong
+少|shǎo|few; little (not much)
+别的|biéde|other (别的东西 = other things)
+跑|pǎo|to run
+回家|huíjiā|to go home
+晚|wǎn|late
+真的|zhēnde|really (真的吗 = really?)
+明白|míngbai|to understand
+杯|bēi|cup (measure word: 一杯水)
+身体|shēntǐ|body
+元|yuán|yuan (Chinese dollar)
+包|bāo|bag
+楼|lóu|storey; floor (三楼 = 3rd floor)
+马上|mǎshàng|immediately
+看见|kànjiàn|to see (with one's eyes)
+说话|shuōhuà|to talk
+爸爸|bàba|father
+爸|bà|dad
+字|zì|character (写字 = write characters)
+热|rè|hot
+试|shì|to try (试一试)
+来到|láidào|to come to (a place)
+睡觉|shuìjiào|to sleep (go to bed)
+第|dì|(ordinal prefix: 第一 = first)
+不用|bùyòng|no need to (不用谢)
+读|dú|to read (aloud)
+认真|rènzhēn|careful and serious (认真学习)
+电|diàn|electricity
+常|cháng|often
+回答|huídá|to answer
+记|jì|to remember (记得, 记住)
+关|guān|to close (关门 = close the door)
+回去|huíqu|to go back
+病人|bìngrén|patient
+休息|xiūxi|to rest
+班|bān|class (in school)
+一边|yībiān|while (一边吃一边说)
+饿|è|hungry
+课|kè|lesson
+小姐|xiǎojie|Miss (young lady)
+没什么|méishénme|it's nothing (no big deal)
+路上|lùshang|on the way
+考试|kǎoshì|exam (test)
+旁边|pángbiān|beside; next to
+同学|tóngxué|classmate
+帮忙|bāngmáng|to help out (a favor)
+女生|nǚshēng|girl (female student)
+地点|dìdiǎn|location (specific place)
+车上|chēshàng|in the car (on the vehicle)
+考|kǎo|to take a test (考试)
+上午|shàngwǔ|morning (a.m., before noon)
+记住|jìzhu|to memorize (bear in mind)
+老人|lǎorén|elderly person
+是不是|shìbùshì|isn't it? (question tag)
+干什么|gànshénme|doing what? (你干什么？)
+奶|nǎi|milk (牛奶)
+这边|zhèbiān|over here
+男生|nánshēng|boy (male student)
+奶奶|nǎinai|grandma (father's mother)
+牛奶|niúnǎi|milk
+爷爷|yéye|grandpa (father's father)
+晚饭|wǎnfàn|dinner
+开玩笑|kāiwánxiào|to joke (kidding)
+外国|wàiguó|foreign country
+钱包|qiánbāo|wallet
+车站|chēzhàn|station (bus/train stop)
+左边|zuǒbian|left side
+北京|běijīng|Beijing
+爱好|àihào|hobby
+上车|shàngchē|to get on (a bus/car)
+门票|ménpiào|entrance ticket
+机票|jīpiào|plane ticket
+下车|xiàchē|to get off (a bus/car)
+放假|fàngjià|to be on holiday
+路口|lùkǒu|intersection (crossroads)
+放学|fàngxué|to finish school for the day
+关上|guānshàng|to shut (关上门 = shut the door)
+半天|bàntiān|half a day
+车票|chēpiào|bus/train ticket
+看病|kànbìng|to see a doctor
+洗手间|xǐshǒujiān|restroom
+请假|qǐngjià|to ask for leave (time off)
+米饭|mǐfàn|cooked rice
+没事儿|méishìr|no problem
+本子|běnzi|notebook
+后边|hòubian|behind (at the back)
+西边|xībiān|west side
+上边|shàngbian|above (on top)
+东边|dōngbian|east side
+包子|bāozi|steamed stuffed bun
+南边|nánbian|south side
+北边|běibiān|north side
+下边|xiàbian|below (underneath)
+请进|qǐngjìn|please come in
+好玩儿|hǎowánr|fun
+前边|qiánbian|in front
+教学楼|jiàoxuélóu|classroom building
+课文|kèwén|text (of a lesson)
+请坐|qǐngzuò|please sit down
+听写|tīngxiě|dictation
+一下儿|yīxiàr|a bit; briefly (看一下儿)
+读书|dúshū|to study (at school); to read

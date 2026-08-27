@@ -60,7 +60,8 @@ for (const e of raw) {
   const o = overrides.get(e.simplified)
   if (!f && !o) continue
   seen.add(e.simplified)
-  const senses = [...new Set(f.m.flatMap((m) => m.split(';')).map(clean).filter(Boolean))].slice(0, 3)
+  // beginners get one meaning: HSK 1 words show only the first sense (curated overrides win); later bands keep up to three
+  const senses = [...new Set(f.m.flatMap((m) => m.split(';')).map(clean).filter(Boolean))].slice(0, lv <= 1 ? 1 : 3)
   while (senses.length > 1 && senses.join('; ').length > 45) senses.pop() // keep MC options short
   const meaning = o?.meaning ?? (senses[0].length > 60 ? senses[0].slice(0, 57) + '…' : senses.join('; '))
   words.push({
