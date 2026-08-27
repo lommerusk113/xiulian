@@ -81,7 +81,7 @@ const today = computed(() => {
       </div>
 
       <UButton v-if="pending" size="xl" block class="mt-4" icon="i-lucide-zap" :to="`/session/tribulation/${pending.index}`">
-        <span class="hanzi">{{ STAGES[pending.index].rite }}</span> — {{ STAGES[pending.index].rite === '天劫' ? 'face the heavenly tribulation for' : 'break through to' }} <span class="hanzi">{{ pending.realm }}{{ pending.sub }}</span>
+        <span class="hanzi">{{ STAGES[pending.index].rite }}</span> — {{ STAGES[pending.index].rite === '天劫' ? 'face the heavenly tribulation for' : 'break through to' }} <span class="hanzi">{{ pending.realm }}{{ pending.sub }}</span> {{ pending.name }}
       </UButton>
       <p v-else-if="pendingBlocked === 'failed'" class="mt-4 text-sm text-muted"><span class="hanzi text-default">{{ STAGES[stage + 1].rite }}</span> — held back. Complete a lesson, then try again.</p>
       <p v-else-if="pendingBlocked === 'passed'" class="mt-4 text-sm text-muted">One breakthrough a day — the next <span class="hanzi text-default">{{ STAGES[stage + 1].rite }}</span> awaits tomorrow.</p>
@@ -92,7 +92,7 @@ const today = computed(() => {
         </div>
         <p class="text-sm text-muted mt-2">
           <span class="tabular-nums text-default font-medium">{{ toNext.value }} / {{ toNext.target }}</span> HSK {{ toNext.band }} {{ toNext.metric === 'completed' ? 'units completed' : 'words known' }}
-          → <span class="hanzi text-default">{{ toNext.realm }}{{ toNext.sub }}</span>
+          → <span class="hanzi text-default">{{ toNext.realm }}{{ toNext.sub }}</span> <span class="text-default">{{ toNext.name }}</span>
         </p>
       </div>
       <p v-else class="text-sm text-muted mt-4">Every realm earned — read Readibu's HSK 4 shelf; real web novels are the next mountain.</p>
@@ -117,7 +117,7 @@ const today = computed(() => {
     </UCard>
 
     <UCard v-if="path.length && toNext">
-      <p class="text-xs text-muted uppercase tracking-wide">Path to <span class="hanzi normal-case">{{ toNext.realm }}{{ toNext.sub }}</span></p>
+      <p class="text-xs text-muted uppercase tracking-wide">Path to <span class="hanzi normal-case">{{ toNext.realm }}{{ toNext.sub }}</span> <span class="normal-case">· {{ toNext.name }}</span></p>
       <p class="text-sm text-muted mt-1 mb-3">These theme lessons teach the words of the HSK units you still need. Do them first, then the units are a formality.</p>
       <div class="flex flex-col gap-1.5">
         <RouterLink v-for="p in path.slice(0, 8)" :key="p.unit.id" :to="`/session/learn/${p.unit.id}`" class="flex items-center gap-3 text-sm rounded-lg px-2 py-1.5" :class="p.done ? 'opacity-60' : 'bg-elevated'">
