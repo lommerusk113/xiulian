@@ -19,13 +19,18 @@ function seenPool(extra: Word[] = []) {
   return pool.length + extra.length >= 8 ? [...extra, ...pool] : [...extra, ...pool, ...words.filter((w) => w.level === 1).slice(0, 40)]
 }
 
-function pickSentences(filter: (s: (typeof sentences)[number]) => boolean, n: number): Exercise[] {
+/**
+ * Sentences are understood before they are built: lessons ask only "what does this mean?";
+ * tile-building (word order) appears in reviews, and only when every word is a week-plus stable — a sentence you have met before.
+ */
+function pickSentences(filter: (s: (typeof sentences)[number]) => boolean, n: number, allowBuild = false): Exercise[] {
   return shuffle(sentences.filter(filter))
     .slice(0, n)
     .map((s) => {
       // a sentence may sneak in one unseen word: then it's a comprehension question (guessable from context), never tiles
       const fresh = [...new Set(s.tokens.filter((t) => !isKnown(t)))].map(wordOf)
-      const ex = sentenceExercise(s, fresh.length || Math.random() < 0.5 ? 'sentenceMeaning' : 'sentence', wordOf)
+      const build = allowBuild && !fresh.length && s.tokens.every((t) => tierOf(t) === 2) && Math.random() < 0.5
+      const ex = sentenceExercise(s, build ? 'sentence' : 'sentenceMeaning', wordOf)
       ex.newWords = fresh
       return ex
     })
@@ -155,6 +160,6 @@ export function buildReview(): Exercise[] {
   const pool = seenPool()
   const out = due.map((w) => makeExercise(randomKind(w, focus, { quiet, tier: tierOf(w.id) }), w, pool))
   const dueSet = new Set(due.map((w) => w.id))
-  const sents = pickSentences((s) => s.tokens.every(isKnown) && s.tokens.some((t) => dueSet.has(t)), Math.min(3, Math.floor(due.length / 5)))
+  const sents = pickSentences((s) => s.tokens.every(isKnown) && s.tokens.some((t) => dueSet.has(t)), Math.min(3, Math.floor(due.length / 5)), true)
   return shuffle([...out, ...sents])
 }
