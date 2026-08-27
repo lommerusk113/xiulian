@@ -67,6 +67,7 @@ function load(): Progress {
       c.due = new Date(c.due)
       if (c.last_review) c.last_review = new Date(c.last_review)
     }
+    for (const l of Object.values(p.lessons ?? {})) if (l.p > 0) l.p = Math.ceil(l.p / 100) * 100 // whole rings only (2026-08-27)
     return { ...fallback, ...p, settings: { ...fallback.settings, ...p.settings } }
   } catch {
     return fallback
@@ -372,10 +373,8 @@ export function unitLocked(unitId: string) {
 // ---- lesson strength: +100% per completion, decays daily; more completions → slower decay (floor 10%/day) ----
 const DAY = 86_400_000
 export const TIER_COLORS = ['var(--ui-primary)', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#8b5cf6', '#ec4899']
-/** Completions needed to climb one tier: 1 to reach ×1, 2 to reach ×2, then 4 for every tier after. */
-export const tierCost = (tier: number) => Math.min(4, 2 ** tier)
-/** One completion's worth at a given strength — what a completion adds and what a missed day removes. */
-export const stepAt = (strength: number) => 100 / tierCost(Math.floor(strength / 100))
+/** Every completion is one whole ring (100%); rings are only ever lost whole. */
+export const RING = 100
 /** Decay ticks at local midnight, not 24 h after the completion. */
 const calendarDays = (from: number, to: number) => Math.round((new Date(to).setHours(0, 0, 0, 0) - new Date(from).setHours(0, 0, 0, 0)) / DAY)
 const trackOf = (unitId: string) => units.find((u) => u.id === unitId)?.track
@@ -393,26 +392,31 @@ export function latestIn(track: string | undefined) {
   return best
 }
 
-/** Theme rings all fade: 100% per missed day, 10% less for every completion — ten completions and the ring never fades again. */
-export const themeLoss = (completions: number) => Math.max(0, 100 - 10 * completions)
+/**
+ * Theme rings fade one whole ring every `daysPerRing` missed days: daily at 0 completions, every 2 days after 1–5,
+ * every 5 after 8, never after 10 (the per-completion slowdown, in whole rings). HSK's furthest unit loses a ring per missed day.
+ */
+export const themeLossRate = (completions: number) => Math.max(0, 100 - 10 * completions) / 100
+/** Missed days until a theme lesson loses a ring; Infinity once it no longer fades. */
+export const daysPerRing = (completions: number) => (themeLossRate(completions) ? Math.ceil(1 / themeLossRate(completions)) : Infinity)
 
 export function lessonStrength(unitId: string, now = Date.now()) {
   const l = progress.lessons[unitId]
   const track = trackOf(unitId)
-  if (!l) return { strength: 0, tier: 0, completions: 0, gain: stepAt(0), loss: track === 'theme' ? themeLoss(0) : stepAt(0), fading: false, toNext: 1 }
+  if (!l) return { strength: 0, tier: 0, completions: 0, days: track === 'theme' ? daysPerRing(0) : 1, fading: false }
   let strength = l.p
   let fading: boolean
+  let days: number
   if (track === 'theme') {
-    fading = themeLoss(l.n) > 0
-    strength = Math.max(0, strength - themeLoss(l.n) * Math.max(0, calendarDays(l.t, now)))
+    days = daysPerRing(l.n)
+    fading = days !== Infinity
+    strength = Math.max(0, strength - RING * Math.floor(Math.max(0, calendarDays(l.t, now)) * themeLossRate(l.n)))
   } else {
-    // HSK / media: only the latest lesson fades, one completion's worth per missed day
+    days = 1
     fading = latestIn(track) === unitId
-    for (let d = fading ? calendarDays(l.t, now) : 0; d > 0 && strength > 0; d--) strength = Math.max(0, strength - stepAt(strength))
+    if (fading) strength = Math.max(0, strength - RING * Math.max(0, calendarDays(l.t, now)))
   }
-  const tier = Math.floor(strength / 100)
-  const toNext = Math.ceil(((tier + 1) * 100 - strength) / stepAt(strength))
-  return { strength, tier, completions: l.n, gain: stepAt(strength), loss: track === 'theme' ? themeLoss(l.n) : stepAt(strength), fading, toNext }
+  return { strength, tier: Math.floor(strength / RING), completions: l.n, days, fading }
 }
 
 export function completeLesson(unitId: string) {
@@ -424,7 +428,7 @@ export function completeLesson(unitId: string) {
   if (prev && prev !== unitId && takesOver) progress.lessons[prev] = { ...progress.lessons[prev], p: lessonStrength(prev, now).strength }
   const { strength } = lessonStrength(unitId, now)
   const n = (progress.lessons[unitId]?.n ?? 0) + 1
-  progress.lessons[unitId] = { p: strength + stepAt(strength), n, t: now }
+  progress.lessons[unitId] = { p: strength + RING, n, t: now }
 }
 
 // ---- daily challenge: fixed for the day, mostly tomorrow's words → hard before the lesson, doable after ----

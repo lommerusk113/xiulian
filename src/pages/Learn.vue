@@ -31,9 +31,8 @@ const rings = computed(() => {
   const m = new Map<string, ReturnType<typeof lessonStrength> & { style: string }>()
   for (const u of units.filter((u) => u.track === track.value)) {
     const s = lessonStrength(u.id)
-    const fill = s.tier ? TIER_COLORS[s.tier % TIER_COLORS.length] : 'var(--ui-primary)'
-    const base = s.tier ? TIER_COLORS[(s.tier - 1) % TIER_COLORS.length] : 'var(--ui-bg-accented)'
-    m.set(u.id, { ...s, style: `background: conic-gradient(${fill} ${s.strength % 100}%, ${base} 0)` })
+    // one solid colour per ring count: ×1 orange, ×2 yellow, ×3 green … ; empty until the first completion
+    m.set(u.id, { ...s, style: `background: ${s.tier ? TIER_COLORS[s.tier % TIER_COLORS.length] : 'var(--ui-bg-accented)'}` })
   }
   return m
 })
@@ -51,7 +50,7 @@ const ring = (id: string) => rings.value.get(id)!
       <template v-if="track === 'media'">Recurring words from xianxia / wuxia shows and comics. Not HSK — but you'll hear them every episode. </template>
       <template v-else-if="track === 'theme'">Words by theme, drilled with heavy repetition; each lesson ends with sentences mixing them with what you already know. </template>
       <template v-else>Strict lessons that carry your rank: the markers show where each 突破 (breakthrough) unlocks. Opening a unit lists the theme lessons that prepare you for it. </template>
-      Each completion fills the ring: one pass for ×1, two for ×2, four for every tier after. Theme rings lose 100% per missed day, 10% less for every completion you've done — after ten, a ring never fades. Each completion adds less as the ring grows, so stack them to bank days off. In HSK only your furthest unit fades, one completion's worth per missed day. HSK units unlock in order.
+      Every completion adds one ring. Theme rings fade one at a time — daily at first, slower with every completion, never after ten — so stack them to bank days off. In HSK only your furthest unit fades, one completion's worth per missed day. HSK units unlock in order.
     </p>
 
     <section v-for="[name, list] in groups" :key="name" class="flex flex-col gap-2">
@@ -86,7 +85,7 @@ const ring = (id: string) => rings.value.get(id)!
           <p v-if="u.track === 'core' && !progress.lessons[u.id] && themeUnitsFor(u.id).length" :class="themeUnitsFor(u.id).every((p) => p.done) ? 'text-success' : ''">
             themes {{ themeUnitsFor(u.id).filter((p) => p.done).length }}/{{ themeUnitsFor(u.id).length }}
           </p>
-          <p v-if="ring(u.id).fading && ring(u.id).strength > 0">−{{ ring(u.id).loss }}%/day</p>
+          <p v-if="ring(u.id).fading && ring(u.id).strength > 0">−1 ring / {{ ring(u.id).days }} day{{ ring(u.id).days === 1 ? '' : 's' }}</p>
         </div>
       </component>
       <div v-if="track === 'core' && name === 'HSK 1' && stageAtUnit(i + 1)" class="flex items-center gap-3 px-3 text-sm" :class="progress.tribulations[stageAtUnit(i + 1)!] ? 'text-muted' : 'text-primary'">

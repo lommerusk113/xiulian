@@ -34,9 +34,10 @@ const path = computed(() => pathToNextStage())
 const fading = computed(() => {
   const latest = (['core', 'media'] as const).map((t) => latestIn(t)).filter((id): id is string => !!id)
   const themes = Object.keys(progress.lessons).filter((id) => units.find((u) => u.id === id)?.track === 'theme')
+  const tomorrow = Date.now() + 86_400_000
   return [...latest, ...themes]
     .map((id) => ({ unit: units.find((u) => u.id === id)!, ...lessonStrength(id) }))
-    .filter((f) => f.strength > 0 && f.loss > 0 && Math.floor((f.strength - f.loss) / 100) < f.tier)
+    .filter((f) => f.strength > 0 && lessonStrength(f.unit.id, tomorrow).tier < f.tier)
     .filter((f) => !(f.unit.track === 'core' && f.unit.wordIds.every((w) => progress.cards[w]?.state === 2)))
     .slice(0, 4)
 })

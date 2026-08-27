@@ -219,18 +219,18 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           </p>
         </div>
         <div v-if="strength && mode === 'learn'" class="w-full max-w-xs rounded-xl bg-elevated p-3 text-sm">
-          <div class="flex justify-between mb-1">
-            <span>Lesson strength</span>
-            <span class="tabular-nums font-medium">{{ Math.round(strength.strength) }}% <span v-if="strength.tier" class="text-muted">· tier {{ strength.tier }}</span></span>
+          <div class="flex justify-between mb-2">
+            <span>Rings</span>
+            <span class="tabular-nums font-medium">×{{ strength.tier }}</span>
           </div>
-          <div class="h-2 rounded-full overflow-hidden" :style="`background:${strength.tier ? TIER_COLORS[(strength.tier - 1) % TIER_COLORS.length] : 'var(--ui-bg-accented)'}`">
-            <div class="h-full" :style="`width:${strength.strength % 100}%;background:${TIER_COLORS[strength.tier % TIER_COLORS.length]}`" />
+          <div class="flex gap-1">
+            <div v-for="i in Math.max(strength.tier, 1)" :key="i" class="flex-1 h-2 rounded-full" :style="`background:${i <= strength.tier ? TIER_COLORS[i % TIER_COLORS.length] : 'var(--ui-bg-accented)'}`" />
           </div>
-          <p class="text-muted mt-1">
-            <template v-if="strength.completions === 1">First time through! Repeat tomorrow to keep it strong.</template>
-            <template v-else-if="unitObj?.track === 'theme' && !strength.loss">Done {{ strength.completions }}×. This ring no longer fades.</template>
-            <template v-else-if="unitObj?.track === 'theme'">Done {{ strength.completions }}×. {{ strength.toNext }} more for ×{{ strength.tier + 1 }}; loses {{ strength.loss }}% per missed day (10% less each completion) — banked for {{ Math.floor(strength.strength / strength.loss) }} day{{ Math.floor(strength.strength / strength.loss) === 1 ? '' : 's' }}.</template>
-            <template v-else>Done {{ strength.completions }}×. {{ strength.toNext }} more for ×{{ strength.tier + 1 }}; loses {{ strength.loss }}% per missed day until you move on.</template>
+          <p class="text-muted mt-2">
+            <template v-if="strength.completions === 1">First time through! Repeat tomorrow to keep the ring.</template>
+            <template v-else-if="!strength.fading">Done {{ strength.completions }}×. These rings never fade.</template>
+            <template v-else-if="unitObj?.track === 'theme'">Done {{ strength.completions }}×. Loses a ring every {{ strength.days }} missed day{{ strength.days === 1 ? '' : 's' }} — banked for {{ strength.tier * strength.days }} days.</template>
+            <template v-else>Done {{ strength.completions }}×. Loses a ring per missed day until you move on.</template>
           </p>
         </div>
         <p v-if="mode === 'learn' && nextStage" class="text-sm text-muted -mt-3">
