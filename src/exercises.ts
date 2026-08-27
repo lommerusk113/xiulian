@@ -158,7 +158,8 @@ export function sentenceExercise(s: Sentence, kind: 'sentence' | 'sentenceMeanin
 
 /** How often each exercise kind appears, per focus. Recognition-only — no typing, no handwriting. */
 const WEIGHTS: Record<Focus, Partial<Record<ExerciseKind, number>>> = {
-  pinyin: { pinyinMeaning: 25, meaningPinyin: 20, audioPinyin: 20, audioMeaning: 15, meaning: 10, pinyin: 10 },
+  // pinyin focus never asks you to read a bare character: that's the Characters track's job
+  pinyin: { pinyinMeaning: 25, meaningPinyin: 20, audioPinyin: 20, audioMeaning: 15, meaning: 10 },
   balanced: { meaning: 20, audioMeaning: 20, hanzi: 15, audio: 10, pinyin: 10, pinyinMeaning: 10, meaningPinyin: 5, audioPinyin: 5, tiles: 5 },
   hanzi: { meaning: 30, hanzi: 20, audio: 20, audioMeaning: 10, tiles: 10, pinyin: 10 },
 }
