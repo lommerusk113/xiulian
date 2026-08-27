@@ -51,7 +51,7 @@ const ring = (id: string) => rings.value.get(id)!
       <template v-if="track === 'media'">Recurring words from xianxia / wuxia shows and comics. Not HSK — but you'll hear them every episode. </template>
       <template v-else-if="track === 'theme'">Words by theme, drilled with heavy repetition; each lesson ends with sentences mixing them with what you already know. </template>
       <template v-else>Strict lessons that carry your rank: the markers show where each 突破 (breakthrough) unlocks. Opening a unit lists the theme lessons that prepare you for it. </template>
-      Each completion fills the ring: one pass for ×1, two for ×2, four for every tier after. Theme rings all lose half a ring per missed day, while each completion adds less as the ring grows — stack completions to bank days off. In HSK only your latest lesson fades, one completion's worth per missed day. HSK units unlock in order.
+      Each completion fills the ring: one pass for ×1, two for ×2, four for every tier after. Theme rings lose 100% per missed day, 10% less for every completion you've done — after ten, a ring never fades. Each completion adds less as the ring grows, so stack them to bank days off. In HSK only your latest lesson fades, one completion's worth per missed day. HSK units unlock in order.
     </p>
 
     <section v-for="[name, list] in groups" :key="name" class="flex flex-col gap-2">

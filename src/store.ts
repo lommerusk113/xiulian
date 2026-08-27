@@ -376,18 +376,18 @@ export function latestIn(track: string | undefined) {
   return best
 }
 
-/** Theme rings all fade, a flat half-ring per missed day — gains slow with tier, the loss doesn't, so you can stack completions to bank days off. */
-export const THEME_LOSS = 50
+/** Theme rings all fade: 100% per missed day, 10% less for every completion — ten completions and the ring never fades again. */
+export const themeLoss = (completions: number) => Math.max(0, 100 - 10 * completions)
 
 export function lessonStrength(unitId: string, now = Date.now()) {
   const l = progress.lessons[unitId]
   const track = trackOf(unitId)
-  if (!l) return { strength: 0, tier: 0, completions: 0, gain: stepAt(0), loss: track === 'theme' ? THEME_LOSS : stepAt(0), fading: false, toNext: 1 }
+  if (!l) return { strength: 0, tier: 0, completions: 0, gain: stepAt(0), loss: track === 'theme' ? themeLoss(0) : stepAt(0), fading: false, toNext: 1 }
   let strength = l.p
   let fading: boolean
   if (track === 'theme') {
-    fading = true
-    strength = Math.max(0, strength - THEME_LOSS * Math.max(0, calendarDays(l.t, now)))
+    fading = themeLoss(l.n) > 0
+    strength = Math.max(0, strength - themeLoss(l.n) * Math.max(0, calendarDays(l.t, now)))
   } else {
     // HSK / media: only the latest lesson fades, one completion's worth per missed day
     fading = latestIn(track) === unitId
@@ -395,7 +395,7 @@ export function lessonStrength(unitId: string, now = Date.now()) {
   }
   const tier = Math.floor(strength / 100)
   const toNext = Math.ceil(((tier + 1) * 100 - strength) / stepAt(strength))
-  return { strength, tier, completions: l.n, gain: stepAt(strength), loss: track === 'theme' ? THEME_LOSS : stepAt(strength), fading, toNext }
+  return { strength, tier, completions: l.n, gain: stepAt(strength), loss: track === 'theme' ? themeLoss(l.n) : stepAt(strength), fading, toNext }
 }
 
 export function completeLesson(unitId: string) {

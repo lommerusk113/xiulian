@@ -35,7 +35,7 @@ const fading = computed(() => {
   const themes = Object.keys(progress.lessons).filter((id) => units.find((u) => u.id === id)?.track === 'theme')
   return [...latest, ...themes]
     .map((id) => ({ unit: units.find((u) => u.id === id)!, ...lessonStrength(id) }))
-    .filter((f) => f.strength > 0 && Math.floor((f.strength - f.loss) / 100) < f.tier)
+    .filter((f) => f.strength > 0 && f.loss > 0 && Math.floor((f.strength - f.loss) / 100) < f.tier)
     .filter((f) => !(f.unit.track === 'core' && f.unit.wordIds.every((w) => progress.cards[w]?.state === 2)))
     .slice(0, 4)
 })
