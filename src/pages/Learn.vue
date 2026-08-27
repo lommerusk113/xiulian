@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import type { Unit } from '../types'
 import { units } from '../data'
-import { unitLearned, unitLocked, nextUnit, lessonStrength, knownCount, progress, stageAtUnit, stageLabel, STAGES, TIER_COLORS } from '../store'
+import { unitLearned, unitLocked, nextUnit, lessonStrength, knownCount, progress, stageAtUnit, stageLabel, themeUnitsFor, STAGES, TIER_COLORS } from '../store'
 
 /** which realm each HSK band feeds once its words are known — HSK 1 also carries the unit-based 聚气 markers below */
 const REALM_FOR: Record<string, string> = { 'HSK 1': '炼气 Qi Refining', 'HSK 2': '筑基 Foundation', 'HSK 3': '金丹 Golden Core', 'HSK 4': '元婴 Nascent Soul' }
@@ -83,6 +83,9 @@ const ring = (id: string) => rings.value.get(id)!
         </div>
         <div class="text-right text-xs text-muted shrink-0">
           <p>{{ unitLearned(u.id) }}/{{ u.wordIds.length }} words</p>
+          <p v-if="u.track === 'core' && !progress.lessons[u.id] && themeUnitsFor(u.id).length" :class="themeUnitsFor(u.id).every((p) => p.done) ? 'text-success' : ''">
+            themes {{ themeUnitsFor(u.id).filter((p) => p.done).length }}/{{ themeUnitsFor(u.id).length }}
+          </p>
           <p v-if="ring(u.id).fading && ring(u.id).strength > 0">−{{ ring(u.id).loss }}%/day</p>
         </div>
       </component>

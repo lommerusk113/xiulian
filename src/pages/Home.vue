@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { words } from '../data'
-import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, bandCompleted, coverage, REALMS, REALM_COLORS, STAGES, stage, nextStage, pendingStage, pendingBlocked, stageValue, stageLabel, trialDue, trialDaysLeft, trialWords, TRIAL_MIN_WORDS, latestIn, lessonStrength, retention7, readableSentences, READ_SIZE } from '../store'
+import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, bandCompleted, coverage, REALMS, REALM_COLORS, STAGES, stage, nextStage, pendingStage, pendingBlocked, stageValue, stageLabel, trialDue, trialDaysLeft, trialWords, TRIAL_MIN_WORDS, latestIn, lessonStrength, retention7, readableSentences, READ_SIZE, pathToNextStage } from '../store'
 import { units } from '../data'
 
 const coreTotal = words.filter((w) => w.level > 0).length
@@ -29,6 +29,7 @@ const BACKLOG = 40
 /** Readibu milestone per great realm: read one chapter, tick it off. */
 const READ_AT: Record<number, string> = { 3: "Readibu's HSK 2 graded stories", 4: "Readibu's HSK 3–4 shelf", 5: 'a real xianxia web novel — with the Sect, Cultivation and Narration decks done' }
 const realmNow = computed(() => STAGES[stage.value].realm)
+const path = computed(() => pathToNextStage())
 // rings that lose a tier tonight unless repeated: the latest HSK/media lesson, and every theme lesson within one day's loss of dropping
 const fading = computed(() => {
   const latest = (['core', 'media'] as const).map((t) => latestIn(t)).filter((id): id is string => !!id)
@@ -112,6 +113,19 @@ const today = computed(() => {
         <span class="flex-1">Read one chapter of {{ READ_AT[realmNow] }}, then come back.</span>
         <UButton v-if="!progress.marks[`read-${realmNow}`]" size="sm" color="neutral" variant="soft" @click="progress.marks[`read-${realmNow}`] = Date.now()">Done</UButton>
       </div>
+    </UCard>
+
+    <UCard v-if="path.length && toNext">
+      <p class="text-xs text-muted uppercase tracking-wide">Path to <span class="hanzi normal-case">{{ toNext.realm }}{{ toNext.sub }}</span></p>
+      <p class="text-sm text-muted mt-1 mb-3">These theme lessons teach the words of the HSK units you still need. Do them first, then the units are a formality.</p>
+      <div class="flex flex-col gap-1.5">
+        <RouterLink v-for="p in path.slice(0, 8)" :key="p.unit.id" :to="`/session/learn/${p.unit.id}`" class="flex items-center gap-3 text-sm rounded-lg px-2 py-1.5" :class="p.done ? 'opacity-60' : 'bg-elevated'">
+          <UIcon :name="p.done ? 'i-lucide-check-circle-2' : 'i-lucide-circle'" class="size-4 shrink-0" :class="p.done ? 'text-success' : 'text-muted'" />
+          <span class="flex-1 min-w-0 truncate">{{ p.unit.title }}</span>
+          <span class="text-xs text-muted shrink-0">{{ p.shared }} words</span>
+        </RouterLink>
+      </div>
+      <p v-if="path.length > 8" class="text-xs text-muted mt-2">+{{ path.length - 8 }} more in the Themes tab.</p>
     </UCard>
 
     <template v-if="knownCount">

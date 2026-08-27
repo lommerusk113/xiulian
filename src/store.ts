@@ -243,6 +243,18 @@ export function themeUnitsFor(unitId: string) {
     .filter((x) => x.shared)
     .sort((a, b) => b.shared - a.shared)
 }
+/** Theme lessons that prepare the HSK units still needed for the next unit-counted stage (聚气), least-done first. */
+export function pathToNextStage() {
+  const n = nextStage.value
+  if (!n || n.metric !== 'completed') return []
+  const needed = units.filter((u) => u.track === 'core' && u.title.startsWith(`HSK ${n.band} `) && !progress.lessons[u.id]).slice(0, Math.max(0, n.target - bandCompleted(n.band)))
+  const wordsNeeded = new Set(needed.flatMap((u) => u.wordIds))
+  return units
+    .filter((t) => t.track === 'theme')
+    .map((t) => ({ unit: t, shared: t.wordIds.filter((w) => wordsNeeded.has(w)).length, done: !!progress.lessons[t.id] }))
+    .filter((x) => x.shared)
+    .sort((a, b) => Number(a.done) - Number(b.done) || b.shared - a.shared)
+}
 /** Core units that contain any of the given words, for "repeat these" after a failed 天劫. */
 export const unitsWith = (ids: string[]) => units.filter((u) => u.track === 'core' && u.wordIds.some((w) => ids.includes(w)))
 export const nextStage = computed<Stage | undefined>(() => STAGES[stage.value + 1])
