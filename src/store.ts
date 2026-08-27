@@ -367,11 +367,16 @@ export const stepAt = (strength: number) => 100 / tierCost(Math.floor(strength /
 /** Decay ticks at local midnight, not 24 h after the completion. */
 const calendarDays = (from: number, to: number) => Math.round((new Date(to).setHours(0, 0, 0, 0) - new Date(from).setHours(0, 0, 0, 0)) / DAY)
 const trackOf = (unitId: string) => units.find((u) => u.id === unitId)?.track
-/** Only the most recently completed lesson in each track fades; the rest keep the strength they had when you moved on. */
+/**
+ * The one lesson per track that fades: for HSK the furthest unit you have completed (highest in the ladder),
+ * for media the most recently completed one. The rest keep the strength they had when you moved on.
+ */
 export function latestIn(track: string | undefined) {
   let best: string | undefined
   for (const [id, l] of Object.entries(progress.lessons)) {
-    if (trackOf(id) === track && (!best || l.t > progress.lessons[best].t)) best = id
+    if (trackOf(id) !== track) continue
+    const ahead = track === 'core' ? units.findIndex((u) => u.id === id) > units.findIndex((u) => u.id === best) : l.t > progress.lessons[best!].t
+    if (!best || ahead) best = id
   }
   return best
 }
@@ -400,9 +405,11 @@ export function lessonStrength(unitId: string, now = Date.now()) {
 
 export function completeLesson(unitId: string) {
   const now = Date.now()
-  // HSK / media: the lesson that was fading until now freezes at its current strength (themes all keep fading)
-  const prev = trackOf(unitId) === 'theme' ? undefined : latestIn(trackOf(unitId))
-  if (prev && prev !== unitId) progress.lessons[prev] = { ...progress.lessons[prev], p: lessonStrength(prev, now).strength }
+  // HSK / media: when a new lesson takes over as the fading one, the previous one freezes at its current strength (themes all keep fading)
+  const track = trackOf(unitId)
+  const prev = track === 'theme' ? undefined : latestIn(track)
+  const takesOver = track === 'core' ? units.findIndex((u) => u.id === unitId) > units.findIndex((u) => u.id === prev) : true
+  if (prev && prev !== unitId && takesOver) progress.lessons[prev] = { ...progress.lessons[prev], p: lessonStrength(prev, now).strength }
   const { strength } = lessonStrength(unitId, now)
   const n = (progress.lessons[unitId]?.n ?? 0) + 1
   progress.lessons[unitId] = { p: strength + stepAt(strength), n, t: now }
