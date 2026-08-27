@@ -29,14 +29,16 @@ const BACKLOG = 40
 /** Readibu milestone per great realm: read one chapter, tick it off. */
 const READ_AT: Record<number, string> = { 3: "Readibu's HSK 2 graded stories", 4: "Readibu's HSK 3–4 shelf", 5: 'a real xianxia web novel — with the Sect, Cultivation and Narration decks done' }
 const realmNow = computed(() => STAGES[stage.value].realm)
-// the one lesson per track that fades tonight unless repeated
-const fading = computed(() =>
-  (['core', 'theme', 'media'] as const)
-    .map((t) => latestIn(t))
-    .filter((id): id is string => !!id)
+// rings that lose a tier tonight unless repeated: the latest HSK/media lesson, and every theme lesson within one day's loss of dropping
+const fading = computed(() => {
+  const latest = (['core', 'media'] as const).map((t) => latestIn(t)).filter((id): id is string => !!id)
+  const themes = Object.keys(progress.lessons).filter((id) => units.find((u) => u.id === id)?.track === 'theme')
+  return [...latest, ...themes]
     .map((id) => ({ unit: units.find((u) => u.id === id)!, ...lessonStrength(id) }))
-    .filter((f) => f.strength > 0 && !(f.unit.track === 'core' && f.unit.wordIds.every((w) => progress.cards[w]?.state === 2))),
-)
+    .filter((f) => f.strength > 0 && Math.floor((f.strength - f.loss) / 100) < f.tier)
+    .filter((f) => !(f.unit.track === 'core' && f.unit.wordIds.every((w) => progress.cards[w]?.state === 2)))
+    .slice(0, 4)
+})
 const pending = computed(() => (pendingStage.value !== undefined ? { index: pendingStage.value, ...stageLabel(STAGES[pendingStage.value]) } : null))
 // ponytail: cards carry no "created" stamp, so a word counts as met today if its last review is today and no full day has passed since the one before — first-day cards always match
 const today = computed(() => {

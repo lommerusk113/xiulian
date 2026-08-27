@@ -1,4 +1,4 @@
-import type { Exercise, Word } from './types'
+import type { Exercise, ExerciseKind, Word } from './types'
 import { units, sentences, words } from './data'
 import { State } from 'ts-fsrs'
 import { isKnown, dueIds, progress, wordById, todaysChallenge, tribulationWords, trialWords, readableSentences, READ_SIZE } from './store'
@@ -39,31 +39,23 @@ export function buildLearn(unitId: string, missed: string[] = []): Exercise[] {
   const unitWords = unit.wordIds.map(wordOf)
   const pool = seenPool(unitWords)
   const out: Exercise[] = []
-  // theme lessons: heavy repetition — three drills per new word and a full second pass
   const heavy = unit.track === 'theme'
-  // ponytail: chunks of 4 — introduce, then drill, then next chunk; keeps short-term load low.
-  // The second drill of each word is deferred into the next chunk: a few minutes' gap makes the retrieval worth something.
-  let deferred: Exercise[] = []
-  const CHUNK = unitWords.length <= 6 ? 3 : 4
-  for (let i = 0; i < unitWords.length; i += CHUNK) {
-    const chunk = unitWords.slice(i, i + CHUNK)
-    const drills: Exercise[] = [...deferred]
-    deferred = []
-    for (const w of chunk) {
-      // repeats drill every word fully; only unseen (or just-missed) words get an intro card
-      if (!isKnown(w.id) || missed.includes(w.id)) out.push({ kind: 'intro', word: w, options: [], tiles: [] })
-      const tier = tierOf(w.id)
-      const a = randomKind(w, focus, { quiet, tier })
-      const b = randomKind(w, focus, { exclude: [a], quiet, tier })
-      drills.push(makeExercise(a, w, pool))
-      deferred.push(makeExercise(b, w, pool))
-      if (heavy) drills.push(makeExercise(randomKind(w, focus, { exclude: [a, b], quiet, tier }), w, pool))
-    }
-    out.push(...shuffle(drills))
-  }
-  out.push(...shuffle(deferred))
   if (heavy) {
-    // revisit the theme: up to 5 words from this theme's earlier lessons, weakest first, mixed into the second pass
+    // Theme lessons teach, they don't test: every word of the lesson gets its card, a first drill, the card again, a second drill —
+    // in chunks of 3 — then a third drill for each word, then a second pass that also revisits the weakest words from the theme's earlier lessons.
+    const drill = (w: Word, exclude: ExerciseKind[] = []) => makeExercise(randomKind(w, focus, { exclude, quiet, tier: tierOf(w.id) }), w, pool)
+    const later: Exercise[] = []
+    for (let i = 0; i < unitWords.length; i += 3) {
+      const chunk = unitWords.slice(i, i + 3)
+      const first = chunk.map((w) => drill(w))
+      const second = chunk.map((w, k) => drill(w, [first[k].kind]))
+      for (const w of chunk) out.push({ kind: 'intro', word: w, options: [], tiles: [] })
+      out.push(...shuffle(first))
+      for (const w of chunk) out.push({ kind: 'intro', word: w, options: [], tiles: [] })
+      out.push(...shuffle(second))
+      later.push(...chunk.map((w, k) => drill(w, [first[k].kind, second[k].kind])))
+    }
+    out.push(...shuffle(later))
     const earlier = units
       .filter((u) => u.track === 'theme' && u.theme === unit.theme && u.id !== unit.id && units.indexOf(u) < units.indexOf(unit))
       .flatMap((u) => u.wordIds)
@@ -71,7 +63,27 @@ export function buildLearn(unitId: string, missed: string[] = []): Exercise[] {
       .sort((a, b) => progress.cards[a].stability - progress.cards[b].stability)
       .slice(0, 5)
       .map(wordOf)
-    out.push(...shuffle([...unitWords, ...earlier].map((w) => makeExercise(randomKind(w, focus, { quiet, tier: tierOf(w.id) }), w, pool))))
+    out.push(...shuffle([...unitWords, ...earlier].map((w) => drill(w))))
+  } else {
+    // HSK / media: a test of what you've prepared — intro only for unseen (or just-missed) words, two drills each,
+    // the second one deferred into the next chunk so a few minutes pass between them
+    let deferred: Exercise[] = []
+    const CHUNK = unitWords.length <= 6 ? 3 : 4
+    for (let i = 0; i < unitWords.length; i += CHUNK) {
+      const chunk = unitWords.slice(i, i + CHUNK)
+      const drills: Exercise[] = [...deferred]
+      deferred = []
+      for (const w of chunk) {
+        if (!isKnown(w.id) || missed.includes(w.id)) out.push({ kind: 'intro', word: w, options: [], tiles: [] })
+        const tier = tierOf(w.id)
+        const a = randomKind(w, focus, { quiet, tier })
+        const b = randomKind(w, focus, { exclude: [a], quiet, tier })
+        drills.push(makeExercise(a, w, pool))
+        deferred.push(makeExercise(b, w, pool))
+      }
+      out.push(...shuffle(drills))
+    }
+    out.push(...shuffle(deferred))
   }
   // finish by combining: sentences that mix this unit's words with everything already known (more as you know more),
   // allowing at most one brand-new word per sentence so vocabulary sneaks in through context

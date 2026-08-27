@@ -108,7 +108,8 @@ function onAnswer(correct: boolean) {
     const n = (misses.get(key) ?? 0) + 1
     misses.set(key, n)
     if (n <= 3) {
-      if (n === 2 && !isSentence) queue.value.push({ kind: 'intro', word: e.word, options: [], tiles: [] })
+      // themes teach: the card comes back before every retry; elsewhere only before the third try
+      if ((n === 2 || unitObj.value?.track === 'theme') && !isSentence) queue.value.push({ kind: 'intro', word: e.word, options: [], tiles: [] })
       queue.value.push(retry(e))
     }
   }
@@ -227,7 +228,8 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           </div>
           <p class="text-muted mt-1">
             <template v-if="strength.completions === 1">First time through! Repeat tomorrow to keep it strong.</template>
-            <template v-else>Done {{ strength.completions }}×. {{ strength.toNext }} more for ×{{ strength.tier + 1 }}; loses {{ strength.step }}% per missed day until you move on.</template>
+            <template v-else-if="unitObj?.track === 'theme'">Done {{ strength.completions }}×. {{ strength.toNext }} more for ×{{ strength.tier + 1 }}; loses {{ strength.loss }}% per missed day — banked for {{ Math.floor(strength.strength / strength.loss) }} day{{ Math.floor(strength.strength / strength.loss) === 1 ? '' : 's' }}.</template>
+            <template v-else>Done {{ strength.completions }}×. {{ strength.toNext }} more for ×{{ strength.tier + 1 }}; loses {{ strength.loss }}% per missed day until you move on.</template>
           </p>
         </div>
         <p v-if="mode === 'learn' && nextStage" class="text-sm text-muted -mt-3">

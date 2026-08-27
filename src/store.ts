@@ -376,22 +376,32 @@ export function latestIn(track: string | undefined) {
   return best
 }
 
+/** Theme rings all fade, a flat half-ring per missed day — gains slow with tier, the loss doesn't, so you can stack completions to bank days off. */
+export const THEME_LOSS = 50
+
 export function lessonStrength(unitId: string, now = Date.now()) {
   const l = progress.lessons[unitId]
-  if (!l) return { strength: 0, tier: 0, completions: 0, step: stepAt(0), fading: false, toNext: 1 }
-  const fading = latestIn(trackOf(unitId)) === unitId
+  const track = trackOf(unitId)
+  if (!l) return { strength: 0, tier: 0, completions: 0, gain: stepAt(0), loss: track === 'theme' ? THEME_LOSS : stepAt(0), fading: false, toNext: 1 }
   let strength = l.p
-  // one step per missed day: repeat it daily to hold the level, skip a day and lose one completion's worth
-  for (let d = fading ? calendarDays(l.t, now) : 0; d > 0 && strength > 0; d--) strength = Math.max(0, strength - stepAt(strength))
+  let fading: boolean
+  if (track === 'theme') {
+    fading = true
+    strength = Math.max(0, strength - THEME_LOSS * Math.max(0, calendarDays(l.t, now)))
+  } else {
+    // HSK / media: only the latest lesson fades, one completion's worth per missed day
+    fading = latestIn(track) === unitId
+    for (let d = fading ? calendarDays(l.t, now) : 0; d > 0 && strength > 0; d--) strength = Math.max(0, strength - stepAt(strength))
+  }
   const tier = Math.floor(strength / 100)
   const toNext = Math.ceil(((tier + 1) * 100 - strength) / stepAt(strength))
-  return { strength, tier, completions: l.n, step: stepAt(strength), fading, toNext }
+  return { strength, tier, completions: l.n, gain: stepAt(strength), loss: track === 'theme' ? THEME_LOSS : stepAt(strength), fading, toNext }
 }
 
 export function completeLesson(unitId: string) {
   const now = Date.now()
-  // the lesson that was fading until now freezes at its current strength
-  const prev = latestIn(trackOf(unitId))
+  // HSK / media: the lesson that was fading until now freezes at its current strength (themes all keep fading)
+  const prev = trackOf(unitId) === 'theme' ? undefined : latestIn(trackOf(unitId))
   if (prev && prev !== unitId) progress.lessons[prev] = { ...progress.lessons[prev], p: lessonStrength(prev, now).strength }
   const { strength } = lessonStrength(unitId, now)
   const n = (progress.lessons[unitId]?.n ?? 0) + 1
