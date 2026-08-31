@@ -101,7 +101,8 @@ function onAnswer(correct: boolean) {
     if (trib.value) failTribulation(+props.unit!)
     return // out of lives → footer offers Restart
   }
-  if (!correct && !trib.value && !trial.value && !reading.value) {
+  // strict HSK units are an exam: the answer is shown, the heart is gone, the test moves on
+  if (!correct && !strict.value && !trib.value && !trial.value && !reading.value) {
     // missed → the same question goes to the back of the pile (options reshuffled), up to three times;
     // the intro card comes back before the third try
     const key = e.sentence?.hanzi ?? e.word.id

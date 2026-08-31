@@ -70,8 +70,7 @@ export function buildLearn(unitId: string, missed: string[] = []): Exercise[] {
       .map(wordOf)
     out.push(...shuffle([...unitWords, ...earlier].map((w) => drill(w))))
   } else {
-    // HSK / media: a test of what you've prepared — intro only for unseen (or just-missed) words, two drills each,
-    // the second one deferred into the next chunk so a few minutes pass between them
+    // HSK / media: an exam of what you prepared in the themes — questions only. Media units still introduce unseen phrases.
     let deferred: Exercise[] = []
     const CHUNK = unitWords.length <= 6 ? 3 : 4
     for (let i = 0; i < unitWords.length; i += CHUNK) {
@@ -79,7 +78,7 @@ export function buildLearn(unitId: string, missed: string[] = []): Exercise[] {
       const drills: Exercise[] = [...deferred]
       deferred = []
       for (const w of chunk) {
-        if (!isKnown(w.id) || missed.includes(w.id)) out.push({ kind: 'intro', word: w, options: [], tiles: [] })
+        if (unit.track !== 'core' && (!isKnown(w.id) || missed.includes(w.id))) out.push({ kind: 'intro', word: w, options: [], tiles: [] })
         const tier = tierOf(w.id)
         const a = randomKind(w, focus, { quiet, tier })
         const b = randomKind(w, focus, { exclude: [a], quiet, tier })
