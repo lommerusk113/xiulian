@@ -50,7 +50,7 @@ const ring = (id: string) => rings.value.get(id)!
       <template v-if="track === 'media'">Recurring words from xianxia / wuxia shows and comics. Not HSK — but you'll hear them every episode. </template>
       <template v-else-if="track === 'theme'">Words by theme, drilled with heavy repetition; each lesson ends with sentences mixing them with what you already know. </template>
       <template v-else>Strict lessons that carry your rank: the markers show where each 突破 (breakthrough) unlocks. Opening a unit lists the theme lessons that prepare you for it. </template>
-      Every completion adds one ring. Theme rings fade one at a time — daily at first, slower with every completion, never after ten — so stack them to bank days off. In HSK only your furthest unit fades, one completion's worth per missed day. HSK units unlock in order.
+      Every completion adds one ring. Each missed day a lesson has a chance of losing a ring — 10% lower per completion, immune after ten. A lesson whose rings all fade stops counting for your rank until you redo it. In HSK only your furthest unit fades, one completion's worth per missed day. HSK units unlock in order.
     </p>
 
     <section v-for="[name, list] in groups" :key="name" class="flex flex-col gap-2">
@@ -85,7 +85,7 @@ const ring = (id: string) => rings.value.get(id)!
           <p v-if="u.track === 'core' && !progress.lessons[u.id] && themeUnitsFor(u.id).length" :class="themeUnitsFor(u.id).every((p) => p.done) ? 'text-success' : ''">
             themes {{ themeUnitsFor(u.id).filter((p) => p.done).length }}/{{ themeUnitsFor(u.id).length }}
           </p>
-          <p v-if="ring(u.id).fading && ring(u.id).strength > 0">−1 ring / {{ ring(u.id).days }} day{{ ring(u.id).days === 1 ? '' : 's' }}</p>
+          <p v-if="ring(u.id).fading && ring(u.id).strength > 0">{{ ring(u.id).chance }}% fade/day</p>
         </div>
       </component>
       <div v-if="track === 'core' && name === 'HSK 1' && stageAtUnit(i + 1)" class="flex items-center gap-3 px-3 text-sm" :class="progress.tribulations[stageAtUnit(i + 1)!] ? 'text-muted' : 'text-primary'">

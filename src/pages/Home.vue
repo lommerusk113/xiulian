@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { words } from '../data'
-import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, bandCompleted, coverage, REALMS, REALM_COLORS, STAGES, stage, nextStage, pendingStage, pendingBlocked, stageValue, stageLabel, trialDue, trialDaysLeft, trialWords, TRIAL_MIN_WORDS, latestIn, lessonStrength, retention7, readableSentences, READ_SIZE, pathToNextStage } from '../store'
+import { challengeHistory, todaysChallenge, CHALLENGE_SIZE, progress, dueIds, knownCount, matureCount, nextUnit, streak, rank, bandStats, bandCompleted, coverage, REALMS, REALM_COLORS, STAGES, stage, nextStage, pendingStage, pendingBlocked, stageValue, stageLabel, trialDue, trialDaysLeft, trialWords, TRIAL_MIN_WORDS, lessonStrength, retention7, readableSentences, READ_SIZE, pathToNextStage } from '../store'
 import { units } from '../data'
 
 const coreTotal = words.filter((w) => w.level > 0).length
@@ -30,17 +30,14 @@ const BACKLOG = 40
 const READ_AT: Record<number, string> = { 3: "Readibu's HSK 2 graded stories", 4: "Readibu's HSK 3–4 shelf", 5: 'a real xianxia web novel — with the Sect, Cultivation and Narration decks done' }
 const realmNow = computed(() => STAGES[stage.value].realm)
 const path = computed(() => pathToNextStage())
-// rings that lose a tier tonight unless repeated: the latest HSK/media lesson, and every theme lesson within one day's loss of dropping
-const fading = computed(() => {
-  const latest = (['core', 'media'] as const).map((t) => latestIn(t)).filter((id): id is string => !!id)
-  const themes = Object.keys(progress.lessons).filter((id) => units.find((u) => u.id === id)?.track === 'theme')
-  const tomorrow = Date.now() + 86_400_000
-  return [...latest, ...themes]
+// rings most at risk tonight: highest loss chance first
+const fading = computed(() =>
+  Object.keys(progress.lessons)
     .map((id) => ({ unit: units.find((u) => u.id === id)!, ...lessonStrength(id) }))
-    .filter((f) => f.strength > 0 && lessonStrength(f.unit.id, tomorrow).tier < f.tier)
-    .filter((f) => !(f.unit.track === 'core' && f.unit.wordIds.every((w) => progress.cards[w]?.state === 2)))
-    .slice(0, 4)
-})
+    .filter((f) => f.unit && f.strength > 0 && f.chance > 0)
+    .sort((a, b) => b.chance - a.chance)
+    .slice(0, 4),
+)
 const pending = computed(() => (pendingStage.value !== undefined ? { index: pendingStage.value, ...stageLabel(STAGES[pendingStage.value]) } : null))
 // ponytail: cards carry no "created" stamp, so a word counts as met today if its last review is today and no full day has passed since the one before — first-day cards always match
 const today = computed(() => {
@@ -131,9 +128,9 @@ const today = computed(() => {
 
     <template v-if="knownCount">
       <p v-if="fading.length" class="text-sm text-muted px-1 -mt-2">
-        Hold your rings:
-        <template v-for="(f, i) in fading" :key="f.unit.id"><RouterLink :to="`/session/learn/${f.unit.id}`" class="text-default underline">{{ f.unit.title }}</RouterLink> ×{{ f.tier }}<template v-if="i < fading.length - 1"> · </template></template>
-        — repeat today to keep it.
+        At risk tonight:
+        <template v-for="(f, i) in fading" :key="f.unit.id"><RouterLink :to="`/session/learn/${f.unit.id}`" class="text-default underline">{{ f.unit.title }}</RouterLink> ×{{ f.tier }} ({{ f.chance }}%)<template v-if="i < fading.length - 1"> · </template></template>
+        — each missed day rolls the dice; repeating lowers the odds for good.
       </p>
 
       <UCard v-if="readable >= 10">

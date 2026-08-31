@@ -180,8 +180,11 @@ export interface Stage {
 const bandTotal = (level: number) => words.filter((w) => w.level === level).length
 const bandNeed = (level: number) => Math.ceil(bandTotal(level) * RANK_THRESHOLD)
 const bandUnits = (level: number) => units.filter((u) => u.track === 'core' && u.title.startsWith(`HSK ${level} `))
-/** Core units of a band completed at least once. */
-export const bandCompleted = (level: number) => bandUnits(level).filter((u) => progress.lessons[u.id]).length
+/** Core units of a band that still hold at least one ring — a unit whose rings all faded must be redone to count again. */
+export const bandCompleted = (level: number) => {
+  clock.value
+  return bandUnits(level).filter((u) => lessonStrength(u.id).strength > 0).length
+}
 
 /**
  * The ladder, lowest first. Qi Building climbs ten 层 with HSK 1 units *completed*; Qi Refining ten 层 with HSK 1 words *known*
@@ -248,11 +251,11 @@ export function themeUnitsFor(unitId: string) {
 export function pathToNextStage() {
   const n = nextStage.value
   if (!n || n.metric !== 'completed') return []
-  const needed = units.filter((u) => u.track === 'core' && u.title.startsWith(`HSK ${n.band} `) && !progress.lessons[u.id]).slice(0, Math.max(0, n.target - bandCompleted(n.band)))
+  const needed = units.filter((u) => u.track === 'core' && u.title.startsWith(`HSK ${n.band} `) && lessonStrength(u.id).strength <= 0).slice(0, Math.max(0, n.target - bandCompleted(n.band)))
   const wordsNeeded = new Set(needed.flatMap((u) => u.wordIds))
   return units
     .filter((t) => t.track === 'theme')
-    .map((t) => ({ unit: t, shared: t.wordIds.filter((w) => wordsNeeded.has(w)).length, done: !!progress.lessons[t.id] }))
+    .map((t) => ({ unit: t, shared: t.wordIds.filter((w) => wordsNeeded.has(w)).length, done: lessonStrength(t.id).strength > 0 }))
     .filter((x) => x.shared)
     .sort((a, b) => Number(a.done) - Number(b.done) || b.shared - a.shared)
 }
@@ -377,55 +380,34 @@ export const TIER_COLORS = ['var(--ui-primary)', '#f97316', '#eab308', '#22c55e'
 export const RING = 100
 /** Decay ticks at local midnight, not 24 h after the completion. */
 const calendarDays = (from: number, to: number) => Math.round((new Date(to).setHours(0, 0, 0, 0) - new Date(from).setHours(0, 0, 0, 0)) / DAY)
-const trackOf = (unitId: string) => units.find((u) => u.id === unitId)?.track
-/**
- * The one lesson per track that fades: for HSK the furthest unit you have completed (highest in the ladder),
- * for media the most recently completed one. The rest keep the strength they had when you moved on.
- */
-export function latestIn(track: string | undefined) {
-  let best: string | undefined
-  for (const [id, l] of Object.entries(progress.lessons)) {
-    if (trackOf(id) !== track) continue
-    const ahead = track === 'core' ? units.findIndex((u) => u.id === id) > units.findIndex((u) => u.id === best) : l.t > progress.lessons[best!].t
-    if (!best || ahead) best = id
-  }
-  return best
-}
 
 /**
- * Theme rings fade one whole ring every `daysPerRing` missed days: daily at 0 completions, every 2 days after 1–5,
- * every 5 after 8, never after 10 (the per-completion slowdown, in whole rings). HSK's furthest unit loses a ring per missed day.
+ * Decay is a dice roll: each lesson, each missed day, has a `100 − 10·completions` % chance of losing one ring
+ * (immune after ten completions). The roll is a hash of unit + date, so it's the same on every device and every recomputation.
+ * One rule for all tracks — a batch of lessons done the same day fades gradually, not as a wall.
  */
-export const themeLossRate = (completions: number) => Math.max(0, 100 - 10 * completions) / 100
-/** Missed days until a theme lesson loses a ring; Infinity once it no longer fades. */
-export const daysPerRing = (completions: number) => (themeLossRate(completions) ? Math.ceil(1 / themeLossRate(completions)) : Infinity)
+export const lossChance = (completions: number) => Math.max(0, 100 - 10 * completions)
+const roll = (unitId: string, dayMs: number) => {
+  const key = `${unitId}@${todayKey(new Date(dayMs))}`
+  let x = 0
+  for (let i = 0; i < key.length; i++) x = (x * 31 + key.charCodeAt(i)) >>> 0
+  return x % 100
+}
 
 export function lessonStrength(unitId: string, now = Date.now()) {
   const l = progress.lessons[unitId]
-  const track = trackOf(unitId)
-  if (!l) return { strength: 0, tier: 0, completions: 0, days: track === 'theme' ? daysPerRing(0) : 1, fading: false }
+  if (!l) return { strength: 0, tier: 0, completions: 0, chance: lossChance(0), fading: true }
+  const chance = lossChance(l.n)
   let strength = l.p
-  let fading: boolean
-  let days: number
-  if (track === 'theme') {
-    days = daysPerRing(l.n)
-    fading = days !== Infinity
-    strength = Math.max(0, strength - RING * Math.floor(Math.max(0, calendarDays(l.t, now)) * themeLossRate(l.n)))
-  } else {
-    days = 1
-    fading = latestIn(track) === unitId
-    if (fading) strength = Math.max(0, strength - RING * Math.max(0, calendarDays(l.t, now)))
+  const missed = Math.max(0, calendarDays(l.t, now))
+  for (let d = 1; d <= missed && strength > 0; d++) {
+    if (roll(unitId, l.t + d * DAY) < chance) strength -= RING
   }
-  return { strength, tier: Math.floor(strength / RING), completions: l.n, days, fading }
+  return { strength: Math.max(0, strength), tier: Math.max(0, Math.floor(strength / RING)), completions: l.n, chance, fading: chance > 0 }
 }
 
 export function completeLesson(unitId: string) {
   const now = Date.now()
-  // HSK / media: when a new lesson takes over as the fading one, the previous one freezes at its current strength (themes all keep fading)
-  const track = trackOf(unitId)
-  const prev = track === 'theme' ? undefined : latestIn(track)
-  const takesOver = track === 'core' ? units.findIndex((u) => u.id === unitId) > units.findIndex((u) => u.id === prev) : true
-  if (prev && prev !== unitId && takesOver) progress.lessons[prev] = { ...progress.lessons[prev], p: lessonStrength(prev, now).strength }
   const { strength } = lessonStrength(unitId, now)
   const n = (progress.lessons[unitId]?.n ?? 0) + 1
   progress.lessons[unitId] = { p: strength + RING, n, t: now }

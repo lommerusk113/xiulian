@@ -229,8 +229,7 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           <p class="text-muted mt-2">
             <template v-if="strength.completions === 1">First time through! Repeat tomorrow to keep the ring.</template>
             <template v-else-if="!strength.fading">Done {{ strength.completions }}×. These rings never fade.</template>
-            <template v-else-if="unitObj?.track === 'theme'">Done {{ strength.completions }}×. Loses a ring every {{ strength.days }} missed day{{ strength.days === 1 ? '' : 's' }} — banked for {{ strength.tier * strength.days }} days.</template>
-            <template v-else>Done {{ strength.completions }}×. Loses a ring per missed day until you move on.</template>
+            <template v-else>Done {{ strength.completions }}×. Each missed day: {{ strength.chance }}% chance of losing a ring — {{ 10 - strength.completions }} more completion{{ 10 - strength.completions === 1 ? '' : 's' }} to immunity.</template>
           </p>
         </div>
         <p v-if="mode === 'learn' && nextStage" class="text-sm text-muted -mt-3">
