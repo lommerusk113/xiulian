@@ -247,17 +247,37 @@ export function themeUnitsFor(unitId: string) {
     .filter((x) => x.shared)
     .sort((a, b) => b.shared - a.shared)
 }
-/** Theme lessons that prepare the HSK units still needed for the next unit-counted stage (聚气), least-done first. */
+/** What stands between here and the next unit-counted stage: decayed units to defend, and the theme lessons that prepare the rest. */
 export function pathToNextStage() {
   const n = nextStage.value
-  if (!n || n.metric !== 'completed') return []
+  if (!n || n.metric !== 'completed') return { redos: [], prep: [] }
   const needed = units.filter((u) => u.track === 'core' && u.title.startsWith(`HSK ${n.band} `) && lessonStrength(u.id).strength <= 0).slice(0, Math.max(0, n.target - bandCompleted(n.band)))
-  const wordsNeeded = new Set(needed.flatMap((u) => u.wordIds))
-  return units
+  const redos = needed.filter((u) => progress.lessons[u.id]) // once held, now faded — a defense, not new ground
+  const wordsNeeded = new Set(needed.filter((u) => !progress.lessons[u.id]).flatMap((u) => u.wordIds))
+  const prep = units
     .filter((t) => t.track === 'theme')
     .map((t) => ({ unit: t, shared: t.wordIds.filter((w) => wordsNeeded.has(w)).length, done: lessonStrength(t.id).strength > 0 }))
     .filter((x) => x.shared)
     .sort((a, b) => Number(a.done) - Number(b.done) || b.shared - a.shared)
+  return { redos, prep }
+}
+
+/** Chance of passing a strict unit right now: 2 four-option items per word, pass = at most 3 misses of 20. */
+export function examChance(unitId: string) {
+  const u = units.find((x) => x.id === unitId)
+  if (!u) return 0
+  const now = Date.now()
+  const ps = u.wordIds.flatMap((id) => {
+    const k = progress.cards[id] ? Math.max(0, Math.min(1, recall(id, now))) : 0.15
+    return [k + (1 - k) / 4, k + (1 - k) / 4]
+  })
+  // Poisson-binomial: dp[m] = P(m misses so far)
+  let dp = [1, 0, 0, 0]
+  for (const p of ps) {
+    const q = 1 - p
+    dp = [dp[0] * p, dp[1] * p + dp[0] * q, dp[2] * p + dp[1] * q, dp[3] * p + dp[2] * q]
+  }
+  return dp[0] + dp[1] + dp[2] + dp[3]
 }
 /** Core units that contain any of the given words, for "repeat these" after a failed 天劫. */
 export const unitsWith = (ids: string[]) => units.filter((u) => u.track === 'core' && u.wordIds.some((w) => ids.includes(w)))
@@ -400,7 +420,8 @@ export function lessonStrength(unitId: string, now = Date.now()) {
   const chance = lossChance(l.n)
   let strength = l.p
   const missed = Math.max(0, calendarDays(l.t, now))
-  for (let d = 1; d <= missed && strength > 0; d++) {
+  // the first missed day after a completion is always safe — a rank earned yesterday can't be gone tomorrow
+  for (let d = 2; d <= missed && strength > 0; d++) {
     if (roll(unitId, l.t + d * DAY) < chance) strength -= RING
   }
   return { strength: Math.max(0, strength), tier: Math.max(0, Math.floor(strength / RING)), completions: l.n, chance, fading: chance > 0 }

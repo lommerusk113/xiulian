@@ -1,7 +1,7 @@
 import type { Exercise, ExerciseKind, Word } from './types'
 import { units, sentences, words } from './data'
 import { State } from 'ts-fsrs'
-import { isKnown, dueIds, progress, wordById, todaysChallenge, tribulationWords, trialWords, readableSentences, READ_SIZE } from './store'
+import { isKnown, dueIds, progress, recall, wordById, todaysChallenge, tribulationWords, trialWords, readableSentences, READ_SIZE } from './store'
 import { makeExercise, randomKind, shuffle, sentenceExercise } from './exercises'
 
 const REVIEW_BATCH = 20
@@ -131,7 +131,9 @@ export function buildRead(): Exercise[] {
 export const TRIBULATION_SIZE = 20
 export function buildTribulation(stageIndex: number): Exercise[] {
   const { focus, quiet } = progress.settings
-  const all = tribulationWords(stageIndex)
+  // hard, not hopeless: genuinely forgotten words (recall < 70%) belong to reviews, not the rite
+  const now = Date.now()
+  const all = tribulationWords(stageIndex).filter((w) => !progress.cards[w.id] || recall(w.id, now) >= 0.7)
   const ws = all.length <= TRIBULATION_SIZE ? all : [...all.slice(0, 12), ...shuffle(all.slice(12)).slice(0, TRIBULATION_SIZE - 12)]
   const pool = seenPool(ws)
   return shuffle(ws.map((w) => makeExercise(randomKind(w, focus, { quiet, tier: tierOf(w.id) }), w, pool)))

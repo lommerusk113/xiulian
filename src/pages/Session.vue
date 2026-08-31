@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Exercise } from '../types'
 import { units } from '../data'
-import { grade, dueIds, isKnown, knownCount, matureCount, streak, nextStage, stageValue, stageLabel, STAGES, passTribulation, failTribulation, completeTrial, tick, unitsWith, themeUnitsFor, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
+import { grade, dueIds, isKnown, knownCount, matureCount, streak, nextStage, stageValue, stageLabel, STAGES, pendingStage, pendingBlocked, passTribulation, failTribulation, completeTrial, tick, unitsWith, themeUnitsFor, examChance, progress, completeLesson, lessonStrength, unitLocked, TIER_COLORS, recordChallenge, todaysChallenge } from '../store'
 import { speak } from '../tts'
 import { buildLearn, buildReview, buildChallenge, buildTribulation, buildTrial, buildRead, retry } from '../session'
 import { homophones } from '../exercises'
@@ -44,6 +44,9 @@ const matureBefore = ref(matureCount.value)
 // first attempt at a strict unit: show which theme lessons cover its words before starting
 const prep = computed(() => (strict.value && props.unit ? themeUnitsFor(props.unit) : []))
 const preflight = ref(false)
+const tribPreflight = ref(false)
+const chance = computed(() => (strict.value && props.unit ? Math.round(examChance(props.unit) * 100) : 0))
+const wasHeld = computed(() => strict.value && (progress.lessons[props.unit!]?.n ?? 0) > 0)
 const attempt = ref(1)
 const pinyinFirst = computed(() => progress.settings.focus === 'pinyin')
 const text = (e: Exercise) => (e.sentence ? e.sentence.hanzi : e.word.hanzi)
@@ -71,6 +74,7 @@ function start() {
   lost.value = 0
   missedIds.value = []
   preflight.value = attempt.value === 1 && strict.value && !progress.lessons[props.unit!] && prep.value.some((p) => !p.done)
+  tribPreflight.value = attempt.value === 1 && trib.value
   completed = false
   idx.value = 0
   answered.value = null
@@ -94,8 +98,8 @@ function onAnswer(correct: boolean) {
     grade(e.word.id, correct, trial.value)
   }
   correct ? stats.value.right++ : stats.value.wrong++
-  // a sentence that smuggled in a brand-new word is a guess, and tile-ordering tests word order nobody taught: neither costs a heart
-  if (!correct && lives.value && !e.newWords?.length && e.kind !== 'sentence') lost.value++
+  // sentences test material outside the certified words: they never cost a heart in an exam or rite
+  if (!correct && lives.value && !e.sentence) lost.value++
   if (!correct && !isSentence) missedIds.value.push(e.word.id)
   if (failed.value) {
     if (trib.value) failTribulation(+props.unit!)
@@ -174,7 +178,17 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
       <UBadge v-if="lives && attempt > 1" color="neutral" variant="subtle" size="sm">try {{ attempt }}</UBadge>
     </header>
 
-    <template v-if="preflight">
+    <template v-if="tribPreflight && tribStage">
+      <div class="flex-1 flex flex-col justify-center items-center text-center gap-4">
+        <p class="hanzi text-6xl font-bold text-primary">{{ tribStage.rite }}</p>
+        <h1 class="text-2xl font-bold"><span class="hanzi">{{ tribStage.realm }}{{ tribStage.sub }}</span> {{ tribStage.name }}</h1>
+        <p class="text-muted text-sm max-w-xs">{{ total }} questions from everything in the realm — your most-fragile words first. {{ LIVES }} hearts. Pass and the stage is yours; fail, and a lesson stands between you and the next attempt.</p>
+        <UButton size="xl" block class="max-w-xs" icon="i-lucide-zap" @click="tribPreflight = false">Face it</UButton>
+        <UButton size="lg" block class="max-w-xs" color="neutral" variant="ghost" to="/">Not yet</UButton>
+      </div>
+    </template>
+
+    <template v-else-if="preflight">
       <div class="flex-1 flex flex-col justify-center gap-4">
         <div>
           <p class="text-xs text-muted uppercase tracking-wide">{{ unitTitle }}</p>
@@ -189,6 +203,7 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
           </span>
           <span class="text-xs text-muted shrink-0">{{ p.shared }} shared</span>
         </RouterLink>
+        <p class="text-sm text-muted">Estimated pass chance right now: <b class="text-default">{{ chance }}%</b></p>
         <UButton size="xl" block icon="i-lucide-swords" @click="preflight = false">Start the unit</UButton>
       </div>
     </template>
@@ -197,7 +212,12 @@ const optionsArePinyin = (k: string) => k === 'pinyin' || k === 'meaningPinyin' 
       <div class="flex-1 flex flex-col items-center justify-center text-center gap-6">
         <UIcon :name="mode === 'tribulation' ? 'i-lucide-zap' : 'i-lucide-party-popper'" class="size-16 text-primary" />
         <h1 class="text-3xl font-bold">{{ mode === 'learn' ? (Object.keys(progress.lessons).length === 1 ? '第一课' : 'Unit done') : mode === 'challenge' ? `${stats.right} / ${total}` : mode === 'tribulation' ? `${tribStage?.rite} passed` : mode === 'trial' ? '试炼 done' : mode === 'read' ? 'Read done' : 'Review done' }}</h1>
-        <p v-if="mode === 'learn' && Object.keys(progress.lessons).length === 1" class="text-muted -mt-4">Your first ten words of Mandarin.</p>
+        <p v-if="mode === 'learn' && Object.keys(progress.lessons).length === 1" class="text-muted -mt-4">Your first words of Mandarin.</p>
+        <p v-if="strict" class="text-sm -mt-4"><span class="text-primary font-medium">Cleared with {{ Math.max(0, LIVES - lost) }} heart{{ LIVES - lost === 1 ? '' : 's' }} left.</span><template v-if="wasHeld"> Ring reclaimed — your rank holds.</template></p>
+        <UButton v-if="strict && pendingStage !== undefined" size="xl" block class="max-w-xs" icon="i-lucide-zap" :to="`/session/tribulation/${pendingStage}`">
+          <span class="hanzi">{{ STAGES[pendingStage].rite }}</span> unlocked — face it now
+        </UButton>
+        <p v-else-if="strict && pendingBlocked === 'passed'" class="text-sm text-muted -mt-3">Stage requirement met — the next breakthrough awaits tomorrow.</p>
         <p v-if="streak === 3 || streak === 7" class="text-sm text-primary -mt-4">{{ streak }}-day streak — that's a habit forming.</p>
         <p v-if="mode === 'tribulation' && tribStage" class="text-xl"><span class="hanzi text-primary font-semibold">{{ tribStage.realm }}{{ tribStage.sub }}</span> {{ tribStage.name }} earned</p>
         <p class="text-muted">{{ stats.right }} correct · {{ stats.wrong }} missed</p>

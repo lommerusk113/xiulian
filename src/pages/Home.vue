@@ -30,6 +30,24 @@ const BACKLOG = 40
 const READ_AT: Record<number, string> = { 3: "Readibu's HSK 2 graded stories", 4: "Readibu's HSK 3–4 shelf", 5: 'a real xianxia web novel — with the Sect, Cultivation and Narration decks done' }
 const realmNow = computed(() => STAGES[stage.value].realm)
 const path = computed(() => pathToNextStage())
+// overnight ring losses: compare against the ring counts this device saw last time (a per-device convenience, not synced)
+const lost = (() => {
+  try {
+    const prev = JSON.parse(localStorage.getItem('xiulian.rings') ?? '{}') as Record<string, number>
+    const cur: Record<string, number> = {}
+    const drops: { unit: (typeof units)[number]; from: number; to: number }[] = []
+    for (const id of Object.keys(progress.lessons)) {
+      const u = units.find((x) => x.id === id)
+      if (!u) continue
+      cur[id] = lessonStrength(id).tier
+      if (prev[id] > cur[id]) drops.push({ unit: u, from: prev[id], to: cur[id] })
+    }
+    localStorage.setItem('xiulian.rings', JSON.stringify(cur))
+    return drops.slice(0, 3)
+  } catch {
+    return []
+  }
+})()
 // rings most at risk tonight: highest loss chance first
 const fading = computed(() =>
   Object.keys(progress.lessons)
@@ -113,20 +131,30 @@ const today = computed(() => {
       </div>
     </UCard>
 
-    <UCard v-if="path.length && toNext">
+    <UCard v-if="(path.redos.length || path.prep.length) && toNext">
       <p class="text-xs text-muted uppercase tracking-wide">Path to <span class="hanzi normal-case">{{ toNext.realm }}{{ toNext.sub }}</span> <span class="normal-case">· {{ toNext.name }}</span></p>
-      <p class="text-sm text-muted mt-1 mb-3">These theme lessons teach the words of the HSK units you still need. Do them first, then the units are a formality.</p>
+      <p class="text-sm text-muted mt-1 mb-3"><template v-if="path.redos.length">Faded units first — retake them to defend the stage. </template>These theme lessons teach the words of the units you still need.</p>
       <div class="flex flex-col gap-1.5">
-        <RouterLink v-for="p in path.slice(0, 8)" :key="p.unit.id" :to="`/session/learn/${p.unit.id}`" class="flex items-center gap-3 text-sm rounded-lg px-2 py-1.5" :class="p.done ? 'opacity-60' : 'bg-elevated'">
+        <RouterLink v-for="u in path.redos.slice(0, 4)" :key="u.id" :to="`/session/learn/${u.id}`" class="flex items-center gap-3 text-sm rounded-lg px-2 py-1.5 bg-elevated ring-1 ring-(--accent)/40">
+          <UIcon name="i-lucide-shield" class="size-4 shrink-0 text-(--accent)" />
+          <span class="flex-1 min-w-0 truncate">{{ u.title }}</span>
+          <span class="text-xs text-muted shrink-0">defend · faded</span>
+        </RouterLink>
+        <RouterLink v-for="p in path.prep.slice(0, 8)" :key="p.unit.id" :to="`/session/learn/${p.unit.id}`" class="flex items-center gap-3 text-sm rounded-lg px-2 py-1.5" :class="p.done ? 'opacity-60' : 'bg-elevated'">
           <UIcon :name="p.done ? 'i-lucide-check-circle-2' : 'i-lucide-circle'" class="size-4 shrink-0" :class="p.done ? 'text-success' : 'text-muted'" />
           <span class="flex-1 min-w-0 truncate">{{ p.unit.title }}</span>
           <span class="text-xs text-muted shrink-0">{{ p.shared }} words</span>
         </RouterLink>
       </div>
-      <p v-if="path.length > 8" class="text-xs text-muted mt-2">+{{ path.length - 8 }} more in the Themes tab.</p>
+      <p v-if="path.prep.length > 8" class="text-xs text-muted mt-2">+{{ path.prep.length - 8 }} more in the Themes tab.</p>
     </UCard>
 
     <template v-if="knownCount">
+      <p v-if="lost.length" class="text-sm px-1 -mt-2">
+        <UIcon name="i-lucide-moon" class="size-3.5 text-muted" /> Overnight:
+        <template v-for="(d, i) in lost" :key="d.unit.id"><RouterLink :to="`/session/learn/${d.unit.id}`" class="text-default underline">{{ d.unit.title }}</RouterLink> ×{{ d.from }}→×{{ d.to }}<template v-if="i < lost.length - 1"> · </template></template>
+        — reclaim {{ lost.length === 1 ? 'it' : 'them' }}.
+      </p>
       <p v-if="fading.length" class="text-sm text-muted px-1 -mt-2">
         At risk tonight:
         <template v-for="(f, i) in fading" :key="f.unit.id"><RouterLink :to="`/session/learn/${f.unit.id}`" class="text-default underline">{{ f.unit.title }}</RouterLink> ×{{ f.tier }} ({{ f.chance }}%)<template v-if="i < fading.length - 1"> · </template></template>
